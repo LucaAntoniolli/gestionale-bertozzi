@@ -1,0 +1,199 @@
+<div class="grid">
+    <div class="col-12">
+        <app-titolo-pagina [titoloPagina]="'Gestione utenti'"></app-titolo-pagina>
+
+        <div class="mb-5">
+            <p-toolbar>
+                <div class="p-toolbar-group-center"></div>
+                <div class="p-toolbar-group-end">
+                    <p-button label="Crea nuovo utente" icon="pi pi-plus" (click)="mostraFormCreazioneUtente()" />
+                </div>
+            </p-toolbar>
+        </div>
+
+        <!-- TABELLA UTENTI CLIENTI - DESKTOP-->
+        @if(utenti) {
+        <p-table #dt1 [size]="'small'" [value]="utenti" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
+            styleClass="p-datatable-gridlines" [paginator]="true"
+            [globalFilterFields]="['nominativo', 'cliente', 'email']" responsiveLayout="scroll" sortMode="multiple">
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex">
+                        <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+                            class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
+                    </div>
+                    <div class="flex">
+                        <p-iconfield iconPosition="left" class="ml-auto">
+                            <p-inputicon>
+                                <i class="pi pi-search"></i>
+                            </p-inputicon>
+                            <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Cerca" />
+                        </p-iconfield>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 8rem">
+                        <div class="flex justify-content-between align-items-center">
+                            Azioni
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="nominativo">
+                        <div class="flex justify-content-between align-items-center">
+                            Nominativo
+                            <p-sortIcon field="nominativo" />
+                            <p-columnFilter type="text" field="nominativo" display="menu"
+                                placeholder="Cerca per nominativo"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="email">
+                        <div class="flex justify-content-between align-items-center">
+                            E-mail
+                            <p-sortIcon field="email" />
+                            <p-columnFilter type="text" field="email" display="menu"
+                                placeholder="Cerca per email"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="ruolo">
+                        <div class="flex justify-content-between align-items-center">
+                            Ruolo
+                            <p-sortIcon field="ruoli[0]" />
+                            <p-columnFilter type="text" field="ruoli[0]" display="menu"
+                                placeholder="Cerca per ruolo"></p-columnFilter>
+                        </div>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-utente>
+                <tr>
+                    <td>
+                        <div class="flex gap-2">
+                            <button pButton label="" class="p-button-primary" icon="pi pi-user-edit" (click)="
+                                        mostraFormModificaUtente($event, utente.email, utente.nominativo, utente.ruoli)
+                                    "></button>
+                            <button pButton label="" class="p-button-danger" icon="pi pi-trash" (click)="
+                                        eliminaUtente($event, utente.email)" [disabled]="
+                                disabilitaEliminazioneUtenti"></button>
+
+                        </div>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ utente.nominativo }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ utente.email }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ utente.ruoli?.join(', ') }}</span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="8">Nessun utente presente.</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="loadingbody">
+                <tr>
+                    <td colspan="8">Utenti in caricamento...</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        }
+    </div>
+</div>
+
+<!-- DIALOG CENSIMENTO NUOVO UTENTE -->
+<p-dialog header="Dati nuovo utente" [modal]="true" [(visible)]="showDialogCreazioneUtente"
+    [style]="{ width: '350px', height: '32rem' }">
+    <span class="p-text-secondary block mb-5">Inserisci i dati per creare il nuovo utente.</span>
+    <form [formGroup]="nuovoUtenteForm" *ngIf="nuovoUtenteForm">
+        <div class="p-fluid">
+            <div class="field grid">
+                <label htmlFor="nominativo" class="col-12 mb-2 font-semibold w-6rem">Nominativo</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="nominativo" class="w-full" autocomplete="off"
+                        formControlName="nominativo" />
+                    <small id="nominativo-error" class="p-error"
+                        *ngIf="nuovoUtenteForm.get('nominativo')?.invalid && nuovoUtenteForm.get('nominativo')?.touched">Devi
+                        specificare il nominativo dell'utente
+                    </small>
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="email" class="col-12 mb-2 font-semibold w-6rem">Email</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="email" class="w-full" autocomplete="off"
+                        formControlName="email" />
+                    <small id="email-error" class="p-error"
+                        *ngIf="nuovoUtenteForm.get('email')?.invalid && nuovoUtenteForm.get('email')?.touched">Inserisci
+                        un indirizzo mail valido
+                    </small>
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="password" class="col-12 mb-2 font-semibold w-6rem">Password</label>
+                <div class="col-12">
+                    <p-password id="password" fluid autocomplete="off" formControlName="password"
+                        pTooltip="La password deve essere lunga almeno 12 caratteri e contenere almeno un carattere maiuscolo, un numero e un carattere speciale"
+                        tooltipPosition="bottom" />
+                    <small id="password-error" class="p-error"
+                        *ngIf="nuovoUtenteForm.get('password')?.invalid && nuovoUtenteForm.get('password')?.touched">La
+                        password non soddisfa i requisiti di complessità
+                    </small>
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="naclienteme3" class="col-12 mb-2 font-semibold w-6rem">Ruolo</label>
+                <div class="col-12">
+                    <p-select formControlName="ruolo" [options]="ruoli" optionValue="name" optionLabel="name"
+                        placeholder="Seleziona un ruolo" [showClear]="true" class="w-full" appendTo="body" />
+                </div>
+            </div>
+        </div>
+        <div class="field grid mt-5">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogCreazioneUtente = false" />
+                <p-button label="Crea Utente" icon="pi pi-check" (click)="showDialogCreazioneUtente = false"
+                    (click)="creaUtente()" [disabled]="!nuovoUtenteForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- DIALOG MODIFICA UTENTE -->
+<p-dialog header="Modifca utente" [modal]="true" [(visible)]="showDialogModificaUtente">
+    <form [formGroup]="modificaUtenteForm" *ngIf="modificaUtenteForm">
+        <div class="p-fluid">
+            <div class="field grid">
+                <label htmlFor="nominativo" class="col-12 mb-2 font-semibold w-6rem">Nominativo</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="nominativo" class="flex-auto" autocomplete="off"
+                        formControlName="nominativo" class="w-full" />
+                    <small id="nominativo-error" class="p-error"
+                        *ngIf="modificaUtenteForm.get('nominativo')?.invalid && modificaUtenteForm.get('nominativo')?.touched">Devi
+                        specificare il nominativo dell'utente
+                    </small>
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="naclienteme3" class="col-12 mb-2 font-semibold w-6rem">Ruolo</label>
+                <div class="col-12">
+                    <p-select formControlName="ruolo" [options]="ruoli" optionValue="name" optionLabel="name"
+                        placeholder="Seleziona un ruolo" [showClear]="true" class="w-full" appendTo="body" />
+                </div>
+            </div>
+        </div>
+        <div class="field grid mt-5">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogModificaUtente = false" />
+                <p-button label="Modifica Utente" icon="pi pi-check" (click)="showDialogModificaUtente = false"
+                    (click)="modificaUtente()" [disabled]="!modificaUtenteForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>

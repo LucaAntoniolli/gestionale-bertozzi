@@ -1,0 +1,11 @@
+<ul class="layout-menu">
+    <ng-container *ngIf="!loading">
+        <ng-container *ngFor="let item of model; let i = index;">
+            <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
+            <li *ngIf="item.separator" class="menu-separator"></li>
+        </ng-container>
+    </ng-container>
+    <div *ngIf="loading" class="flex justify-content-center align-items-center p-3">
+        <p-progressSpinner strokeWidth="3" fill="transparent" animationDuration="3s"></p-progressSpinner>
+    </div>
+</ul>

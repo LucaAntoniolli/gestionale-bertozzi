@@ -1,0 +1,32 @@
+<app-modal [titolo]="'Autenticazione fallita'" [descrizione]="'Codice non valido'"></app-modal>
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+  <div class="flex flex-column align-items-center justify-content-center">
+    <app-app-logo [noLink]="true"></app-app-logo>
+    <div style="padding:0.3rem;">
+      <div class="w-full surface-card py-8 px-5 sm:px-8 shadow-2">
+        <div class="text-center mb-5">
+          <div class="text-900 text-3xl font-medium mb-3">Autenticazione a due fattori</div>
+        </div>
+        @if(twoFactorAuthForm) {
+        <form [formGroup]="twoFactorAuthForm">
+          <div>
+            <div class="field p-fluid">
+              <label for="code" class="block text-900 text-xl font-medium mb-2">Inserisci il codice generato dall'app
+                Authenticator</label>
+
+              <input id="code" type="code" placeholder="Codice" pInputText formControlName="code" class="w-full"
+                style="padding: 1rem" #code />
+              <small id="code-error" class="p-error" *ngIf="
+                                    twoFactorAuthForm.get('code')?.invalid &&
+                                    twoFactorAuthForm.get('code')?.touched
+                                ">Inserisci un codice</small>
+            </div>
+            <button pButton pRipple label="Sign In" class="w-full p-3 text-xl mt-5"
+              [disabled]="!twoFactorAuthForm.valid" (click)="login()" [loading]="loading"></button>
+          </div>
+        </form>
+        }
+      </div>
+    </div>
+  </div>
+</div>

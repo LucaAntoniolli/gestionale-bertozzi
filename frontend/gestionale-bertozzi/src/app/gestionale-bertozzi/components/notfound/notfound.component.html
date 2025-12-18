@@ -1,0 +1,21 @@
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <div class="flex flex-column align-items-center justify-content-center">
+        <app-app-logo></app-app-logo>                
+        <div style="padding:0.3rem;">
+            <div class="w-full surface-card py-8 px-5 sm:px-8 shadow-2 flex flex-column align-items-center" style="border: 2px solid var(--primary-color);">
+                <span class="text-blue-500 font-bold text-3xl">404</span>
+                <h1 class="text-900 font-bold text-3xl lg:text-5xl mb-2">Pagina non trovata</h1>
+                <div class="text-600 mb-5">La pagina che stai cercando non è disponibile</div>
+                <a [routerLink]="['/']" class="w-full flex align-items-center py-5 border-300 border-bottom-1">
+                    <span class="flex justify-content-center align-items-center bg-cyan-400 border-round" style="height:3.5rem; width:3.5rem;">
+                        <i class="text-50 pi pi-fw pi-home text-2xl"></i>
+                    </span>
+                    <span class="ml-4 flex flex-column">
+                        <span class="text-900 lg:text-xl font-medium mb-0 block">Torna alla Home</span>
+                        <span class="text-600 lg:text-xl">E se necessario accedi con le tue credenziali</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

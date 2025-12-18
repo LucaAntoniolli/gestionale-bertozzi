@@ -1,0 +1,16 @@
+<div class="layout-topbar">
+    <a class="layout-topbar-logo-container" routerLink="">
+        <img src="images/logo-cliente.svg" style="height: 40px;" alt="logo">
+        <span></span>
+    </a>
+
+    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+    </button>
+
+    <div #topbarmenu class="layout-topbar-actions">
+        <div class="topbar-menu-right-container">
+            <p-splitbutton label="Esci" (onClick)="logout()" [model]="topbarMenuItems" severity="secondary" />
+        </div>
+    </div>
+</div>

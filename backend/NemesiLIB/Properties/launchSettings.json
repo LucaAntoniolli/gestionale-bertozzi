@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "NemesiLIB": {
+      "commandName": "Project"
+    },
+    "Luca": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "luca"
+      },
+      "jsWebView2Debugging": false,
+      "sqlDebugging": false
+    }
+  }
+}

@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+@use './tailwind.css';
+@use './layout/layout.scss';
+
+/* PrimeNG */
+@use "primeflex/primeflex.scss";
+@use "primeicons/primeicons.css";
+
+/* Nemesi */
+@use './framework/styles/nemesi.scss';
+
+/* Compact Theme Override */
+@use '../app/compact-theme.css';

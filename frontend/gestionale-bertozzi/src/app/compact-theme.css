@@ -1,0 +1,95 @@
+/* CSS override per dimensioni font bilanciate - compatte ma leggibili */
+
+/* Font size globale moderatamente ridotto */
+html {
+  font-size: 14px !important; /* Riduce la base da 16px a 14px - più equilibrato */
+}
+
+/* Override specifico per componenti PrimeNG */
+.p-component {
+  font-size: 0.85rem !important;
+}
+
+/* Tabelle compatte ma leggibili */
+.p-datatable .p-datatable-tbody > tr > td {
+  font-size: 0.8rem !important;
+  padding: 0.4rem 0.6rem !important;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  font-size: 0.8rem !important;
+  padding: 0.5rem 0.6rem !important;
+}
+
+/* Bottoni con dimensioni equilibrate */
+.p-button {
+  font-size: 0.85rem !important;
+}
+
+.p-button.p-button-sm {
+  font-size: 0.75rem !important;
+}
+
+/* Input leggibili */
+.p-inputtext,
+.p-textarea,
+.p-select {
+  font-size: 0.85rem !important;
+}
+
+/* Tag ben leggibili */
+.p-tag {
+  font-size: 0.75rem !important;
+  padding: 0.2rem 0.5rem !important;
+}
+
+/* Avatar dimensioni normali */
+.p-avatar {
+  width: 2rem !important;
+  height: 2rem !important;
+  font-size: 0.75rem !important;
+}
+
+/* Progress bar leggermente ridotta */
+.p-progressbar {
+  height: 1rem !important;
+}
+
+/* Toolbar equilibrata */
+.p-toolbar {
+  padding: 0.6rem 1rem !important;
+}
+
+/* Dialog con dimensioni bilanciate */
+.p-dialog .p-dialog-header {
+  font-size: 1rem !important;
+  padding: 0.8rem 1rem !important;
+}
+
+.p-dialog .p-dialog-content {
+  font-size: 0.85rem !important;
+}
+
+/* Form labels leggibili */
+label {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+/* Messaggi di errore chiari */
+.p-error,
+small.p-error {
+  font-size: 0.7rem !important;
+}
+
+/* Select dropdown options */
+.p-select-overlay .p-select-option {
+  font-size: 0.85rem !important;
+  padding: 0.4rem 0.75rem !important;
+}
+
+/* Tooltip leggibili */
+.p-tooltip .p-tooltip-text {
+  font-size: 0.75rem !important;
+  padding: 0.3rem 0.6rem !important;
+}

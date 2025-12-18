@@ -1,0 +1,52 @@
+<app-modal [titolo]="'Autenticazione fallita'" [descrizione]="'Nome utente o password errati, riprova.'"></app-modal>
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <div class="flex flex-column align-items-center justify-content-center">
+        <app-app-logo></app-app-logo>
+        <div style="padding:0.3rem;">
+            <div class="w-full surface-card py-8 px-5 sm:px-8 shadow-2">
+                <div class="text-center mb-5">
+                    <div class="text-900 text-3xl font-medium mb-3">Benvenuto!</div>
+                    <span class="text-600 font-medium">Accedi con le tue credenziali</span>
+                </div>
+                @if(loginForm) {
+                <form [formGroup]="loginForm">
+                    <div>
+                        <div class="field p-fluid">
+                            <label for="email1" class="block text-900 text-xl font-medium mb-2">Email</label>
+
+                            <input id="email1" type="email" placeholder="Email address" pInputText
+                                formControlName="email" class="w-full" style="padding: 1rem" #email />
+                            <small id="password-error" class="p-error" *ngIf="
+                                    loginForm.get('email')?.invalid &&
+                                    loginForm.get('email')?.touched
+                                ">Inserisci un indirizzo mail valido</small>
+                        </div>
+                        <div class="field p-fluid mb-5">
+                            <label for="password" class="block text-900 font-medium text-xl mb-2">Password</label>
+                            <p-password id="password" placeholder="Password" [toggleMask]="true"
+                                formControlName="password" class="w-full" styleClass="w-full" inputStyleClass="w-full"
+                                [inputStyle]="{'padding': '1rem'}" #pass></p-password>
+                            <small id="password-error" class="p-error" *ngIf="
+                                    loginForm.get('password')?.invalid &&
+                                    loginForm.get('password')?.touched
+                                ">Inserisci la tua password</small>
+                        </div>
+                        <div class="flex align-items-center justify-content-between mb-5 gap-5">
+                            <div class="flex align-items-center">
+                                <p-checkbox id="rememberme" [binary]="true" styleClass="mr-2"
+                                    formControlName="rememberme"></p-checkbox>
+                                <label for="rememberme">Ricorda credenziali</label>
+                            </div>
+                            <a class="font-medium no-underline ml-2 text-right cursor-pointer"
+                                style="color: var(--primary-color)" [routerLink]="['/auth/password-lost']">Password
+                                dimenticata?</a>
+                        </div>
+                        <button pButton pRipple label="Accedi" class="w-full p-3 text-xl" [disabled]="!loginForm.valid"
+                            (click)="login(email.value, pass.value!)" [loading]="loading"></button>
+                    </div>
+                </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

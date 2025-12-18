@@ -1,0 +1,159 @@
+<div class="col-12">
+  <app-titolo-pagina [titoloPagina]="'Profilo utente'"></app-titolo-pagina>
+
+  <p-accordion value="0">
+    <p-accordion-panel value="0">
+      <p-accordion-header class="text-xl flex justify-content-start gap-2">
+        <i class="pi pi-user"></i>
+        Dati utente
+      </p-accordion-header>
+      <p-accordion-content>
+        <form [formGroup]="modificaUtenteForm" *ngIf="modificaUtenteForm">
+          <div class="p-fluid">
+            <div class="field grid">
+              <label htmlFor="nominativo" class="col-12 mb-2 font-semibold w-6rem">Nominativo</label>
+              <div class="col-12">
+                <input type="text" pInputText id="nominativo" class="flex-auto" autocomplete="off"
+                  formControlName="nominativo" />
+                @if(modificaUtenteForm.get('nominativo')?.invalid && modificaUtenteForm.get('nominativo')?.touched) {
+                <small id="nominativo-error" class="p-error">Devi
+                  specificare il nominativo dell'utente
+                </small>
+                }
+
+              </div>
+            </div>
+            <div class="field grid">
+              <label htmlFor="email" class="col-12 mb-2 font-semibold w-6rem">Email</label>
+              <div class="col-12">
+                <input type="text" pInputText id="email" class="flex-auto" autocomplete="off" formControlName="email" />
+                @if(modificaUtenteForm.get('email')?.invalid && modificaUtenteForm.get('email')?.touched) {
+                <small id="email-error" class="p-error">Inserisci
+                  un indirizzo mail valido
+                </small>
+                }
+
+              </div>
+            </div>
+            <div class="field grid">
+              <label htmlFor="ruolo" class="col-12 mb-2 font-semibold w-6rem">Ruolo</label>
+              <div class="col-12">
+                <input type="text" pInputText id="ruolo" class="flex-auto" autocomplete="off" formControlName="ruolo" />
+                @if(modificaUtenteForm.get('ruolo')?.invalid && modificaUtenteForm.get('ruolo')?.touched) {
+                <small id="ruolo-error" class="p-error">Inserisci
+                  un profilo valido
+                </small>
+                }
+
+              </div>
+            </div>
+          </div>
+        </form>
+      </p-accordion-content>
+    </p-accordion-panel>
+    @if(!tfaEnabled) {
+    <p-accordion-panel value="1">
+      <p-accordion-header class="text-xl flex justify-content-start gap-2">
+        <i class="pi pi-shield"></i>
+        Attivazione Autenticazione a due fattori
+      </p-accordion-header>
+      <p-accordion-content>
+        <div class="flex flex-wrap gap-2 align-items-center">
+          <p-badge [value]="1" badgeSize="xlarge" severity="success" class="mr-2" />
+          Per attivare l'autenticazione a due
+          fattori,
+          scansiona
+          questo QR code dall'app Google Authenticator
+          <img src="images/google-authenticator-logo.svg" style="height: 30px;" alt="icona-google"> o Microsoft
+          Authenticator
+          <img src="images/icona-microsoft-authenticator.png" style="height: 30px;" alt="icona-microsoft"> del tuo
+          telefono
+        </div>
+        <qrcode [qrdata]="qrInfo" [width]="256" [errorCorrectionLevel]="'M'" *ngIf="qrInfo"></qrcode>
+        <p><p-badge [value]="2" badgeSize="xlarge" severity="success" class="mr-2" />Inserisci ora il codice prodotto
+          dall'app</p>
+        @if(tfaForm) {
+        <form [formGroup]="tfaForm">
+          <div class="flex flex-wrap gap-4">
+            <div class="col-12">
+              <input id="code" type="code" placeholder="Codice authenticator" pInputText formControlName="code"
+                class="w-full" style="padding: 1rem" #email />
+              @if( tfaForm.get('code')?.invalid && tfaForm.get('code')?.touched) {
+              <small id="code-error" class="p-error">Inserisci un codice</small>
+              }
+            </div>
+            <div class="col-12">
+              <button pButton pRipple label="Attiva autenticazione a 2 fattori" class="w-full p-3 text-xl"
+                [disabled]="!tfaForm.valid" (click)="enableTfa()"></button>
+            </div>
+          </div>
+
+        </form>
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+    } @else {
+    <p-accordion-panel value="2">
+      <p-accordion-header class="text-xl">Disattivazione Autenticazione a due fattori</p-accordion-header>
+      <p-accordion-content>
+        <p>L'autenticazione a due fattori è abilitata.</p>
+
+        <p-button label="Submit" pRipple label="Disattiva autenticazione a 2 fattori" class="w-full p-3 text-xl"
+          (click)="disableTfa()" />
+      </p-accordion-content>
+    </p-accordion-panel>
+    }
+    <p-accordion-panel value="3">
+      <p-accordion-header class="text-xl flex justify-content-start gap-2">
+        <i class="pi pi-key"></i>
+        Cambio password</p-accordion-header>
+      <p-accordion-content>
+        <form [formGroup]="cambioPasswordForm" *ngIf="cambioPasswordForm">
+          <div class="p-fluid">
+            <div class="field grid">
+              <label htmlFor="vecchiaPassword" class="col-12 mb-2 font-semibold">Vecchia password</label>
+              <div class="col-12">
+                <input type="password" pInputText id="vecchiaPassword" class="flex-auto w-20rem"
+                  formControlName="vecchiaPassword" placeholder="Inserisci la vecchia password" />
+                @if(cambioPasswordForm.get('vecchiaPassword')?.invalid) {
+                <small id="vecchia-password-error" class="p-error">
+                  Campo obbligatorio
+                </small>
+                }
+              </div>
+            </div>
+            <div class="field grid">
+              <label htmlFor="nuovaPassword" class="col-12 mb-2 font-semibold">Nuova password</label>
+              <div class="col-12">
+                <input type="password" pInputText id="nuovaPassword" class="flex-auto w-20rem"
+                  formControlName="nuovaPassword" placeholder="Inserisci la nuova password" />
+                @if(cambioPasswordForm.get('nuovaPassword')?.invalid) {
+                <small id="nuova-password-error" class="p-error">
+                  Campo obbligatorio
+                </small>
+                }
+              </div>
+            </div>
+            <div class="field grid">
+              <label htmlFor="confermaPassword" class="col-12 mb-2 font-semibold">Conferma password</label>
+              <div class="col-12">
+                <input type="password" pInputText id="confermaPassword" class="flex-auto w-20rem"
+                  formControlName="confermaPassword" placeholder="Conferma la nuova password" />
+                @if(cambioPasswordForm.get('confermaPassword')?.invalid &&
+                cambioPasswordForm.get('confermaPassword')?.touched) {
+                <small id="conferma-password-error" class="p-error">
+                  Le password non coincidono
+                </small>
+                }
+              </div>
+            </div>
+            <div class="field">
+              <button pButton pRipple label="Cambia password" class="w-full p-3 text-xl"
+                [disabled]="!cambioPasswordForm.valid" (click)="cambiaPassword()"></button>
+            </div>
+          </div>
+        </form>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+</div>

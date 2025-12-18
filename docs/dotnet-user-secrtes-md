@@ -1,0 +1,7 @@
+# Istruzioni per Secret Manager .NET
+
+Apro una console nella cartella del progetto dove è presente il file .csproj e eseguo:
+- ```dotnet user-secrets init```
+
+Per aggiungere un segreto (ad esempio la ClientSecret):
+- ```dotnet user-secrets set "MailSettings:ClientSecret" "valore-segreto"```
