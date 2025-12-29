@@ -6,6 +6,9 @@ export class Utente {
     userName?: string;
     email?: string;
     ruoli?: string[];
+    isEsterno: boolean = false;
+    societa?: string;
+    costoOrario?: number;
 
     static map(utente: any): Utente {
         let u = Object.assign(new Utente(), utente) as Utente;

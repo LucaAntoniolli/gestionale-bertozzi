@@ -1,10 +1,8 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { first, map, Observable } from 'rxjs';
-import { Utente } from '../../../../models/utente';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Ruolo } from '../../../../models/ruolo';
 import { Table, TableModule } from 'primeng/table';
 import { DataView, DataViewModule } from 'primeng/dataview';
 import * as FileSaver from 'file-saver';
@@ -18,6 +16,10 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TitoloPaginaComponent } from '../../../shared/components/titolo-pagina/titolo-pagina.component';
 import { PasswordModule } from 'primeng/password';
 import { InputText } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CheckboxModule } from 'primeng/checkbox';
+import { Utente } from '../../../../models/utente';
+import { Ruolo } from '../../../../models/ruolo';
 import { GestioneAccessoService } from '../../../../services/gestione-accesso.service';
 
 @Component({
@@ -38,11 +40,25 @@ import { GestioneAccessoService } from '../../../../services/gestione-accesso.se
     ToolbarModule,
     PasswordModule,
     InputText,
+    InputNumberModule,
+    CheckboxModule,
     IconFieldModule,
     InputIconModule,
   ]
 })
 export class GestioneUtentiComponent implements OnInit {
+
+  // Validatore personalizzato per società obbligatoria quando utente è esterno
+  private societaRequiredWhenEsterno(control: AbstractControl): ValidationErrors | null {
+    const isEsterno = control.get('isEsterno')?.value;
+    const societa = control.get('societa')?.value;
+    
+    if (isEsterno && (!societa || societa.trim() === '')) {
+      return { societaRequiredForEsterno: true };
+    }
+    
+    return null;
+  }
 
   utenti?: Utente[];
   ruoli?: Ruolo[];
@@ -122,6 +138,14 @@ export class GestioneUtentiComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(12), Validators.pattern(/^(?=.*[0-9])(?=.*[a-zA-Z]).{12,}$/)]],
       ruolo: ['', [Validators.required]],
+      isEsterno: [false],
+      societa: [''],
+      costoOrario: [0],
+    }, { validators: this.societaRequiredWhenEsterno });
+
+    // Aggiungo listener per cambiamenti nel campo isEsterno
+    this.nuovoUtenteForm.get('isEsterno')?.valueChanges.subscribe(() => {
+      this.nuovoUtenteForm!.updateValueAndValidity();
     });
 
     this.showDialogCreazioneUtente = true;
@@ -134,16 +158,36 @@ export class GestioneUtentiComponent implements OnInit {
     this.utente.nominativo = nominativo;
     this.utente.ruoli = ruoli || [];
 
+    // Trova l'utente completo per ottenere tutti i dati
+    const utenteCompleto = this.utenti?.find(u => u.email === email);
+
     this.modificaUtenteForm = this.fb.group({
       nominativo: new FormControl({ value: this.utente.nominativo, disabled: false }, Validators.required),
       ruolo: new FormControl({ value: this.utente.ruoli && this.utente.ruoli.length > 0 ? this.utente.ruoli[0] : '', disabled: false }, Validators.required),
+      isEsterno: new FormControl({ value: utenteCompleto?.isEsterno || false, disabled: false }),
+      societa: new FormControl({ value: utenteCompleto?.societa || '', disabled: false }),
+      costoOrario: new FormControl({ value: utenteCompleto?.costoOrario || null, disabled: false }),
+    }, { validators: this.societaRequiredWhenEsterno });
+    
+    // Aggiungo listener per cambiamenti nel campo isEsterno
+    this.modificaUtenteForm.get('isEsterno')?.valueChanges.subscribe(() => {
+      this.modificaUtenteForm!.updateValueAndValidity();
     });
+    
     this.showDialogModificaUtente = true;
   }
 
   creaUtente() {
     let formValue = this.nuovoUtenteForm?.value;
-    this.gas.creaUtente(formValue.nominativo, formValue.email, formValue.password, formValue.ruolo)
+    this.gas.creaUtente(
+      formValue.nominativo, 
+      formValue.email, 
+      formValue.password, 
+      formValue.ruolo,
+      formValue.isEsterno,
+      formValue.societa,
+      formValue.costoOrario
+    )
       .subscribe({
         next: () => {
           this.showDialogCreazioneUtente = false;
@@ -159,7 +203,7 @@ export class GestioneUtentiComponent implements OnInit {
           this.ms.add({
             severity: 'error',
             summary: 'Errore',
-            detail: 'Impossibile creare l\'utente',
+            detail: 'Impossibile creare l\'utente: ' + err.error,
           });
         },
       });
@@ -167,7 +211,14 @@ export class GestioneUtentiComponent implements OnInit {
 
   modificaUtente() {
     let formValue = this.modificaUtenteForm?.value;
-    this.gas.modificaUtente(this.utente!.email!, formValue.nominativo, formValue.ruolo)
+    this.gas.modificaUtente(
+      this.utente!.email!, 
+      formValue.nominativo, 
+      formValue.ruolo,
+      formValue.isEsterno,
+      formValue.societa,
+      formValue.costoOrario ? formValue.costoOrario : 0
+    )
       .subscribe({
         next: () => {
           this.showDialogModificaUtente = false;
@@ -245,6 +296,9 @@ export class GestioneUtentiComponent implements OnInit {
         nominativo: utente.nominativo,
         email: utente.email,
         ruolo: utente.ruoli?.join(', '),
+        isEsterno: utente.isEsterno ? 'S\u00ec' : 'No',
+        societa: utente.societa || '',
+        costoOrario: utente.costoOrario || '',
       }));
 
       if (utentiForExcel) {

@@ -15,7 +15,8 @@
         @if(utenti) {
         <p-table #dt1 [size]="'small'" [value]="utenti" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
             styleClass="p-datatable-gridlines" [paginator]="true"
-            [globalFilterFields]="['nominativo', 'cliente', 'email']" responsiveLayout="scroll" sortMode="multiple">
+            [globalFilterFields]="['nominativo', 'cliente', 'email', 'societa']" responsiveLayout="scroll"
+            sortMode="multiple">
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
                     <div class="flex">
@@ -64,6 +65,26 @@
                                 placeholder="Cerca per ruolo"></p-columnFilter>
                         </div>
                     </th>
+                    <th style="min-width: 8rem" pSortableColumn="isEsterno">
+                        <div class="flex justify-content-between align-items-center">
+                            Esterno
+                            <p-sortIcon field="isEsterno" />
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="societa">
+                        <div class="flex justify-content-between align-items-center">
+                            Società
+                            <p-sortIcon field="societa" />
+                            <p-columnFilter type="text" field="societa" display="menu"
+                                placeholder="Cerca per società"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem" pSortableColumn="costoOrario">
+                        <div class="flex justify-content-between align-items-center">
+                            Costo Orario
+                            <p-sortIcon field="costoOrario" />
+                        </div>
+                    </th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-utente>
@@ -88,16 +109,28 @@
                     <td>
                         <span class="image-text">{{ utente.ruoli?.join(', ') }}</span>
                     </td>
+                    <td>
+                        <span class="image-text">
+                            <i class="pi" [class.pi-check]="utente.isEsterno" [class.pi-times]="!utente.isEsterno"
+                                [class.text-green-500]="utente.isEsterno" [class.text-red-500]="!utente.isEsterno"></i>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ utente.societa || '-' }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ utente.costoOrario ? utente.costoOrario + ' €' : '-' }}</span>
+                    </td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="8">Nessun utente presente.</td>
+                    <td colspan="7">Nessun utente presente.</td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="loadingbody">
                 <tr>
-                    <td colspan="8">Utenti in caricamento...</td>
+                    <td colspan="7">Utenti in caricamento...</td>
                 </tr>
             </ng-template>
         </p-table>
@@ -107,7 +140,7 @@
 
 <!-- DIALOG CENSIMENTO NUOVO UTENTE -->
 <p-dialog header="Dati nuovo utente" [modal]="true" [(visible)]="showDialogCreazioneUtente"
-    [style]="{ width: '350px', height: '32rem' }">
+    [style]="{ width: '450px', height: '40rem' }">
     <span class="p-text-secondary block mb-5">Inserisci i dati per creare il nuovo utente.</span>
     <form [formGroup]="nuovoUtenteForm" *ngIf="nuovoUtenteForm">
         <div class="p-fluid">
@@ -134,7 +167,7 @@
                 </div>
             </div>
             <div class="field grid">
-                <label htmlFor="password" class="col-12 mb-2 font-semibold w-6rem">Password</label>
+                <label htmlFor="password" class="col-12 mb-2 font-semibold w-full">Password</label>
                 <div class="col-12">
                     <p-password id="password" fluid autocomplete="off" formControlName="password"
                         pTooltip="La password deve essere lunga almeno 12 caratteri e contenere almeno un carattere maiuscolo, un numero e un carattere speciale"
@@ -146,10 +179,30 @@
                 </div>
             </div>
             <div class="field grid">
-                <label htmlFor="naclienteme3" class="col-12 mb-2 font-semibold w-6rem">Ruolo</label>
+                <label htmlFor="naclienteme3" class="col-12 mb-2 font-semibold w-full">Ruolo</label>
                 <div class="col-12">
                     <p-select formControlName="ruolo" [options]="ruoli" optionValue="name" optionLabel="name"
                         placeholder="Seleziona un ruolo" [showClear]="true" class="w-full" appendTo="body" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="isEsterno" class="col-12 mb-2 font-semibold w-full">Utente esterno</label>
+                <div class="col-12">
+                    <p-checkbox formControlName="isEsterno" binary="true" label="Utente esterno" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="societa" class="col-12 mb-2 font-semibold w-full">Società</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="societa" class="w-full" autocomplete="off"
+                        formControlName="societa" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="costoOrario" class="col-12 mb-2 font-semibold w-full">Costo Orario (€)</label>
+                <div class="col-12">
+                    <p-inputNumber id="costoOrario" class="w-full" formControlName="costoOrario" mode="currency"
+                        currency="EUR" locale="it-IT" [minFractionDigits]="2" />
                 </div>
             </div>
         </div>
@@ -180,10 +233,30 @@
                 </div>
             </div>
             <div class="field grid">
-                <label htmlFor="naclienteme3" class="col-12 mb-2 font-semibold w-6rem">Ruolo</label>
+                <label htmlFor="ruolo" class="col-12 mb-2 font-semibold w-6rem">Ruolo</label>
                 <div class="col-12">
                     <p-select formControlName="ruolo" [options]="ruoli" optionValue="name" optionLabel="name"
                         placeholder="Seleziona un ruolo" [showClear]="true" class="w-full" appendTo="body" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="isEsterno" class="col-12 mb-2 font-semibold w-full">Utente esterno</label>
+                <div class="col-12">
+                    <p-checkbox formControlName="isEsterno" binary="true" label="Utente esterno" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="societaModifica" class="col-12 mb-2 font-semibold w-full">Società</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="societaModifica" class="w-full" autocomplete="off"
+                        formControlName="societa" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="costoOrarioModifica" class="col-12 mb-2 font-semibold w-full">Costo Orario (€)</label>
+                <div class="col-12">
+                    <p-inputNumber id="costoOrarioModifica" class="w-full" formControlName="costoOrario" mode="currency"
+                        currency="EUR" locale="it-IT" [minFractionDigits]="2" />
                 </div>
             </div>
         </div>
