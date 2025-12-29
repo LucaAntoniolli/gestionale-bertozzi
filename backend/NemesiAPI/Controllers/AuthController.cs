@@ -65,7 +65,7 @@ namespace NemesiAPI.Controllers
         {
             var users = await db.Users
                 .AsNoTracking()
-                .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo })
+                .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo, u.IsEsterno, u.Societa, u.CostoOrario })
                 .ToListAsync();
 
             var userRolePairs = await (from ur in db.UserRoles
@@ -79,8 +79,11 @@ namespace NemesiAPI.Controllers
                 UserName = u.UserName,
                 Email = u.Email,
                 Nominativo = u.Nominativo,
+                IsEsterno = u.IsEsterno,
+                Societa = u.Societa,
+                CostoOrario = u.CostoOrario,
                 Ruoli = userRolePairs.Where(ur => ur.UserId == u.Id).Select(ur => ur.RoleName ?? string.Empty).ToList()
-            }).ToList();
+            });
 
             return Ok(result);
         }
@@ -106,6 +109,9 @@ namespace NemesiAPI.Controllers
                 UserName = user.UserName,
                 Email = user.Email,
                 Nominativo = user.Nominativo,
+                IsEsterno = user.IsEsterno,
+                Societa = user.Societa,
+                CostoOrario = user.CostoOrario,
                 Ruoli = roles.ToList()
             };
 
@@ -138,7 +144,7 @@ namespace NemesiAPI.Controllers
 
         [HttpGet("get-all-roles")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Amministratore")]
         public async Task<IActionResult> GetAllRoles()
         {
             var roles = await roleManager.Roles.ToListAsync();
@@ -147,7 +153,7 @@ namespace NemesiAPI.Controllers
 
         [HttpPost("register")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Amministratore")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var utente = await userManager.FindByEmailAsync(model.Email);
@@ -156,7 +162,7 @@ namespace NemesiAPI.Controllers
                 return BadRequest("L'email è già stata utilizzata");
             }
 
-            var user = new Utente(model.Email, model.Nominativo);
+            var user = new Utente(model.Email, model.Nominativo, model.IsEsterno, model.Societa, model.CostoOrario);
             var result = await userManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded)
@@ -178,7 +184,7 @@ namespace NemesiAPI.Controllers
 
         [HttpPatch("update-user")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Amministratore")]
         public async Task<IActionResult> Update([FromBody] RegisterModel model)
         {
             var utente = await userManager.FindByEmailAsync(model.Email);
@@ -189,6 +195,10 @@ namespace NemesiAPI.Controllers
             }
 
             utente.Nominativo = model.Nominativo;
+            utente.IsEsterno = model.IsEsterno;
+            utente.Societa = model.Societa;
+            utente.CostoOrario = model.CostoOrario;
+
             var result = await userManager.UpdateAsync(utente);
 
             if (!result.Succeeded)
@@ -210,7 +220,7 @@ namespace NemesiAPI.Controllers
 
         [HttpDelete("unregister/{email}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Amministratore")]
         public async Task<IActionResult> Unregister(string email)
         {
             var utente = await userManager.FindByEmailAsync(email);

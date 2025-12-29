@@ -6,6 +6,9 @@
         public string Password { get; set; }
         public string Nominativo { get; set; }
         public string Ruolo { get; set; }
+        public bool IsEsterno { get; set; }
+        public string? Societa { get; set; }
+        public decimal CostoOrario { get; set; }
     }
 
     public class LoginModel
@@ -38,6 +41,9 @@
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? Nominativo { get; set; }
+        public bool IsEsterno { get; set; } 
+        public string? Societa { get; set; }
+        public decimal CostoOrario { get; set; }
         public List<string> Ruoli { get; set; } = new();
     }
 

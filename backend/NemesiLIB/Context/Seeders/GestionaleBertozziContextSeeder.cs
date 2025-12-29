@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NemesiLIB.Model;
+using NemesiLIB.Model.Anagrafiche;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,38 @@ namespace NemesiLIB.Context.Seeders
                 {
                     await this.roleManager.CreateAsync(new IdentityRole(ruolo));
                 }
+            }
+        }
+
+        public async Task SeedTipologieCommesse()
+        {
+            if (!await db.TipologiaCommessa.AnyAsync())
+            {
+                var tipi = new List<TipologiaCommessa>
+                {
+                    new TipologiaCommessa { Descrizione = "Edifici logistici" },
+                    new TipologiaCommessa { Descrizione = "Edifici residenziali" },
+                    new TipologiaCommessa { Descrizione = "Centri commerciali" },
+                    new TipologiaCommessa { Descrizione = "Consulenza" },
+                };
+                db.AddRange(tipi);
+                await db.SaveChangesAsync();
+            }
+        }
+
+        public async Task SeedStatusCommesse()
+        {
+            if (!await db.StatusCommessa.AnyAsync())
+            {
+                var status = new List<StatusCommessa>
+                {
+                    new StatusCommessa { Ordine = 1, Descrizione = "Pianificata" },
+                    new StatusCommessa { Ordine = 2, Descrizione = "In corso" },
+                    new StatusCommessa { Ordine = 3, Descrizione = "Sospesa" },
+                    new StatusCommessa { Ordine = 4, Descrizione = "Completata" },
+                };
+                db.AddRange(status);
+                await db.SaveChangesAsync();
             }
         }
 

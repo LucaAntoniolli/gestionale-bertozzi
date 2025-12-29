@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NemesiLIB.Context;
 
@@ -11,9 +12,11 @@ using NemesiLIB.Context;
 namespace NemesiLIB.Migrations
 {
     [DbContext(typeof(GestionaleBertozziContext))]
-    partial class GestionaleBertozziContextModelSnapshot : ModelSnapshot
+    [Migration("20251229101421_MigrazioniPerAnagrafiche")]
+    partial class MigrazioniPerAnagrafiche
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
