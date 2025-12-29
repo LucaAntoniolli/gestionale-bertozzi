@@ -74,7 +74,16 @@ namespace NemesiLIB.Context.Seeders
             // Mappa dei permessi per ruolo: personalizza secondo le tue esigenze
             var rolePermissions = new Dictionary<string, List<string>>
             {
-                { "Amministratore", new List<string> { "user.read", "user.create", "user.update", "user.delete" } },
+                { "Amministratore", new List<string> { 
+                    "user.read", 
+                    "user.create", 
+                    "user.update", 
+                    "user.delete",
+                    "cliente.read",
+                    "cliente.create",
+                    "cliente.update",
+                    "cliente.delete",
+                } },
                 { "Backoffice", new List<string> {} },
                 { "Utente Base", new List<string> {} }
             };

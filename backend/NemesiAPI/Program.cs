@@ -75,6 +75,9 @@ namespace NemesiAPI
                     await seeder.SeedRuoli();
                     await seeder.SeedRolePermissions();
                     await seeder.SeedFirstUser();
+                    await seeder.SeedTipologieCommesse();
+                    await seeder.SeedStatusCommesse();
+
                     logger.LogInformation("Database seeding completed successfully.");
                 }
                 catch (Exception ex)
