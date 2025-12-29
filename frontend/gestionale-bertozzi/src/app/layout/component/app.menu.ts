@@ -41,7 +41,18 @@ export class AppMenu {
                 {
                     label: 'AMMINISTRAZIONE',
                     items: [
-                        { label: 'Gestione utenti', icon: 'pi pi-fw pi-user', routerLink: ['/framework/admin/gestione-utenti'] }
+                        { label: 'Gestione utenti', icon: 'pi pi-fw pi-user', routerLink: ['/admin/gestione-utenti'] },
+                        {
+                            label: 'Gestione anagrafiche',
+                            icon: 'pi pi-fw pi-database',
+                            items: [
+                                { label: 'Tipologie commessa', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/tipologie-commessa'] },
+                                { label: 'Status commessa', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/status-commessa'] },
+                                { label: 'Modalità pagamento', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/modalita-pagamento'] },
+                                { label: 'Clienti', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/clienti'] },
+                                { label: 'Personale clienti', icon: 'pi pi-fw pi-users', routerLink: ['/anagrafiche/personale-clienti'] },
+                            ]
+                        }
                     ]
                 },
             );

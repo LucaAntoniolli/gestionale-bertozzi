@@ -8,9 +8,9 @@ export const routes: Routes = [
     {
         path: '', component: AppLayout, canActivate: [accessoGuard],
         children: [
-            { path: '', component: HomeComponent },
+            { path: 'home', component: HomeComponent },
             { path: 'user', loadChildren: () => import('./gestionale-bertozzi/user/user.routes') },
-            { path: 'framework', loadChildren: () => import('./gestionale-bertozzi/gestionale-bertozzi.routes') }, 
+            { path: '', loadChildren: () => import('./gestionale-bertozzi/gestionale-bertozzi.routes') }, 
         ]
     },
     { path: 'auth', loadChildren: () => import('./auth/auth.routes') },

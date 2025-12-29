@@ -1,0 +1,147 @@
+<div class="grid">
+  <div class="col-12">
+    <app-titolo-pagina [titoloPagina]="'Gestione Tipologie Commessa'"></app-titolo-pagina>
+
+    <div class="mb-5">
+      <p-toolbar>
+        <div class="p-toolbar-group-center"></div>
+        <div class="p-toolbar-group-end">
+          <p-button label="Crea nuova tipologia" icon="pi pi-plus" (click)="mostraFormCreazioneTipologia()" />
+        </div>
+      </p-toolbar>
+    </div>
+
+    <!-- TABELLA TIPOLOGIE COMMESSA -->
+    @if(tipologie) {
+    <p-table #dt1 [size]="'small'" [value]="tipologie" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
+      styleClass="p-datatable-gridlines" [paginator]="true" [globalFilterFields]="['descrizione']"
+      responsiveLayout="scroll" sortMode="multiple">
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+          <div class="flex">
+            <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+              class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
+          </div>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                placeholder="Cerca" />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 8rem">
+            <div class="flex justify-content-between align-items-center">
+              Azioni
+            </div>
+          </th>
+          <th style="min-width: 4rem" pSortableColumn="id">
+            <div class="flex justify-content-between align-items-center">
+              ID
+              <p-sortIcon field="id" />
+            </div>
+          </th>
+          <th style="min-width: 12rem" pSortableColumn="descrizione">
+            <div class="flex justify-content-between align-items-center">
+              Descrizione
+              <p-sortIcon field="descrizione" />
+              <p-columnFilter type="text" field="descrizione" display="menu"
+                placeholder="Cerca per descrizione"></p-columnFilter>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-tipologia>
+        <tr>
+          <td>
+            <div class="flex gap-2">
+              <button pButton label="" class="p-button-primary" icon="pi pi-pencil"
+                (click)="mostraFormModificaTipologia($event, tipologia)"></button>
+              <button pButton label="" class="p-button-danger" icon="pi pi-trash"
+                (click)="eliminaTipologia($event, tipologia)"></button>
+            </div>
+          </td>
+          <td>
+            <span class="image-text">{{ tipologia.id }}</span>
+          </td>
+          <td>
+            <span class="image-text">{{ tipologia.descrizione }}</span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3">Nessuna tipologia presente.</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="3">Tipologie in caricamento...</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    }
+  </div>
+</div>
+
+<!-- DIALOG CREAZIONE NUOVA TIPOLOGIA -->
+<p-dialog header="Dati nuova tipologia" [modal]="true" [(visible)]="showDialogCreazioneTipologia"
+  [style]="{ width: '400px' }">
+  <span class="p-text-secondary block mb-5">Inserisci i dati per creare la nuova tipologia.</span>
+  <form [formGroup]="nuovaTipologiaForm" *ngIf="nuovaTipologiaForm">
+    <div class="p-fluid">
+      <div class="field grid">
+        <label htmlFor="descrizione" class="col-12 mb-2 font-semibold w-6rem">Descrizione</label>
+        <div class="col-12">
+          <input type="text" pInputText id="descrizione" class="w-full" autocomplete="off"
+            formControlName="descrizione" />
+          <small id="descrizione-error" class="p-error"
+            *ngIf="nuovaTipologiaForm.get('descrizione')?.invalid && nuovaTipologiaForm.get('descrizione')?.touched">
+            Devi specificare una descrizione di almeno 2 caratteri
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="field grid mt-5">
+      <div class="col-12 flex justify-content-end gap-2">
+        <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+          (click)="showDialogCreazioneTipologia = false" />
+        <p-button label="Crea Tipologia" icon="pi pi-check" (click)="creaTipologia()"
+          [disabled]="!nuovaTipologiaForm.valid" />
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- DIALOG MODIFICA TIPOLOGIA -->
+<p-dialog header="Modifica tipologia" [modal]="true" [(visible)]="showDialogModificaTipologia"
+  [style]="{ width: '400px' }">
+  <form [formGroup]="modificaTipologiaForm" *ngIf="modificaTipologiaForm">
+    <div class="p-fluid">
+      <div class="field grid">
+        <label htmlFor="descrizioneModifica" class="col-12 mb-2 font-semibold w-6rem">Descrizione</label>
+        <div class="col-12">
+          <input type="text" pInputText id="descrizioneModifica" class="w-full" autocomplete="off"
+            formControlName="descrizione" />
+          <small id="descrizione-modifica-error" class="p-error"
+            *ngIf="modificaTipologiaForm.get('descrizione')?.invalid && modificaTipologiaForm.get('descrizione')?.touched">
+            Devi specificare una descrizione di almeno 2 caratteri
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="field grid mt-5">
+      <div class="col-12 flex justify-content-end gap-2">
+        <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+          (click)="showDialogModificaTipologia = false" />
+        <p-button label="Modifica Tipologia" icon="pi pi-check" (click)="modificaTipologia()"
+          [disabled]="!modificaTipologiaForm.valid" />
+      </div>
+    </div>
+  </form>
+</p-dialog>
