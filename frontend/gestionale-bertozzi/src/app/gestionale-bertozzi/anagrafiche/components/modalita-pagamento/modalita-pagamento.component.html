@@ -1,0 +1,144 @@
+<div class="grid">
+    <div class="col-12">
+        <app-titolo-pagina [titoloPagina]="'Gestione Modalità di Pagamento'"></app-titolo-pagina>
+
+        <div class="mb-5">
+            <p-toolbar>
+                <div class="p-toolbar-group-center"></div>
+                <div class="p-toolbar-group-end">
+                    <p-button label="Crea nuova modalità" icon="pi pi-plus" (click)="mostraFormCreazioneModalita()" />
+                </div>
+            </p-toolbar>
+        </div>
+
+        <!-- TABELLA MODALITA PAGAMENTO -->
+        @if(modalitaList && modalitaList.length > 0) {
+        <p-table #dt1 [size]="'small'" [value]="modalitaList" dataKey="id" [rows]="10" [loading]="loading"
+            [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true"
+            [globalFilterFields]="['descrizione']" responsiveLayout="scroll" sortMode="multiple">
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex">
+                        <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+                            class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
+                    </div>
+                    <div class="flex">
+                        <p-iconfield iconPosition="left" class="ml-auto">
+                            <p-inputicon>
+                                <i class="pi pi-search"></i>
+                            </p-inputicon>
+                            <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Cerca" />
+                        </p-iconfield>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 8rem">
+                        <div class="flex justify-content-between align-items-center">
+                            Azioni
+                        </div>
+                    </th>
+                    <th pSortableColumn="id">
+                        <div class="flex justify-content-between align-items-center">
+                            ID
+                            <p-sortIcon field="id" />
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="descrizione">
+                        <div class="flex justify-content-between align-items-center">
+                            Descrizione
+                            <p-sortIcon field="descrizione" />
+                            <p-columnFilter type="text" field="descrizione" display="menu"
+                                placeholder="Cerca per descrizione"></p-columnFilter>
+                        </div>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-modalita>
+                <tr>
+                    <td>
+                        <div class="flex gap-2">
+                            <button pButton label="" class="p-button-primary" icon="pi pi-pencil"
+                                (click)="mostraFormModificaModalita($event, modalita)"></button>
+                            <button pButton label="" class="p-button-danger" icon="pi pi-trash"
+                                (click)="eliminaModalita($event, modalita)"></button>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ modalita.id }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ modalita.descrizione }}</span>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="loadingbody">
+                <tr>
+                    <td colspan="3">Modalità in caricamento...</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        } @else if(!loading) {
+        <p-message severity="info"
+            text="Nessuna modalità di pagamento presente. Clicca su 'Crea nuova modalità' per iniziare." />
+        }
+    </div>
+</div>
+
+<!-- DIALOG CREAZIONE NUOVA MODALITA -->
+<p-dialog header="Aggiungi modalità pagamento" [modal]="true" [(visible)]="showDialogCreazioneModalita"
+    [style]="{ width: '400px' }">
+    <form [formGroup]="nuovaModalitaForm" *ngIf="nuovaModalitaForm">
+        <div class="p-fluid">
+            <div class="field grid">
+                <label htmlFor="descrizione" class="col-12 mb-2 font-semibold w-6rem">Descrizione</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="descrizione" class="w-full" autocomplete="off"
+                        formControlName="descrizione" />
+                    <small id="descrizione-error" class="p-error" *ngIf="nuovaModalitaForm.get('descrizione')?.invalid">
+                        Campo obbligatorio
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="field grid mt-5">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogCreazioneModalita = false" />
+                <p-button label="Crea Modalità" icon="pi pi-check" (click)="creaModalita()"
+                    [disabled]="!nuovaModalitaForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- DIALOG MODIFICA MODALITA -->
+<p-dialog header="Modifica modalità di pagamento" [modal]="true" [(visible)]="showDialogModificaModalita"
+    [style]="{ width: '400px' }">
+    <form [formGroup]="modificaModalitaForm" *ngIf="modificaModalitaForm">
+        <div class="p-fluid">
+            <div class="field grid">
+                <label htmlFor="descrizioneModifica" class="col-12 mb-2 font-semibold w-6rem">Descrizione</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="descrizioneModifica" class="w-full" autocomplete="off"
+                        formControlName="descrizione" />
+                    <small id="descrizione-modifica-error" class="p-error"
+                        *ngIf="modificaModalitaForm.get('descrizione')?.invalid">
+                        Campo obbligatorio
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="field grid mt-5">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogModificaModalita = false" />
+                <p-button label="Modifica Modalità" icon="pi pi-check" (click)="modificaModalita()"
+                    [disabled]="!modificaModalitaForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>

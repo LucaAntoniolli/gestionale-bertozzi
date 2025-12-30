@@ -3,12 +3,11 @@
 .layout-sidebar {
     position: fixed;
     width: 20rem;
-    height: calc(100vh - 8rem);
+    height: 100dvh;
     z-index: 999;
     overflow-y: auto;
     user-select: none;
-    top: 6rem;
-    left: 0.5rem;
+    top: 5rem;
     transition:
         transform var(--layout-section-transition-duration),
         left var(--layout-section-transition-duration);

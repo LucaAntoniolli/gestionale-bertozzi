@@ -14,8 +14,8 @@ export class ClienteService {
 
   constructor(private httpClient: HttpClient) { }
 
-  getAll(): Observable<Cliente[]> {
-    return this.httpClient.get<any[]>(this.baseUrl)
+  getAll(includePersonale: boolean = false): Observable<Cliente[]> {
+    return this.httpClient.get<any[]>(this.baseUrl + `?includePersonale=${includePersonale}`)
       .pipe(map(data => Cliente.mapArray(data)));
   }
 
@@ -29,9 +29,8 @@ export class ClienteService {
       .pipe(map(data => Cliente.map(data)));
   }
 
-  update(id: number, cliente: Cliente): Observable<Cliente> {
-    return this.httpClient.put<any>(`${this.baseUrl}/${id}`, cliente)
-      .pipe(map(data => Cliente.map(data)));
+  update(id: number, cliente: Cliente): Observable<any> {
+    return this.httpClient.put<any>(`${this.baseUrl}/${id}`, cliente);
   }
 
   delete(id: number): Observable<void> {

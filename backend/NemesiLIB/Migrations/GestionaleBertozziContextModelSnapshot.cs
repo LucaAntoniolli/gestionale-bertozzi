@@ -164,22 +164,18 @@ namespace NemesiLIB.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CAP")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CodiceFiscale")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("CodiceInterno")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Comune")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -188,24 +184,20 @@ namespace NemesiLIB.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Indirizzo")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int>("ModalitaPagamentoId")
+                    b.Property<int?>("ModalitaPagamentoId")
                         .HasColumnType("int");
 
                     b.Property<string>("Nazione")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PartitaIva")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Provincia")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
@@ -501,11 +493,11 @@ namespace NemesiLIB.Migrations
 
             modelBuilder.Entity("NemesiLIB.Model.Anagrafiche.Cliente", b =>
                 {
-                    b.HasOne("NemesiLIB.Model.Anagrafiche.ModalitaPagamento", null)
+                    b.HasOne("NemesiLIB.Model.Anagrafiche.ModalitaPagamento", "ModalitaPagamento")
                         .WithMany()
-                        .HasForeignKey("ModalitaPagamentoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ModalitaPagamentoId");
+
+                    b.Navigation("ModalitaPagamento");
                 });
 
             modelBuilder.Entity("NemesiLIB.Model.Anagrafiche.PersonaleCliente", b =>

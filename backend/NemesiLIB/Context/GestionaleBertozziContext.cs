@@ -94,7 +94,7 @@ namespace NemesiLIB.Context
                 e.Property(c => c.Email).HasMaxLength(100);
                 e.Property(c => c.Sdi).HasMaxLength(7);
                 e.Property(c => c.Tipo).IsRequired().HasMaxLength(50);
-                e.HasOne<ModalitaPagamento>().WithMany().HasForeignKey(c => c.ModalitaPagamentoId);
+                e.HasOne(c => c.ModalitaPagamento).WithMany().HasForeignKey(c => c.ModalitaPagamentoId).IsRequired(false);
             });
 
             //Personale Cliente

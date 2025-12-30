@@ -14,6 +14,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TitoloPaginaComponent } from '../../../shared/components/titolo-pagina/titolo-pagina.component';
 import { InputText } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { TipologiaCommessa } from '../../../../models/Anagrafiche/tipologia-commessa';
 import { TipologiaCommessaService } from '../../../../services/Anagrafiche/tipologia-commessa.service';
 
@@ -35,6 +36,7 @@ import { TipologiaCommessaService } from '../../../../services/Anagrafiche/tipol
     InputText,
     IconFieldModule,
     InputIconModule,
+    MessageModule,
   ]
 })
 export class TipologieCommessaComponent implements OnInit {
@@ -74,9 +76,8 @@ export class TipologieCommessaComponent implements OnInit {
       .subscribe({
         next: (tip: TipologiaCommessa[]) => {
           this.loading = false;
-          this.tipologie = tip;          
+          this.tipologie = tip;
           this.cdr.detectChanges();
-          console.log("Tipologie caricate:", this.tipologie);
         },
         error: (err: any) => {
           if (err.status == 404) {
@@ -95,7 +96,7 @@ export class TipologieCommessaComponent implements OnInit {
 
   mostraFormCreazioneTipologia() {
     this.nuovaTipologiaForm = this.fb.group({
-      descrizione: ['', [Validators.required, Validators.minLength(2)]],
+      descrizione: ['', [Validators.required]],
     });
 
     this.showDialogCreazioneTipologia = true;
@@ -105,7 +106,7 @@ export class TipologieCommessaComponent implements OnInit {
     this.tipologia = tipologia;
 
     this.modificaTipologiaForm = this.fb.group({
-      descrizione: [tipologia.descrizione, [Validators.required, Validators.minLength(2)]],
+      descrizione: [tipologia.descrizione, [Validators.required]],
     });
     this.showDialogModificaTipologia = true;
   }

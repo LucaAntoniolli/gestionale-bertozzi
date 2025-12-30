@@ -52,11 +52,11 @@ export class GestioneUtentiComponent implements OnInit {
   private societaRequiredWhenEsterno(control: AbstractControl): ValidationErrors | null {
     const isEsterno = control.get('isEsterno')?.value;
     const societa = control.get('societa')?.value;
-    
+
     if (isEsterno && (!societa || societa.trim() === '')) {
       return { societaRequiredForEsterno: true };
     }
-    
+
     return null;
   }
 
@@ -99,9 +99,8 @@ export class GestioneUtentiComponent implements OnInit {
       .subscribe({
         next: (ut) => {
           this.loading = false;
-          this.utenti = ut;          
+          this.utenti = ut;
           this.cdr.detectChanges();
-          console.log("Utenti caricati:", this.utenti);
 
           if (this.utenti?.length == 1) {
             this.disabilitaEliminazioneUtenti = true;
@@ -168,21 +167,21 @@ export class GestioneUtentiComponent implements OnInit {
       societa: new FormControl({ value: utenteCompleto?.societa || '', disabled: false }),
       costoOrario: new FormControl({ value: utenteCompleto?.costoOrario || null, disabled: false }),
     }, { validators: this.societaRequiredWhenEsterno });
-    
+
     // Aggiungo listener per cambiamenti nel campo isEsterno
     this.modificaUtenteForm.get('isEsterno')?.valueChanges.subscribe(() => {
       this.modificaUtenteForm!.updateValueAndValidity();
     });
-    
+
     this.showDialogModificaUtente = true;
   }
 
   creaUtente() {
     let formValue = this.nuovoUtenteForm?.value;
     this.gas.creaUtente(
-      formValue.nominativo, 
-      formValue.email, 
-      formValue.password, 
+      formValue.nominativo,
+      formValue.email,
+      formValue.password,
       formValue.ruolo,
       formValue.isEsterno,
       formValue.societa,
@@ -212,8 +211,8 @@ export class GestioneUtentiComponent implements OnInit {
   modificaUtente() {
     let formValue = this.modificaUtenteForm?.value;
     this.gas.modificaUtente(
-      this.utente!.email!, 
-      formValue.nominativo, 
+      this.utente!.email!,
+      formValue.nominativo,
       formValue.ruolo,
       formValue.isEsterno,
       formValue.societa,

@@ -1,0 +1,414 @@
+<div class="grid">
+    <div class="col-12">
+        <app-titolo-pagina [titoloPagina]="'Gestione Clienti e Personale'"></app-titolo-pagina>
+
+        <div class="mb-5">
+            <p-toolbar>
+                <div class="p-toolbar-group-center"></div>
+                <div class="p-toolbar-group-end">
+                    <p-button label="Crea nuovo cliente" icon="pi pi-plus" (click)="mostraFormCreazioneCliente()" />
+                </div>
+            </p-toolbar>
+        </div>
+
+        <!-- TABLE CLIENTI E PERSONALE -->
+        @if(clienti && clienti.length > 0) {
+        <p-table [value]="clienti" [loading]="loading" dataKey="id" [expandedRowKeys]="expandedRowKeys"
+            [scrollable]="true" scrollHeight="600px" [size]="'small'" styleClass="p-datatable-gridlines"
+            [globalFilterFields]="['ragioneSociale', 'codiceInterno', 'partitaIva', 'codiceFiscale']" #dt1>
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex">
+                        <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+                            class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
+                    </div>
+                    <div class="flex">
+                        <p-iconfield iconPosition="left" class="ml-auto">
+                            <p-inputicon>
+                                <i class="pi pi-search"></i>
+                            </p-inputicon>
+                            <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Cerca" />
+                        </p-iconfield>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template #header>
+                <tr>
+                    <th style="width: 3rem"></th>
+                    <th>Ragione Sociale</th>
+                    <th>Codice</th>
+                    <th>P.IVA</th>
+                    <th>Email</th>
+                    <th>Telefono</th>
+                    <th style="width: 12rem">Azioni</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-cliente let-expanded="expanded">
+                <tr>
+                    <td>
+                        <button type="button" pButton pRipple [pRowToggler]="cliente"
+                            class="p-button-text p-button-rounded p-button-plain"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                            [disabled]="!cliente.personale || cliente.personale.length === 0"></button>
+                    </td>
+                    <td><strong>{{ cliente.ragioneSociale }}</strong></td>
+                    <td>{{ cliente.codiceInterno }}</td>
+                    <td>{{ cliente.partitaIva }}</td>
+                    <td>{{ cliente.email }}</td>
+                    <td>{{ cliente.telefono }}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button pButton icon="pi pi-user-plus" class="p-button-success p-button-sm"
+                                pTooltip="Aggiungi personale" tooltipPosition="top"
+                                (click)="mostraFormCreazionePersonale(cliente)"></button>
+                            <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm"
+                                pTooltip="Modifica cliente" tooltipPosition="top"
+                                (click)="mostraFormModificaCliente(cliente)"></button>
+                            <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm"
+                                pTooltip="Elimina cliente" tooltipPosition="top"
+                                (click)="eliminaCliente($event, cliente)"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template #expandedrow let-cliente>
+                <tr>
+                    <td colspan="7">
+                        <div class="p-3">
+                            <h5 class="mb-3">Personale di {{ cliente.ragioneSociale }}</h5>
+                            @if(cliente.personale && cliente.personale.length > 0) {
+                            <p-table [value]="cliente.personale" [scrollable]="true">
+                                <ng-template pTemplate="header" dataKey="id">
+                <tr>
+                    <th>Nome</th>
+                    <th>Cognome</th>
+                    <th>Mansione</th>
+                    <th>Email</th>
+                    <th>Telefono</th>
+                    <th style="width: 10rem">Azioni</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-personale>
+                <tr>
+                    <td>{{ personale.nome }}</td>
+                    <td>{{ personale.cognome }}</td>
+                    <td>{{ personale.mansione }}</td>
+                    <td>{{ personale.email }}</td>
+                    <td>{{ personale.telefono }}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm"
+                                pTooltip="Modifica personale" tooltipPosition="top"
+                                (click)="mostraFormModificaPersonale(personale)"></button>
+                            <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm"
+                                pTooltip="Elimina personale" tooltipPosition="top"
+                                (click)="eliminaPersonale($event, personale)"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        } @else {
+        <p class="text-color-secondary">Nessun personale presente</p>
+        }
+    </div>
+    </td>
+    </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="7">Nessun cliente presente.</td>
+        </tr>
+    </ng-template>
+    </p-table>
+    } @else if(!loading) {
+    <p-message severity="info" text="Nessun cliente presente. Clicca su 'Crea nuovo cliente' per iniziare." />
+    }
+</div>
+</div>
+
+<!-- DIALOG CREAZIONE NUOVO CLIENTE -->
+<p-dialog header="Dati nuovo cliente" [modal]="true" [(visible)]="showDialogCreazioneCliente"
+    [style]="{width: '50dvw', height: '60dvh'}" [closable]="true" [draggable]="false" [resizable]="false">
+    <span class="p-text-secondary block mb-5">Inserisci i dati per creare il nuovo cliente.</span>
+    <form [formGroup]="nuovoClienteForm" *ngIf="nuovoClienteForm">
+        <div class="grid">
+            <div class="col-12 md:col-4">
+                <label htmlFor="ragioneSociale" class="font-semibold block mb-2">Ragione Sociale *</label>
+                <input type="text" pInputText id="ragioneSociale" formControlName="ragioneSociale" class="w-full" />
+                <small class="p-error block mt-1" *ngIf="nuovoClienteForm.get('ragioneSociale')?.invalid">
+                    <span *ngIf="nuovoClienteForm.get('ragioneSociale')?.errors?.['required']">Campo obbligatorio</span>
+                    <span *ngIf="nuovoClienteForm.get('ragioneSociale')?.errors?.['minlength']">Minimo 10
+                        caratteri</span>
+                </small>
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="codiceInterno" class="font-semibold block mb-2">Codice Interno</label>
+                <input type="text" pInputText id="codiceInterno" formControlName="codiceInterno" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="modalitaPagamento" class="font-semibold block mb-2">Modalità di Pagamento</label>
+                <p-select [options]="modalitaPagamento" optionLabel="descrizione" optionValue="id"
+                    placeholder="Seleziona modalità di pagamento" formControlName="modalitaPagamentoId"
+                    styleClass="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="partitaIva" class="font-semibold block mb-2">Partita IVA *</label>
+                <input type="text" pInputText id="partitaIva" formControlName="partitaIva" class="w-full" />
+                <small class="p-error block mt-1" *ngIf="nuovoClienteForm.get('partitaIva')?.invalid">
+                    <span *ngIf="nuovoClienteForm.get('partitaIva')?.errors?.['required']">Campo obbligatorio</span>
+                    <span
+                        *ngIf="nuovoClienteForm.get('partitaIva')?.errors?.['minlength'] || nuovoClienteForm.get('partitaIva')?.errors?.['maxlength']">Deve
+                        essere di 11 caratteri</span>
+                </small>
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="codiceFiscale" class="font-semibold block mb-2">Codice Fiscale</label>
+                <input type="text" pInputText id="codiceFiscale" formControlName="codiceFiscale" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="tipo" class="font-semibold block mb-2">Tipo</label>
+                <p-select [options]="tipoCliente" placeholder="Seleziona tipologia cliente" formControlName="tipo"
+                    styleClass="w-full" />
+                <small class="p-error block mt-1" *ngIf="nuovoClienteForm.get('partitaIva')?.invalid">
+                    <span *ngIf="nuovoClienteForm.get('tipo')?.errors?.['required']">Campo obbligatorio</span>
+                </small>
+            </div>
+            <div class="col-12 md:col-6">
+                <label htmlFor="indirizzo" class="font-semibold block mb-2">Indirizzo</label>
+                <input type="text" pInputText id="indirizzo" formControlName="indirizzo" class="w-full" />
+            </div>
+            <div class="col-12 md:col-6">
+                <label htmlFor="comune" class="font-semibold block mb-2">Comune</label>
+                <input type="text" pInputText id="comune" formControlName="comune" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="cap" class="font-semibold block mb-2">CAP</label>
+                <input type="text" pInputText id="cap" formControlName="cap" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="provincia" class="font-semibold block mb-2">Provincia</label>
+                <input type="text" pInputText id="provincia" formControlName="provincia" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="nazione" class="font-semibold block mb-2">Nazione</label>
+                <input type="text" pInputText id="nazione" formControlName="nazione" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="sdi" class="font-semibold block mb-2">SDI</label>
+                <input type="text" pInputText id="sdi" formControlName="sdi" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="email" class="font-semibold block mb-2">Email</label>
+                <input type="email" pInputText id="email" formControlName="email" class="w-full" />
+                <small class="p-error block mt-1" *ngIf="nuovoClienteForm.get('email')?.invalid">
+                    Email non valida
+                </small>
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="telefono" class="font-semibold block mb-2">Telefono</label>
+                <input type="text" pInputText id="telefono" formControlName="telefono" class="w-full" />
+            </div>
+        </div>
+        <div class="grid mt-4">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogCreazioneCliente = false" />
+                <p-button label="Crea Cliente" icon="pi pi-check" (click)="creaCliente()"
+                    [disabled]="!nuovoClienteForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- DIALOG MODIFICA CLIENTE -->
+<p-dialog header="Modifica cliente" [modal]="true" [(visible)]="showDialogModificaCliente"
+    [style]="{width: '50dvw', height: '60dvh'}" [closable]="true" [draggable]="false" [resizable]="false">
+    <form [formGroup]="modificaClienteForm" *ngIf="modificaClienteForm">
+        <div class="grid">
+            <div class="col-12 md:col-4">
+                <label htmlFor="ragioneSocialeModifica" class="font-semibold block mb-2">Ragione Sociale *</label>
+                <input type="text" pInputText id="ragioneSocialeModifica" formControlName="ragioneSociale"
+                    class="w-full" />
+                <small class="p-error block mt-1"
+                    *ngIf="modificaClienteForm.get('ragioneSociale')?.invalid && modificaClienteForm.get('ragioneSociale')?.touched">
+                    <span *ngIf="modificaClienteForm.get('ragioneSociale')?.errors?.['required']">Campo
+                        obbligatorio</span>
+                    <span *ngIf="modificaClienteForm.get('ragioneSociale')?.errors?.['minlength']">Minimo 2
+                        caratteri</span>
+                </small>
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="codiceInternoModifica" class="font-semibold block mb-2">Codice Interno</label>
+                <input type="text" pInputText id="codiceInternoModifica" formControlName="codiceInterno"
+                    class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="modalitaPagamentoModifica" class="font-semibold block mb-2">Modalità di
+                    Pagamento</label>
+                <p-select [options]="modalitaPagamento" optionLabel="descrizione" optionValue="id"
+                    placeholder="Seleziona modalità di pagamento" formControlName="modalitaPagamentoId"
+                    styleClass="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+                <label htmlFor="partitaIvaModifica" class="font-semibold block mb-2">Partita IVA</label>
+                <input type="text" pInputText id="partitaIvaModifica" formControlName="partitaIva" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="codiceFiscaleModifica" class="font-semibold block mb-2">Codice Fiscale</label>
+                <input type="text" pInputText id="codiceFiscaleModifica" formControlName="codiceFiscale"
+                    class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="tipoModifica" class="font-semibold block mb-2">Tipo</label>
+                <p-select [options]="tipoCliente" placeholder="Seleziona tipologia cliente" formControlName="tipo"
+                    styleClass="w-full" />
+            </div>
+            <div class="col-12 md:col-6">
+                <label htmlFor="indirizzoModifica" class="font-semibold block mb-2">Indirizzo</label>
+                <input type="text" pInputText id="indirizzoModifica" formControlName="indirizzo" class="w-full" />
+            </div>
+            <div class="col-12 md:col-6">
+                <label htmlFor="comuneModifica" class="font-semibold block mb-2">Comune</label>
+                <input type="text" pInputText id="comuneModifica" formControlName="comune" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="capModifica" class="font-semibold block mb-2">CAP</label>
+                <input type="text" pInputText id="capModifica" formControlName="cap" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="provinciaModifica" class="font-semibold block mb-2">Provincia</label>
+                <input type="text" pInputText id="provinciaModifica" formControlName="provincia" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="nazioneModifica" class="font-semibold block mb-2">Nazione</label>
+                <input type="text" pInputText id="nazioneModifica" formControlName="nazione" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="sdiModifica" class="font-semibold block mb-2">SDI</label>
+                <input type="text" pInputText id="sdiModifica" formControlName="sdi" class="w-full" />
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="emailModifica" class="font-semibold block mb-2">Email</label>
+                <input type="email" pInputText id="emailModifica" formControlName="email" class="w-full" />
+                <small class="p-error block mt-1"
+                    *ngIf="modificaClienteForm.get('email')?.invalid && modificaClienteForm.get('email')?.touched">
+                    Email non valida
+                </small>
+            </div>
+            <div class="col-12 md:col-4">
+                <label htmlFor="telefonoModifica" class="font-semibold block mb-2">Telefono</label>
+                <input type="text" pInputText id="telefonoModifica" formControlName="telefono" class="w-full" />
+            </div>
+        </div>
+        <div class="grid mt-4">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogModificaCliente = false" />
+                <p-button label="Modifica Cliente" icon="pi pi-check" (click)="modificaCliente()"
+                    [disabled]="!modificaClienteForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- DIALOG CREAZIONE NUOVO PERSONALE -->
+<p-dialog header="Aggiungi personale" [modal]="true" [(visible)]="showDialogCreazionePersonale"
+    [style]="{ width: '500px' }">
+    <span class="p-text-secondary block mb-5">Inserisci i dati del nuovo membro del personale.</span>
+    <form [formGroup]="nuovoPersonaleForm" *ngIf="nuovoPersonaleForm">
+        <div class="grid">
+            <div class="col-12">
+                <label htmlFor="nome" class="font-semibold block mb-2">Nome *</label>
+                <input type="text" pInputText id="nome" formControlName="nome" class="w-full" />
+                <small class="p-error block mt-1" *ngIf="nuovoPersonaleForm.get('nome')?.invalid">
+                    <span *ngIf="nuovoPersonaleForm.get('nome')?.errors?.['required']">Campo obbligatorio</span>
+                    <span *ngIf="nuovoPersonaleForm.get('nome')?.errors?.['minlength']">Minimo 2 caratteri</span>
+                </small>
+            </div>
+            <div class="col-12">
+                <label htmlFor="cognome" class="font-semibold block mb-2">Cognome *</label>
+                <input type="text" pInputText id="cognome" formControlName="cognome" class="w-full" />
+                <small class="p-error block mt-1" *ngIf="nuovoPersonaleForm.get('cognome')?.invalid">
+                    <span *ngIf="nuovoPersonaleForm.get('cognome')?.errors?.['required']">Campo obbligatorio</span>
+                    <span *ngIf="nuovoPersonaleForm.get('cognome')?.errors?.['minlength']">Minimo 2 caratteri</span>
+                </small>
+            </div>
+            <div class="col-12">
+                <label htmlFor="mansione" class="font-semibold block mb-2">Mansione</label>
+                <input type="text" pInputText id="mansione" formControlName="mansione" class="w-full" />
+            </div>
+            <div class="col-12">
+                <label htmlFor="emailPersonale" class="font-semibold block mb-2">Email</label>
+                <input type="email" pInputText id="emailPersonale" formControlName="email" class="w-full" />
+                <small class="p-error block mt-1" *ngIf="nuovoPersonaleForm.get('email')?.invalid">
+                    Email non valida
+                </small>
+            </div>
+            <div class="col-12">
+                <label htmlFor="telefonoPersonale" class="font-semibold block mb-2">Telefono</label>
+                <input type="text" pInputText id="telefonoPersonale" formControlName="telefono" class="w-full" />
+            </div>
+        </div>
+        <div class="grid mt-4">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogCreazionePersonale = false" />
+                <p-button label="Crea Personale" icon="pi pi-check" (click)="creaPersonale()"
+                    [disabled]="!nuovoPersonaleForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- DIALOG MODIFICA PERSONALE -->
+<p-dialog header="Modifica personale" [modal]="true" [(visible)]="showDialogModificaPersonale"
+    [style]="{ width: '500px' }">
+    <form [formGroup]="modificaPersonaleForm" *ngIf="modificaPersonaleForm">
+        <div class="grid">
+            <div class="col-12">
+                <label htmlFor="nomeModifica" class="font-semibold block mb-2">Nome *</label>
+                <input type="text" pInputText id="nomeModifica" formControlName="nome" class="w-full" />
+                <small class="p-error block mt-1"
+                    *ngIf="modificaPersonaleForm.get('nome')?.invalid && modificaPersonaleForm.get('nome')?.touched">
+                    Campo obbligatorio (min 2 caratteri)
+                </small>
+            </div>
+            <div class="col-12">
+                <label htmlFor="cognomeModifica" class="font-semibold block mb-2">Cognome *</label>
+                <input type="text" pInputText id="cognomeModifica" formControlName="cognome" class="w-full" />
+                <small class="p-error block mt-1"
+                    *ngIf="modificaPersonaleForm.get('cognome')?.invalid && modificaPersonaleForm.get('cognome')?.touched">
+                    Campo obbligatorio (min 2 caratteri)
+                </small>
+            </div>
+            <div class="col-12">
+                <label htmlFor="mansioneModifica" class="font-semibold block mb-2">Mansione</label>
+                <input type="text" pInputText id="mansioneModifica" formControlName="mansione" class="w-full" />
+            </div>
+            <div class="col-12">
+                <label htmlFor="emailPersonaleModifica" class="font-semibold block mb-2">Email</label>
+                <input type="email" pInputText id="emailPersonaleModifica" formControlName="email" class="w-full" />
+                <small class="p-error block mt-1"
+                    *ngIf="modificaPersonaleForm.get('email')?.invalid && modificaPersonaleForm.get('email')?.touched">
+                    Email non valida
+                </small>
+            </div>
+            <div class="col-12">
+                <label htmlFor="telefonoPersonaleModifica" class="font-semibold block mb-2">Telefono</label>
+                <input type="text" pInputText id="telefonoPersonaleModifica" formControlName="telefono"
+                    class="w-full" />
+            </div>
+        </div>
+        <div class="grid mt-4">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogModificaPersonale = false" />
+                <p-button label="Modifica Personale" icon="pi pi-check" (click)="modificaPersonale()"
+                    [disabled]="!modificaPersonaleForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>

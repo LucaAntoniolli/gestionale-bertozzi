@@ -21,7 +21,7 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css'],
   imports: [
-    
+
     CommonModule,
     ReactiveFormsModule,
 
@@ -47,7 +47,7 @@ export class UserProfileComponent implements OnInit {
   role: string = "";
   modificaUtenteForm?: FormGroup;
   tfaForm?: FormGroup;
-  cambioPasswordForm?: FormGroup; 
+  cambioPasswordForm?: FormGroup;
 
   isLoading: boolean = true;
   tfaEnabled: boolean = false;
@@ -57,7 +57,7 @@ export class UserProfileComponent implements OnInit {
   tfaSetupResponse?: TfaSetup;
 
   ngOnInit(): void {
-    
+
     this.auth.getUser().pipe(first()).subscribe(
       user => {
         this.user = user;
@@ -70,14 +70,14 @@ export class UserProfileComponent implements OnInit {
           this.createForms();
           this.cdr.detectChanges();
         });
-    });
+      });
   }
 
-  createForms(){
+  createForms() {
     this.modificaUtenteForm = this.fb.group({
-      nominativo: new FormControl({value: this.user.nominativo, disabled: true}, Validators.required),
-      email: new FormControl({value: this.user.email, disabled: true}, Validators.required),
-      ruolo: new FormControl({value: this.role, disabled: true}, Validators.required),
+      nominativo: new FormControl({ value: this.user.nominativo, disabled: true }, Validators.required),
+      email: new FormControl({ value: this.user.email, disabled: true }, Validators.required),
+      ruolo: new FormControl({ value: this.role, disabled: true }, Validators.required),
     });
 
     this.tfaForm = this.fb.group({
@@ -91,27 +91,26 @@ export class UserProfileComponent implements OnInit {
     }, { validators: this.passwordMatchValidator });
   }
 
-  disableTfa(){
+  disableTfa() {
     let email = this.user.email ?? '';
     this.auth.disableTfa(email)
       .subscribe({
         next: (res: any) => {
           this.tfaEnabled = false;
-          this.ms.add({severity: 'success', summary: 'Successo', detail: '2FA disattivata con successo'});
+          this.ms.add({ severity: 'success', summary: 'Successo', detail: '2FA disattivata con successo' });
         },
         error: (err: HttpErrorResponse) => {
-          this.ms.add({severity: 'error', summary: 'Errore', detail: 'Errore durante la disattivazione del 2FA: ' + err.message});
+          this.ms.add({ severity: 'error', summary: 'Errore', detail: 'Errore durante la disattivazione del 2FA: ' + err.message });
         }
       })
   }
 
-  enableTfa(){
+  enableTfa() {
     const tfaSetupDto: TfaSetup = {
       isTfaEnabled: true,
       email: this.user.email ?? '',
       code: this.tfaForm?.get('code')?.value
     }
-    console.log("Chiamo il metodo enableTfa con questo parametro", tfaSetupDto);
     this.auth.postTfaSetup(tfaSetupDto)
       .subscribe({
         next: (res: any) => {
@@ -128,12 +127,12 @@ export class UserProfileComponent implements OnInit {
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('nuovaPassword')?.value;
     const confirmPassword = form.get('confermaPassword')?.value;
-    
+
     if (password !== confirmPassword) {
       form.get('confermaPassword')?.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     }
-    
+
     form.get('confermaPassword')?.setErrors(null);
     return null;
   }
@@ -146,7 +145,8 @@ export class UserProfileComponent implements OnInit {
       this.auth.changePassword(vecchiaPassword, nuovaPassword).pipe(first()).subscribe({
         next: () => {
           this.ms.add({ severity: 'success', summary: 'Successo', detail: 'Password cambiata con successo' });
-          this.cambioPasswordForm?.reset();},
+          this.cambioPasswordForm?.reset();
+        },
         error: (err: HttpErrorResponse) => {
           this.ms.add({ severity: 'error', summary: 'Errore', detail: 'Errore durante il cambio password: ' + err.message });
         }

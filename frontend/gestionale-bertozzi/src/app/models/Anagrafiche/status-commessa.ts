@@ -1,5 +1,6 @@
 export class StatusCommessa {
-    id?: number;
+    id: number = 0;
+    ordine: number = 1;
     descrizione: string = '';
 
     static map(tipologia: any): StatusCommessa {

@@ -10,7 +10,7 @@ export class NavigatorService {
     private router: Router,
   ) { }
 
-  userProfile(){
+  userProfile() {
     this.router.navigate(['/', 'user', 'user-profile']);
   }
 
@@ -19,18 +19,24 @@ export class NavigatorService {
   }
 
   gestioneUtenti() {
-    this.router.navigate(['/framework/admin/gestione-utenti']);
+    this.router.navigate(['/admin/gestione-utenti']);
   }
 
-  gestioneAttivita() {
-    this.router.navigate(['/framework/attivita/gestione-attivita']);
+  gestioneTipologieCommessa() {
+    this.router.navigate(['/anagrafiche/tipologie-commessa']);
   }
 
-  dettaglioAttivita(id: number) {
-    this.router.navigate([`/framework/attivita/dettaglio-attivita/${id}`]);
+  gestioneStatusCommessa() {
+    this.router.navigate(['/anagrafiche/status-commessa']);
   }
 
-  dashboardAttivita() {
-    this.router.navigate(['/framework/dashboards/dashboard-attivita']);
+  gestioneModalitaPagamento() {
+    this.router.navigate(['/anagrafiche/modalita-pagamento']);
   }
+
+  gestioneClienti() {
+    this.router.navigate(['/anagrafiche/gestione-clienti']);
+  }
+
+
 }

@@ -24,12 +24,12 @@ export class AppMenu {
     ngOnInit() {
         this.loading = true;
         this.auth.getRoles().pipe(first()).subscribe({
-             next: (ruoli) => { 
-                this.ruoloUtente = ruoli[0]; 
-                this.createMenuForUser(); 
-                this.loading = false; 
-                this.cdr.detectChanges(); 
-            } 
+            next: (ruoli) => {
+                this.ruoloUtente = ruoli[0];
+                this.createMenuForUser();
+                this.loading = false;
+                this.cdr.detectChanges();
+            }
         });
     }
 
@@ -49,8 +49,7 @@ export class AppMenu {
                                 { label: 'Tipologie commessa', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/tipologie-commessa'] },
                                 { label: 'Status commessa', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/status-commessa'] },
                                 { label: 'Modalità pagamento', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/modalita-pagamento'] },
-                                { label: 'Clienti', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/clienti'] },
-                                { label: 'Personale clienti', icon: 'pi pi-fw pi-users', routerLink: ['/anagrafiche/personale-clienti'] },
+                                { label: 'Clienti', icon: 'pi pi-fw pi-users', routerLink: ['/anagrafiche/gestione-clienti'] },
                             ]
                         }
                     ]

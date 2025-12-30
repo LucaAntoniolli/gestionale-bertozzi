@@ -87,17 +87,17 @@ namespace NemesiLIB.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RagioneSociale = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    CodiceInterno = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    PartitaIva = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CodiceFiscale = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Indirizzo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Comune = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CAP = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Provincia = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Nazione = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CodiceInterno = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    PartitaIva = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    CodiceFiscale = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Indirizzo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Comune = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CAP = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Provincia = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Nazione = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Telefono = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ModalitaPagamentoId = table.Column<int>(type: "int", nullable: false),
+                    ModalitaPagamentoId = table.Column<int>(type: "int", nullable: true),
                     Sdi = table.Column<string>(type: "nvarchar(7)", maxLength: 7, nullable: true),
                     Tipo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
@@ -108,8 +108,7 @@ namespace NemesiLIB.Migrations
                         name: "FK_Cliente_ModalitaPagamento_ModalitaPagamentoId",
                         column: x => x.ModalitaPagamentoId,
                         principalTable: "ModalitaPagamento",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

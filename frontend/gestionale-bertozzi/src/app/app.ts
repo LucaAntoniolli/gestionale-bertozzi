@@ -29,9 +29,9 @@ export class App implements OnInit {
   constructor(
     private updateService: UpdateService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService, 
-  ) {}
-  
+    private confirmationService: ConfirmationService,
+  ) { }
+
 
   ngOnInit(): void {
     if (!isDevMode()) {
@@ -56,7 +56,7 @@ export class App implements OnInit {
           detail: 'Un errore critico è stato rilevato. L\'applicazione verrà ricaricata.',
           life: 5000
         });
-        
+
         setTimeout(() => {
           window.location.reload();
         }, 2000);

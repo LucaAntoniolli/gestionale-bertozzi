@@ -1,17 +1,16 @@
 <div class="surface-section p-4 nemesi-app-container">
-    <div class="col-12">
-        <app-titolo-pagina [titoloPagina]="'Gestionale Bertozzi Ingegneria'"></app-titolo-pagina>
+    <div class="col-12 flex justify-content-end mb-4">
+        <img src="images/logo-cliente.svg" style="height: 40px;" alt="logo">
     </div>
 
-    <!-- Griglia di navigazione principale -->
-    <div class="grid mt-4">
-        <div class="col-12 lg:col-4 md:col-6" *ngIf="isAdmin">
+    <div class="grid">
+        <div class="col-12 md:col-6 lg:col-3">
             <p-card class="h-full">
-                <div class="text-center p-4">
+                <div class="text-center p-2">
                     <i class="pi pi-users text-6xl text-primary mb-3"></i>
                     <h3 class="text-xl font-semibold mb-3 text-900">Gestione Utenti</h3>
-                    <p class="text-600 mb-4 line-height-3">
-                        Gestisci utenti, ruoli e permessi del sistema
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci gli utenti abilitati ad accedere
                     </p>
                     <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
                         (onClick)="navigateToGestioneUtenti()">
@@ -20,31 +19,60 @@
             </p-card>
         </div>
 
-        <div class="col-12 lg:col-4 md:col-6">
+        <div class="col-12 md:col-6 lg:col-3">
             <p-card class="h-full">
-                <div class="text-center p-4">
+                <div class="text-center p-2">
                     <i class="pi pi-calendar text-6xl text-primary mb-3"></i>
-                    <h3 class="text-xl font-semibold mb-3 text-900">Gestione Attività</h3>
-                    <p class="text-600 mb-4 line-height-3">
-                        Crea, modifica e monitora le attività del team
+                    <h3 class="text-xl font-semibold mb-3 text-900">Tipologie commessa</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci l'anagrafica delle tipologie di commessa
                     </p>
                     <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
-                        (onClick)="navigateToGestioneAttivita()">
+                        (onClick)="navigateToGestioneTipologieCommessa()">
                     </p-button>
                 </div>
             </p-card>
         </div>
 
-        <div class="col-12 lg:col-4 md:col-12">
+        <div class="col-12 md:col-6 lg:col-3">
             <p-card class="h-full">
-                <div class="text-center p-4">
+                <div class="text-center p-2">
                     <i class="pi pi-chart-line text-6xl text-primary mb-3"></i>
-                    <h3 class="text-xl font-semibold mb-3 text-900">Dashboard Attività</h3>
-                    <p class="text-600 mb-4 line-height-3">
-                        Visualizza statistiche e report delle attività
+                    <h3 class="text-xl font-semibold mb-3 text-900">Status commessa</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci l'anagrafica degli status delle commesse
                     </p>
                     <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
-                        (onClick)="navigateToDashboardAttivita()">
+                        (onClick)="navigateToGestioneStatusCommessa()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+
+        <div class="col-12 md:col-6 lg:col-3">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-money-bill text-6xl text-primary mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-900">Modalità pagamento</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci l'anagrafica delle modalità di pagamento
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToGestioneModalitaPagamento()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-6 lg:col-3">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-users text-6xl text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Gestione clienti</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci i clienti e il mansionario del personale associato
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToGestioneClienti()">
                     </p-button>
                 </div>
             </p-card>

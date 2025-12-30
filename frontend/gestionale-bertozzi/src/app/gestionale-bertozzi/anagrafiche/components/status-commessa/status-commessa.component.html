@@ -1,0 +1,170 @@
+<div class="grid">
+    <div class="col-12">
+        <app-titolo-pagina [titoloPagina]="'Gestione Status Commessa'"></app-titolo-pagina>
+
+        <div class="mb-5">
+            <p-toolbar>
+                <div class="p-toolbar-group-center"></div>
+                <div class="p-toolbar-group-end">
+                    <p-button label="Crea nuovo status" icon="pi pi-plus" (click)="mostraFormCreazioneStatus()" />
+                </div>
+            </p-toolbar>
+        </div>
+
+        <!-- TABELLA STATUS COMMESSA -->
+        @if(statusList && statusList.length > 0) {
+        <p-table #dt1 [size]="'small'" [value]="statusList" dataKey="id" [rows]="10" [loading]="loading"
+            [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true"
+            [globalFilterFields]="['descrizione']" responsiveLayout="scroll" sortMode="multiple">
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex">
+                        <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+                            class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
+                    </div>
+                    <div class="flex">
+                        <p-iconfield iconPosition="left" class="ml-auto">
+                            <p-inputicon>
+                                <i class="pi pi-search"></i>
+                            </p-inputicon>
+                            <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Cerca" />
+                        </p-iconfield>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 8rem">
+                        <div class="flex justify-content-between align-items-center">
+                            Azioni
+                        </div>
+                    </th>
+                    <th pSortableColumn="id">
+                        <div class="flex justify-content-between align-items-center">
+                            ID
+                            <p-sortIcon field="id" />
+                        </div>
+                    </th>
+                    <th pSortableColumn="ordine">
+                        <div class="flex justify-content-between align-items-center">
+                            Ordine
+                            <p-sortIcon field="ordine" />
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="descrizione">
+                        <div class="flex justify-content-between align-items-center">
+                            Descrizione
+                            <p-sortIcon field="descrizione" />
+                            <p-columnFilter type="text" field="descrizione" display="menu"
+                                placeholder="Cerca per descrizione"></p-columnFilter>
+                        </div>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-status>
+                <tr>
+                    <td>
+                        <div class="flex gap-2">
+                            <button pButton label="" class="p-button-primary" icon="pi pi-pencil"
+                                (click)="mostraFormModificaStatus($event, status)"></button>
+                            <button pButton label="" class="p-button-danger" icon="pi pi-trash"
+                                (click)="eliminaStatus($event, status)"></button>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ status.id }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ status.ordine }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ status.descrizione }}</span>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="loadingbody">
+                <tr>
+                    <td colspan="4">Status in caricamento...</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        } @else if(!loading) {
+        <p-message severity="info"
+            text="Nessuno status commessa presente. Clicca su 'Crea nuovo status' per iniziare." />
+        }
+    </div>
+</div>
+
+<!-- DIALOG CREAZIONE NUOVO STATUS -->
+<p-dialog header="Dati nuovo status" [modal]="true" [(visible)]="showDialogCreazioneStatus"
+    [style]="{ width: '400px' }">
+    <form [formGroup]="nuovoStatusForm" *ngIf="nuovoStatusForm">
+        <div class="p-fluid">
+            <div class="field grid">
+                <label htmlFor="descrizione" class="col-12 mb-2 font-semibold w-6rem">Descrizione</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="descrizione" class="w-full" autocomplete="off"
+                        formControlName="descrizione" />
+                    <small id="descrizione-error" class="p-error" *ngIf="nuovoStatusForm.get('descrizione')?.invalid">
+                        Campo obbligatorio
+                    </small>
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="ordine" class="col-12 mb-2 font-semibold w-6rem">Ordine</label>
+                <div class="col-12">
+                    <p-inputnumber inputId="ordine" formControlName="ordine" class="w-full" />
+                    <small id="ordine-error" class="p-error" *ngIf="nuovoStatusForm.get('ordine')?.invalid">
+                        Campo obbligatorio
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="field grid mt-5">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogCreazioneStatus = false" />
+                <p-button label="Crea Status" icon="pi pi-check" (click)="creaStatus()"
+                    [disabled]="!nuovoStatusForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- DIALOG MODIFICA STATUS -->
+<p-dialog header="Modifica status" [modal]="true" [(visible)]="showDialogModificaStatus" [style]="{ width: '400px' }">
+    <form [formGroup]="modificaStatusForm" *ngIf="modificaStatusForm">
+        <div class="p-fluid">
+            <div class="field grid">
+                <label htmlFor="descrizioneModifica" class="col-12 mb-2 font-semibold w-6rem">Descrizione</label>
+                <div class="col-12">
+                    <input type="text" pInputText id="descrizioneModifica" class="w-full" autocomplete="off"
+                        formControlName="descrizione" />
+                    <small id="descrizione-modifica-error" class="p-error"
+                        *ngIf="modificaStatusForm.get('descrizione')?.invalid">
+                        Campo obbligatorio
+                    </small>
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="ordineModifica" class="col-12 mb-2 font-semibold w-6rem">Ordine</label>
+                <div class="col-12">
+                    <p-inputnumber inputId="ordineModifica" formControlName="ordine" class="w-full" />
+                    <small id="ordine-modifica-error" class="p-error" *ngIf="modificaStatusForm.get('ordine')?.invalid">
+                        Campo obbligatorio
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="field grid mt-5">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogModificaStatus = false" />
+                <p-button label="Modifica Status" icon="pi pi-check" (click)="modificaStatus()"
+                    [disabled]="!modificaStatusForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>
