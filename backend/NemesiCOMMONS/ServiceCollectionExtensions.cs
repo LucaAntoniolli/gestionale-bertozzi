@@ -25,7 +25,7 @@ namespace NemesiCOMMONS
             log4NetOptions.Log4NetConfigFileName = $@"log4net.config";
             loggerFactory.AddLog4Net(log4NetOptions);
 
-            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType).Info($"registrazione dei servizi [DI] comuni");
+            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType).Info($"registrazione dei servizi comuni");
 
             //Email
             services.Configure<MailSettings365>(setting =>

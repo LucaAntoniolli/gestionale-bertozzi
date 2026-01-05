@@ -16,7 +16,7 @@ namespace NemesiAPI
 
         public static IServiceCollection RegisterSecurityServices(this IServiceCollection services)
         {
-            log.Info($"registrazione dei servizi [DI] di sicurezza");
+            log.Info($"registrazione dei servizi di sicurezza");
 
             var provider = services.BuildServiceProvider();
 
