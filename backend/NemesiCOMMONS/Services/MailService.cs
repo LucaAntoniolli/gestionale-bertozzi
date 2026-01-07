@@ -173,7 +173,8 @@ namespace NemesiCOMMONS.Services
                 }
                 else
                 {
-                    return new MailSendResult(true, "Failed to send email. Status code: " + response.StatusCode);
+                    log.Error($"Errore nell'invio mail:" + response.StatusCode);
+                    return new MailSendResult(false, "Failed to send email. Status code: " + response.StatusCode);
                 }
             }
             catch (Exception ex)
