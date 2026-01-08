@@ -36,21 +36,22 @@
             <ng-template #header>
                 <tr>
                     <th style="width: 3rem"></th>
-                    <th>Ragione Sociale</th>
-                    <th>Codice</th>
-                    <th>P.IVA</th>
-                    <th>Email</th>
-                    <th>Telefono</th>
+                    <th pSortableColumn="ragioneSociale">Ragione Sociale <p-sortIcon field="ragioneSociale" /></th>
+                    <th pSortableColumn="codiceInterno">Codice <p-sortIcon field="codiceInterno" /></th>
+                    <th pSortableColumn="partitaIva">P.IVA <p-sortIcon field="partitaIva" /></th>
+                    <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+                    <th pSortableColumn="telefono">Telefono <p-sortIcon field="telefono" /></th>
                     <th style="width: 12rem">Azioni</th>
                 </tr>
             </ng-template>
             <ng-template #body let-cliente let-expanded="expanded">
                 <tr>
                     <td>
+
                         <button type="button" pButton pRipple [pRowToggler]="cliente"
                             class="p-button-text p-button-rounded p-button-plain"
                             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                            [disabled]="!cliente.personale || cliente.personale.length === 0"></button>
+                            *ngIf="cliente.personale && cliente.personale.length > 0"></button>
                     </td>
                     <td><strong>{{ cliente.ragioneSociale }}</strong></td>
                     <td>{{ cliente.codiceInterno }}</td>
@@ -81,11 +82,11 @@
                             <p-table [value]="cliente.personale" [scrollable]="true">
                                 <ng-template pTemplate="header" dataKey="id">
                 <tr>
-                    <th>Nome</th>
-                    <th>Cognome</th>
-                    <th>Mansione</th>
-                    <th>Email</th>
-                    <th>Telefono</th>
+                    <th pSortableColumn="nome">Nome <p-sortIcon field="nome" /></th>
+                    <th pSortableColumn="cognome">Cognome <p-sortIcon field="cognome" /></th>
+                    <th pSortableColumn="mansione">Mansione <p-sortIcon field="mansione" /></th>
+                    <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+                    <th pSortableColumn="telefono">Telefono <p-sortIcon field="telefono" /></th>
                     <th style="width: 10rem">Azioni</th>
                 </tr>
             </ng-template>
