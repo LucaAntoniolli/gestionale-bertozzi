@@ -12,6 +12,7 @@ export default [
             { path : '',  component: HomeComponent },
             { path: 'admin', loadChildren: () => import('./admin/admin.routes'), canActivate: [accessoGuard, AdminGuard] },
             { path: 'anagrafiche', loadChildren: () => import('./anagrafiche/anagrafiche.routes'), canActivate: [accessoGuard, AdminGuard] },
+            { path: 'gestione-commesse', loadChildren: () => import('./gestione-commesse/gestione-commesse.routes'), canActivate: [accessoGuard, AdminGuard] },
             { path: 'app-info', component: AppInfoComponent, canActivate: [accessoGuard] },
         ],
     },

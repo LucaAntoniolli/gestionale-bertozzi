@@ -1,0 +1,272 @@
+<div class="grid">
+  <div class="col-12">
+    <app-titolo-pagina [titoloPagina]="'Template Piani di Sviluppo'"></app-titolo-pagina>
+
+    <div class="mb-3">
+      <label htmlFor="tipologiaCommessa" class="font-semibold block mb-2">Seleziona Tipologia Commessa</label>
+      <p-select [options]="tipologieCommessa" [(ngModel)]="selectedTipologiaCommessa" optionLabel="descrizione"
+        placeholder="Seleziona una tipologia" (onChange)="onTipologiaChange()" [style]="{'width': '100%'}" />
+    </div>
+
+    @if(selectedTipologiaCommessa) {
+    <div class="mb-5">
+      <p-toolbar>
+        <div class="p-toolbar-group-center"></div>
+        <div class="p-toolbar-group-end">
+          <p-button label="Crea nuovo piano di sviluppo" icon="pi pi-plus" (click)="mostraFormCreazionePiano()" />
+        </div>
+      </p-toolbar>
+    </div>
+
+    <!-- TABLE PIANI DI SVILUPPO E ATTIVITA -->
+    @if(pianiSviluppo && pianiSviluppo.length > 0) {
+    <p-table [value]="pianiSviluppo" [loading]="loading" dataKey="id" [expandedRowKeys]="expandedRowKeys"
+      [scrollable]="true" scrollHeight="600px" [size]="'small'" styleClass="p-datatable-gridlines"
+      [globalFilterFields]="['descrizione']" #dt1>
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+          <div class="flex">
+            <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+              class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
+          </div>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                placeholder="Cerca" />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th style="width: 3rem"></th>
+          <th pSortableColumn="ordine">Ordine <p-sortIcon field="ordine" /></th>
+          <th pSortableColumn="descrizione">Descrizione Piano <p-sortIcon field="descrizione" /></th>
+          <th>N. Attività</th>
+          <th style="width: 12rem">Azioni</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-piano let-expanded="expanded" let-ri="rowIndex">
+        <tr>
+          <td>
+            <button type="button" pButton pRipple [pRowToggler]="piano"
+              class="p-button-text p-button-rounded p-button-plain"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              *ngIf="piano.attivita && piano.attivita.length > 0"></button>
+          </td>
+          <td>{{ piano.ordine }}</td>
+          <td><strong>{{ piano.descrizione }}</strong></td>
+          <td>{{ piano.attivita?.length || 0 }}</td>
+          <td>
+            <div class="flex gap-2">
+              <button pButton icon="pi pi-plus" class="p-button-success p-button-sm" pTooltip="Aggiungi attività"
+                tooltipPosition="top" (click)="mostraFormCreazioneAttivita(piano)"></button>
+              <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
+                tooltipPosition="top" (click)="mostraFormModificaPiano(piano)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina piano"
+                tooltipPosition="top" (click)="eliminaPiano($event, piano)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #expandedrow let-piano>
+        <tr>
+          <td colspan="5">
+            <div class="p-3">
+              <p class="mb-3 text-lg">Attività</p>
+              @if(piano.attivita && piano.attivita.length > 0) {
+              <p-table [value]="piano.attivita" [scrollable]="true">
+                <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="ordine">Ordine <p-sortIcon field="ordine" /></th>
+          <th pSortableColumn="descrizione">Descrizione <p-sortIcon field="descrizione" /></th>
+          <th pSortableColumn="tipoInfoDaRegistrare">Tipo Info da Registrare <p-sortIcon field="tipoInfoDaRegistrare" />
+          </th>
+          <th style="width: 10rem">Azioni</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-attivita>
+        <tr>
+          <td>{{ attivita.ordine }}</td>
+          <td>{{ attivita.descrizione }}</td>
+          <td>{{ attivita.tipoInfoDaRegistrare }}</td>
+          <td>
+            <div class="flex gap-2">
+              <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
+                tooltipPosition="top" (click)="mostraFormModificaAttivita(attivita)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina attività"
+                tooltipPosition="top" (click)="eliminaAttivita($event, attivita)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else {
+    <p class="text-color-secondary">Nessuna attività presente</p>
+    }
+  </div>
+  </td>
+  </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="5">Nessun piano di sviluppo presente.</td>
+    </tr>
+  </ng-template>
+  </p-table>
+  } @else if(!loading) {
+  <p-message severity="info"
+    text="Nessun piano di sviluppo presente. Clicca su 'Crea nuovo piano di sviluppo' per iniziare." />
+  }
+  }
+</div>
+</div>
+
+<!-- DIALOG CREAZIONE NUOVO PIANO -->
+<p-dialog header="Dati nuovo piano di sviluppo" [modal]="true" [(visible)]="showDialogCreazionePiano"
+  [style]="{width: '50dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
+  <span class="p-text-secondary block mb-5">Inserisci i dati per creare il nuovo piano di sviluppo.</span>
+  <form [formGroup]="nuovoPianoForm" *ngIf="nuovoPianoForm">
+    <div class="grid">
+      <div class="col-12 md:col-8">
+        <label htmlFor="descrizione" class="font-semibold block mb-2">Descrizione *</label>
+        <input type="text" pInputText id="descrizione" formControlName="descrizione" class="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="nuovoPianoForm.get('descrizione')?.invalid && nuovoPianoForm.get('descrizione')?.touched">
+          <span *ngIf="nuovoPianoForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="nuovoPianoForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
+        </small>
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="ordine" class="font-semibold block mb-2">Ordine *</label>
+        <input type="number" pInputText id="ordine" formControlName="ordine" class="w-full" min="0" />
+        <small class="p-error block mt-1"
+          *ngIf="nuovoPianoForm.get('ordine')?.invalid && nuovoPianoForm.get('ordine')?.touched">
+          <span *ngIf="nuovoPianoForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="nuovoPianoForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
+        </small>
+      </div>
+    </div>
+  </form>
+  <div class="flex justify-content-end gap-2 mt-4">
+    <p-button label="Annulla" severity="secondary" (click)="showDialogCreazionePiano = false" />
+    <p-button label="Salva" (click)="creaPiano()" [disabled]="!nuovoPianoForm?.valid" />
+  </div>
+</p-dialog>
+
+<!-- DIALOG MODIFICA PIANO -->
+<p-dialog header="Modifica piano di sviluppo" [modal]="true" [(visible)]="showDialogModificaPiano"
+  [style]="{width: '50dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
+  <span class="p-text-secondary block mb-5">Modifica i dati del piano di sviluppo.</span>
+  <form [formGroup]="modificaPianoForm" *ngIf="modificaPianoForm">
+    <div class="grid">
+      <div class="col-12 md:col-8">
+        <label htmlFor="descrizioneModifica" class="font-semibold block mb-2">Descrizione *</label>
+        <input type="text" pInputText id="descrizioneModifica" formControlName="descrizione" class="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="modificaPianoForm.get('descrizione')?.invalid && modificaPianoForm.get('descrizione')?.touched">
+          <span *ngIf="modificaPianoForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="modificaPianoForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
+        </small>
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="ordineModifica" class="font-semibold block mb-2">Ordine *</label>
+        <input type="number" pInputText id="ordineModifica" formControlName="ordine" class="w-full" min="0" />
+        <small class="p-error block mt-1"
+          *ngIf="modificaPianoForm.get('ordine')?.invalid && modificaPianoForm.get('ordine')?.touched">
+          <span *ngIf="modificaPianoForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="modificaPianoForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
+        </small>
+      </div>
+    </div>
+  </form>
+  <div class="flex justify-content-end gap-2 mt-4">
+    <p-button label="Annulla" severity="secondary" (click)="showDialogModificaPiano = false" />
+    <p-button label="Salva" (click)="modificaPiano()" [disabled]="!modificaPianoForm?.valid" />
+  </div>
+</p-dialog>
+
+<!-- DIALOG CREAZIONE NUOVA ATTIVITA -->
+<p-dialog header="Dati nuova attività" [modal]="true" [(visible)]="showDialogCreazioneAttivita"
+  [style]="{width: '50dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
+  <span class="p-text-secondary block mb-5">Inserisci i dati per creare la nuova attività.</span>
+  <form [formGroup]="nuovaAttivitaForm" *ngIf="nuovaAttivitaForm">
+    <div class="grid">
+      <div class="col-12">
+        <label htmlFor="descrizioneAttivita" class="font-semibold block mb-2">Descrizione *</label>
+        <input type="text" pInputText id="descrizioneAttivita" formControlName="descrizione" class="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="nuovaAttivitaForm.get('descrizione')?.invalid && nuovaAttivitaForm.get('descrizione')?.touched">
+          <span *ngIf="nuovaAttivitaForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="nuovaAttivitaForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
+        </small>
+      </div>
+      <div class="col-12">
+        <label htmlFor="tipoInfo" class="font-semibold block mb-2">Tipo Info da Registrare *</label>
+        <p-select [options]="tipiInfoDaRegistrare" id="tipoInfo" formControlName="tipoInfoDaRegistrare"
+          placeholder="Seleziona tipo info" [style]="{'width': '100%'}" appendTo="body" />
+        <small class="p-error block mt-1"
+          *ngIf="nuovaAttivitaForm.get('tipoInfoDaRegistrare')?.invalid && nuovaAttivitaForm.get('tipoInfoDaRegistrare')?.touched">
+          <span *ngIf="nuovaAttivitaForm.get('tipoInfoDaRegistrare')?.errors?.['required']">Campo obbligatorio</span>
+        </small>
+      </div>
+      <div class="col-12">
+        <label htmlFor="ordineAttivita" class="font-semibold block mb-2">Ordine *</label>
+        <input type="number" pInputText id="ordineAttivita" formControlName="ordine" class="w-full" min="0" />
+        <small class="p-error block mt-1"
+          *ngIf="nuovaAttivitaForm.get('ordine')?.invalid && nuovaAttivitaForm.get('ordine')?.touched">
+          <span *ngIf="nuovaAttivitaForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="nuovaAttivitaForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
+        </small>
+      </div>
+    </div>
+  </form>
+  <div class="flex justify-content-end gap-2 mt-4">
+    <p-button label="Annulla" severity="secondary" (click)="showDialogCreazioneAttivita = false" />
+    <p-button label="Salva" (click)="creaAttivita()" [disabled]="!nuovaAttivitaForm?.valid" />
+  </div>
+</p-dialog>
+
+<!-- DIALOG MODIFICA ATTIVITA -->
+<p-dialog header="Modifica attività" [modal]="true" [(visible)]="showDialogModificaAttivita" [style]="{width: '50dvw'}"
+  [closable]="true" [draggable]="false" [resizable]="false">
+  <span class="p-text-secondary block mb-5">Modifica i dati dell'attività.</span>
+  <form [formGroup]="modificaAttivitaForm" *ngIf="modificaAttivitaForm">
+    <div class="grid">
+      <div class="col-12">
+        <label htmlFor="descrizioneAttivitaModifica" class="font-semibold block mb-2">Descrizione *</label>
+        <input type="text" pInputText id="descrizioneAttivitaModifica" formControlName="descrizione" class="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="modificaAttivitaForm.get('descrizione')?.invalid && modificaAttivitaForm.get('descrizione')?.touched">
+          <span *ngIf="modificaAttivitaForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="modificaAttivitaForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
+        </small>
+      </div>
+      <div class="col-12">
+        <label htmlFor="tipoInfoModifica" class="font-semibold block mb-2">Tipo Info da Registrare *</label>
+        <p-select [options]="tipiInfoDaRegistrare" id="tipoInfoModifica" formControlName="tipoInfoDaRegistrare"
+          placeholder="Seleziona tipo info" [style]="{'width': '100%'}" appendTo="body" />
+        <small class="p-error block mt-1"
+          *ngIf="modificaAttivitaForm.get('tipoInfoDaRegistrare')?.invalid && modificaAttivitaForm.get('tipoInfoDaRegistrare')?.touched">
+          <span *ngIf="modificaAttivitaForm.get('tipoInfoDaRegistrare')?.errors?.['required']">Campo obbligatorio</span>
+        </small>
+      </div>
+      <div class="col-12">
+        <label htmlFor="ordineAttivitaModifica" class="font-semibold block mb-2">Ordine *</label>
+        <input type="number" pInputText id="ordineAttivitaModifica" formControlName="ordine" class="w-full" min="0" />
+        <small class="p-error block mt-1"
+          *ngIf="modificaAttivitaForm.get('ordine')?.invalid && modificaAttivitaForm.get('ordine')?.touched">
+          <span *ngIf="modificaAttivitaForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="modificaAttivitaForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
+        </small>
+      </div>
+    </div>
+  </form>
+  <div class="flex justify-content-end gap-2 mt-4">
+    <p-button label="Annulla" severity="secondary" (click)="showDialogModificaAttivita = false" />
+    <p-button label="Salva" (click)="modificaAttivita()" [disabled]="!modificaAttivitaForm?.valid" />
+  </div>
+</p-dialog>
