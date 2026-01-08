@@ -66,7 +66,7 @@ export class GestioneClientiComponent implements OnInit {
     clienteForPersonale?: Cliente; // Cliente a cui aggiungere personale
 
     //Tipo cliente
-    tipoCliente: string[] = ['Privato', 'Azienda', 'Pubblica Amministrazione'];
+    tipoCliente: string[] = ['Azienda', 'Privato', 'Professionista','Pubblica Amministrazione'];
 
     //Filtro tabella
     @ViewChild('filter') filter!: ElementRef;
