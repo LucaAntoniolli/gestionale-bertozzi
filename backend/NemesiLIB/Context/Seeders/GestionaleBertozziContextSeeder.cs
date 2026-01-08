@@ -71,7 +71,7 @@ namespace NemesiLIB.Context.Seeders
 
         public async Task SeedRolePermissions()
         {
-            // Mappa dei permessi per ruolo: personalizza secondo le tue esigenze
+            // Mappa dei permessi per ruolo
             var rolePermissions = new Dictionary<string, List<string>>
             {
                 { "Amministratore", new List<string> { 
@@ -83,6 +83,14 @@ namespace NemesiLIB.Context.Seeders
                     "cliente.create",
                     "cliente.update",
                     "cliente.delete",
+                    "pianosviluppo.read",
+                    "pianosviluppo.create",
+                    "pianosviluppo.update",
+                    "pianosviluppo.delete",
+                    "attivita.read",
+                    "attivita.create",
+                    "attivita.update",
+                    "attivita.delete"
                 } },
                 { "Backoffice", new List<string> {} },
                 { "Utente Base", new List<string> {} }

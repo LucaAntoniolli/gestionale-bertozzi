@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NemesiCOMMONS.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NemesiLIB.Model.Anagrafiche
 {
-    public class Cliente
+    public class Cliente : IAuditable
     {
         public int Id { get; set; }
         public string RagioneSociale { get; set; }
@@ -23,6 +24,10 @@ namespace NemesiLIB.Model.Anagrafiche
         public int? ModalitaPagamentoId { get; set; }
         public string? Sdi { get; set; }
         public string Tipo { get; set; }
+        public DateTime DataCreazione { get; set; }
+        public DateTime? DataModifica { get; set; }
+        public string? UtenteCreazione { get; set; }
+        public string? UtenteModifica { get; set; }
 
         public virtual List<PersonaleCliente>? Personale { get; set; }
         public virtual ModalitaPagamento? ModalitaPagamento { get; set; }

@@ -3,8 +3,16 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NemesiLIB.Model;
 using NemesiLIB.Model.Anagrafiche;
+using NemesiLIB.Model.PianiSviluppo;
 using System.Diagnostics;
 using System.Reflection;
+using NemesiCOMMONS.Models;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace NemesiLIB.Context
 {
@@ -12,14 +20,22 @@ namespace NemesiLIB.Context
     {
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod()?.DeclaringType);
 
+        //ANAGRAFICHE
         public virtual DbSet<Cliente> Cliente{ get; set; }
-        public virtual DbSet<TipologiaCommessa> TipologiaCommessa { get; set; }
-        public virtual DbSet<StatusCommessa> StatusCommessa { get; set; }
         public virtual DbSet<ModalitaPagamento> ModalitaPagamento { get; set; }
         public virtual DbSet<PersonaleCliente> PersonaleCliente { get; set; }
+        public virtual DbSet<StatusCommessa> StatusCommessa { get; set; }
+        public virtual DbSet<TipologiaCommessa> TipologiaCommessa { get; set; }
+        
+        //PIANI DI SVILUPPO
+        public virtual DbSet<TemplatePianoSviluppo> TemplatePianoSviluppo { get; set; }
+        public virtual DbSet<TemplateAttivita> TemplateAttivita { get; set; }
 
-        public GestionaleBertozziContext(DbContextOptions<GestionaleBertozziContext> options) : base(options)
+        private readonly IHttpContextAccessor httpContextAccessor;
+
+        public GestionaleBertozziContext(DbContextOptions<GestionaleBertozziContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
         {
+            this.httpContextAccessor = httpContextAccessor;
         }
 
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -111,7 +127,69 @@ namespace NemesiLIB.Context
                 e.HasOne(pc => pc.Cliente).WithMany(c => c.Personale).HasForeignKey(pc => pc.ClienteId);
             });
 
+            //PIANI DI SVILUPPO
+            //Piano Sviluppo
+            model.Entity<TemplatePianoSviluppo>(e =>
+            {
+                e.HasKey(ps => ps.Id);
+                e.Property(ps => ps.Id).ValueGeneratedOnAdd();
+                e.Property(ps => ps.TipologiaCommessaId).IsRequired();
+                e.Property(ps => ps.Descrizione).IsRequired().HasMaxLength(500);
+                e.HasOne<TipologiaCommessa>().WithMany().HasForeignKey(ps => ps.TipologiaCommessaId);
+                e.HasMany(ps => ps.Attivita).WithOne(a => a.PianoSviluppo).HasForeignKey(a => a.PianoSviluppoId);
+            });
+
+            //Attivita
+             model.Entity<TemplateAttivita>(e =>
+            {
+                e.HasKey(a => a.Id);
+                e.Property(a => a.Id).ValueGeneratedOnAdd();
+                e.Property(a => a.PianoSviluppoId).IsRequired();
+                e.Property(a => a.Descrizione).IsRequired().HasMaxLength(1000);
+                e.Property(a => a.TipoInfoDaRegistrare).HasMaxLength(100);
+                e.HasOne(a => a.PianoSviluppo).WithMany(p => p.Attivita).HasForeignKey(a => a.PianoSviluppoId);
+            });
+
             base.OnModelCreating(model);
+        }
+
+        public override int SaveChanges()
+        {
+            ApplyAuditInformation();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ApplyAuditInformation();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void ApplyAuditInformation()
+        {
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.Entity is IAuditable && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            var username = httpContextAccessor?.HttpContext?.User?.Identity?.Name
+                ?? httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? "-";
+
+            foreach (var entry in entries)
+            {
+                var auditable = (IAuditable)entry.Entity;
+                if (entry.State == EntityState.Added)
+                {
+                    auditable.DataCreazione = DateTime.UtcNow;
+                    auditable.UtenteCreazione = username;
+                    auditable.DataModifica = null;
+                    auditable.UtenteModifica = null;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    auditable.DataModifica = DateTime.UtcNow;
+                    auditable.UtenteModifica = username;
+                }
+            }
         }
 
     }

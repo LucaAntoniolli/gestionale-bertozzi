@@ -24,6 +24,8 @@ namespace NemesiAPI
             // security services
             builder.Services.RegisterSecurityServices();
 
+            builder.Services.AddHttpContextAccessor();
+
             // Add services to the container.
             builder.Services.AddCors(options =>
             {

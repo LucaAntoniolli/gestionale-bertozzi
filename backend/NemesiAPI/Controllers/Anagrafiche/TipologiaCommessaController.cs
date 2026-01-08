@@ -8,49 +8,50 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NemesiAPI.Controllers
+namespace NemesiAPI.Controllers.Anagrafiche
 {
     [ApiController]
-    [Route("api/status-commessa")]
+    [Route("api/tipologia-commessa")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class StatusCommessaController : ControllerBase
+
+    public class TipologiaCommessaController : ControllerBase
     {
         private readonly GestionaleBertozziContext dbBertozzi;
 
-        public StatusCommessaController(GestionaleBertozziContext db)
+        public TipologiaCommessaController(GestionaleBertozziContext db)
         {
             dbBertozzi = db;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<StatusCommessa>>> GetAll()
+        public async Task<ActionResult<IEnumerable<TipologiaCommessa>>> GetAll()
         {
-            var list = await dbBertozzi.StatusCommessa.AsNoTracking().OrderBy(s => s.Ordine).ToListAsync();
+            var list = await dbBertozzi.TipologiaCommessa.AsNoTracking().ToListAsync();
             return Ok(list);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<StatusCommessa>> Get(int id)
+        public async Task<ActionResult<TipologiaCommessa>> Get(int id)
         {
-            var item = await dbBertozzi.StatusCommessa.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            var item = await dbBertozzi.TipologiaCommessa.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (item == null) return NotFound();
             return Ok(item);
         }
 
         [HttpPost]
-        public async Task<ActionResult<StatusCommessa>> Create([FromBody] StatusCommessa model)
+        public async Task<ActionResult<TipologiaCommessa>> Create([FromBody] TipologiaCommessa model)
         {
             if (model == null) return BadRequest();
-            dbBertozzi.StatusCommessa.Add(model);
+            dbBertozzi.TipologiaCommessa.Add(model);
             await dbBertozzi.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] StatusCommessa model)
+        public async Task<IActionResult> Update(int id, [FromBody] TipologiaCommessa model)
         {
             if (model == null || id != model.Id) return BadRequest();
-            if (!await dbBertozzi.StatusCommessa.AnyAsync(x => x.Id == id)) return NotFound();
+            if (!await dbBertozzi.TipologiaCommessa.AnyAsync(x => x.Id == id)) return NotFound();
             dbBertozzi.Entry(model).State = EntityState.Modified;
             await dbBertozzi.SaveChangesAsync();
             return NoContent();
@@ -59,9 +60,9 @@ namespace NemesiAPI.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var item = await dbBertozzi.StatusCommessa.FindAsync(id);
+            var item = await dbBertozzi.TipologiaCommessa.FindAsync(id);
             if (item == null) return NotFound();
-            dbBertozzi.StatusCommessa.Remove(item);
+            dbBertozzi.TipologiaCommessa.Remove(item);
             await dbBertozzi.SaveChangesAsync();
             return NoContent();
         }

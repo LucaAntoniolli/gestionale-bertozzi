@@ -11,8 +11,11 @@ Comando per crare una migrazione
 Comando per eseguire l'aggiornamento del DB
 ```dotnet ef database update --project NemesiLIB --startup-project NemesiAPI --context GestionaleBertozziContext```
 
-Comando per rimuovere le migrations
+Comando per rimuovere l'ultima migration se non ancora applicata al DB
 ```dotnet ef migrations remove --project NemesiLIB --startup-project NemesiAPI --context GestionaleBertozziContext```
+
+Comando per fare il revert del DB a una migration specifica
+```dotnet ef database update NomeMigrationPrecedente --project NemesiLIB --startup-project NemesiAPI --context GestionaleBertozziContext```
 
 Comando per creare gli script di tutte le migration in avanti
 ```dotnet ef migrations script --project NemesiLIB --startup-project NemesiAPI --context GestionaleBertozziContext```

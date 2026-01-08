@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NemesiAPI.Controllers
+namespace NemesiAPI.Controllers.Anagrafiche
 {
     [ApiController]
     [Route("api/clienti")]
