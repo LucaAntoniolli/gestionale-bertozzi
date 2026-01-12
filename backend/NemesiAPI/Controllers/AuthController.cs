@@ -582,7 +582,7 @@ namespace NemesiAPI.Controllers
 
         private string GenerateQRCode(string email, string unformattedKey)
         {
-            var issuer = urlEncoder.Encode("Service Pilot Application Two-Factor Auth");
+            var issuer = urlEncoder.Encode("Gestionale Bertozzi Two-Factor Auth");
             var account = urlEncoder.Encode(email);
             var secret = urlEncoder.Encode(unformattedKey);
 
