@@ -25,6 +25,15 @@ h1{
 }
 
 @media (max-width: 991px) {
+    h1{
+    font-size: 1.4rem !important;
+    font-weight: 900 !important;
+    }
+
+    .col-12 {
+        padding: 0;
+    }
+
     .topbar-menu-right-container  {
         flex-direction: column;
     }
