@@ -55,15 +55,38 @@ namespace NemesiAPI.Controllers.PianiSviluppo
             if (attivita == null)
                 return BadRequest();
 
-            if(attivita.Ordine == 0) {  
+            // If ordine == 0, aggiungo alla fine
+            if (attivita.Ordine == 0) {  
                 var maxOrdine = await db.TemplateAttivita
                     .Where(a => a.PianoSviluppoId == attivita.PianoSviluppoId)
                     .MaxAsync(a => (int?)a.Ordine) ?? 0;
                 attivita.Ordine = maxOrdine + 1;
             }
 
-            db.TemplateAttivita.Add(attivita);
-            await db.SaveChangesAsync();
+            // Se ordine è fornito è esiste già un'attività con quell'ordine, sposto le successive
+            await using (var transaction = await db.Database.BeginTransactionAsync())
+            {
+                var toShift = await db.TemplateAttivita
+                    .Where(a => a.PianoSviluppoId == attivita.PianoSviluppoId && a.Ordine >= attivita.Ordine)
+                    .ToListAsync();
+
+                if (toShift.Any())
+                {
+                    // Incremento ordine delle attività esistenti
+                    foreach (var item in toShift)
+                    {
+                        item.Ordine += 1;
+                        db.Entry(item).State = EntityState.Modified;
+                    }
+
+                    await db.SaveChangesAsync();
+                }
+
+                db.TemplateAttivita.Add(attivita);
+                await db.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
 
             return CreatedAtAction(nameof(Get), new { id = attivita.Id }, attivita);
         }
@@ -75,10 +98,11 @@ namespace NemesiAPI.Controllers.PianiSviluppo
             if (attivita == null || id != attivita.Id)
                 return BadRequest();
 
-            var exists = await db.TemplateAttivita.AnyAsync(a => a.Id == id);
-            if (!exists)
+            var existing = await db.TemplateAttivita.FirstOrDefaultAsync(a => a.Id == id);
+            if (existing == null)
                 return NotFound();
 
+            // If ordine == 0, aggiungo alla fine
             if (attivita.Ordine == 0)
             {
                 var maxOrdine = await db.TemplateAttivita
@@ -87,17 +111,65 @@ namespace NemesiAPI.Controllers.PianiSviluppo
                 attivita.Ordine = maxOrdine + 1;
             }
 
-            db.Entry(attivita).State = EntityState.Modified;
+            await using (var transaction = await db.Database.BeginTransactionAsync())
+            {
+                // Se l'ordine cambia, riordino solo all'interno dello stesso piano
+                if (attivita.Ordine != existing.Ordine)
+                {
+                    if (attivita.Ordine < existing.Ordine)
+                    {
+                        // Sposto in su: incremento ordine per [new, old)
+                        var toIncrement = await db.TemplateAttivita
+                            .Where(a => a.PianoSviluppoId == existing.PianoSviluppoId
+                                        && a.Id != id
+                                        && a.Ordine >= attivita.Ordine
+                                        && a.Ordine < existing.Ordine)
+                            .ToListAsync();
 
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await db.TemplateAttivita.AnyAsync(a => a.Id == id))
-                    return NotFound();
-                throw;
+                        foreach (var it in toIncrement)
+                        {
+                            it.Ordine += 1;
+                            db.Entry(it).State = EntityState.Modified;
+                        }
+                    }
+                    else
+                    {
+                        // Sposto in giù: decremento ordine per (old, new]
+                        var toDecrement = await db.TemplateAttivita
+                            .Where(a => a.PianoSviluppoId == existing.PianoSviluppoId
+                                        && a.Id != id
+                                        && a.Ordine <= attivita.Ordine
+                                        && a.Ordine > existing.Ordine)
+                            .ToListAsync();
+
+                        foreach (var it in toDecrement)
+                        {
+                            it.Ordine -= 1;
+                            db.Entry(it).State = EntityState.Modified;
+                        }
+                    }
+
+                    await db.SaveChangesAsync();
+                }
+
+                // Applico le modifiche al record esistente (senza cambiare PianoSviluppoId)
+                existing.Descrizione = attivita.Descrizione;
+                existing.TipoInfoDaRegistrare = attivita.TipoInfoDaRegistrare;
+                existing.Ordine = attivita.Ordine;
+
+                db.Entry(existing).State = EntityState.Modified;
+
+                try
+                {
+                    await db.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await db.TemplateAttivita.AnyAsync(a => a.Id == id))
+                        return NotFound();
+                    throw;
+                }
             }
 
             return NoContent();

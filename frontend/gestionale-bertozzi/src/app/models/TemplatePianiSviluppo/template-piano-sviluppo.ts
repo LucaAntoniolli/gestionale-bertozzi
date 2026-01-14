@@ -18,7 +18,6 @@ export class TemplatePianoSviluppo {
     }
 
     static mapArray(arr: any[]): TemplatePianoSviluppo[] {
-        console.log("Mapping array of TemplatePianoSviluppo:", arr);
         return (arr || []).map(c => TemplatePianoSviluppo.map(c));
     }
 }

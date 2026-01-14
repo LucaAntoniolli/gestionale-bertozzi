@@ -13,9 +13,10 @@
 
         <!-- TABLE CLIENTI E PERSONALE -->
         @if(clienti && clienti.length > 0) {
-        <p-table [value]="clienti" [loading]="loading" dataKey="id" [expandedRowKeys]="expandedRowKeys"
+        <p-table stripedRows [value]="clienti" [loading]="loading" dataKey="id" [expandedRowKeys]="expandedRowKeys"
             [scrollable]="true" scrollHeight="600px" [size]="'small'" styleClass="p-datatable-gridlines"
-            [globalFilterFields]="['ragioneSociale', 'codiceInterno', 'partitaIva', 'codiceFiscale']" #dt1>
+            [globalFilterFields]="['ragioneSociale', 'codiceInterno', 'partitaIva', 'codiceFiscale']" [rowHover]="true"
+            #dt1>
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
                     <div class="flex">
@@ -35,29 +36,23 @@
             </ng-template>
             <ng-template #header>
                 <tr>
-                    <th style="width: 3rem"></th>
+                    <th style="width: 1rem">Vedi personale</th>
+                    <th style="width: 8rem">Azioni</th>
                     <th pSortableColumn="ragioneSociale">Ragione Sociale <p-sortIcon field="ragioneSociale" /></th>
                     <th pSortableColumn="codiceInterno">Codice <p-sortIcon field="codiceInterno" /></th>
                     <th pSortableColumn="partitaIva">P.IVA <p-sortIcon field="partitaIva" /></th>
                     <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
                     <th pSortableColumn="telefono">Telefono <p-sortIcon field="telefono" /></th>
-                    <th style="width: 12rem">Azioni</th>
                 </tr>
             </ng-template>
             <ng-template #body let-cliente let-expanded="expanded">
                 <tr>
                     <td>
-
                         <button type="button" pButton pRipple [pRowToggler]="cliente"
                             class="p-button-text p-button-rounded p-button-plain"
                             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                             *ngIf="cliente.personale && cliente.personale.length > 0"></button>
                     </td>
-                    <td><strong>{{ cliente.ragioneSociale }}</strong></td>
-                    <td>{{ cliente.codiceInterno }}</td>
-                    <td>{{ cliente.partitaIva }}</td>
-                    <td>{{ cliente.email }}</td>
-                    <td>{{ cliente.telefono }}</td>
                     <td>
                         <div class="flex gap-2">
                             <button pButton icon="pi pi-user-plus" class="p-button-success p-button-sm"
@@ -71,6 +66,11 @@
                                 (click)="eliminaCliente($event, cliente)"></button>
                         </div>
                     </td>
+                    <td><strong>{{ cliente.ragioneSociale }}</strong></td>
+                    <td>{{ cliente.codiceInterno }}</td>
+                    <td>{{ cliente.partitaIva }}</td>
+                    <td>{{ cliente.email }}</td>
+                    <td>{{ cliente.telefono }}</td>
                 </tr>
             </ng-template>
             <ng-template #expandedrow let-cliente>
@@ -79,24 +79,19 @@
                         <div class="p-3">
                             <h5 class="mb-3">Personale di {{ cliente.ragioneSociale }}</h5>
                             @if(cliente.personale && cliente.personale.length > 0) {
-                            <p-table [value]="cliente.personale" [scrollable]="true">
+                            <p-table [value]="cliente.personale" [scrollable]="true" [rowHover]="true">
                                 <ng-template pTemplate="header" dataKey="id">
                 <tr>
+                    <th style="width: 6rem">Azioni</th>
                     <th pSortableColumn="nome">Nome <p-sortIcon field="nome" /></th>
                     <th pSortableColumn="cognome">Cognome <p-sortIcon field="cognome" /></th>
                     <th pSortableColumn="mansione">Mansione <p-sortIcon field="mansione" /></th>
                     <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
                     <th pSortableColumn="telefono">Telefono <p-sortIcon field="telefono" /></th>
-                    <th style="width: 10rem">Azioni</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-personale>
                 <tr>
-                    <td>{{ personale.nome }}</td>
-                    <td>{{ personale.cognome }}</td>
-                    <td>{{ personale.mansione }}</td>
-                    <td>{{ personale.email }}</td>
-                    <td>{{ personale.telefono }}</td>
                     <td>
                         <div class="flex gap-2">
                             <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm"
@@ -107,6 +102,11 @@
                                 (click)="eliminaPersonale($event, personale)"></button>
                         </div>
                     </td>
+                    <td>{{ personale.nome }}</td>
+                    <td>{{ personale.cognome }}</td>
+                    <td>{{ personale.mansione }}</td>
+                    <td>{{ personale.email }}</td>
+                    <td>{{ personale.telefono }}</td>
                 </tr>
             </ng-template>
         </p-table>
