@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using NemesiLIB.Model;
 using NemesiLIB.Model.Anagrafiche;
 using NemesiLIB.Model.PianiSviluppo;
-using System.Diagnostics;
 using System.Reflection;
 using NemesiCOMMONS.Models;
 using Microsoft.AspNetCore.Http;
-using System.Linq;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Security.Claims;
 
 namespace NemesiLIB.Context
