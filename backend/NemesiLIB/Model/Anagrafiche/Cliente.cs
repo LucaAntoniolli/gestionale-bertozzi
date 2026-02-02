@@ -11,7 +11,6 @@ namespace NemesiLIB.Model.Anagrafiche
     {
         public int Id { get; set; }
         public string RagioneSociale { get; set; }
-        public string? CodiceInterno { get; set; }
         public string? PartitaIva { get; set; }
         public string? CodiceFiscale { get; set; }
         public string? Indirizzo { get; set; }
@@ -24,6 +23,7 @@ namespace NemesiLIB.Model.Anagrafiche
         public int? ModalitaPagamentoId { get; set; }
         public string? Sdi { get; set; }
         public string Tipo { get; set; }
+        public string? Sigla { get; set; }
         public DateTime DataCreazione { get; set; }
         public DateTime? DataModifica { get; set; }
         public string? UtenteCreazione { get; set; }

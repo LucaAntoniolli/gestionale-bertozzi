@@ -3,7 +3,6 @@ import { PersonaleCliente } from './personale-cliente';
 export class Cliente {
     id?: number;
     ragioneSociale?: string;
-    codiceInterno?: string;
     partitaIva?: string;
     codiceFiscale?: string;
     indirizzo?: string;
@@ -16,6 +15,7 @@ export class Cliente {
     modalitaPagamentoId?: number;
     sdi?: string;
     tipo?: string;
+    sigla?: string;
     personale?: PersonaleCliente[];
 
     static map(cliente: any): Cliente {

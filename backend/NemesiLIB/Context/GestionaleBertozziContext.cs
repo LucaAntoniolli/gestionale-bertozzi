@@ -93,7 +93,6 @@ namespace NemesiLIB.Context
             {
                 e.HasKey(c => c.Id);
                 e.Property(c => c.Id).ValueGeneratedOnAdd();
-                e.Property(c => c.CodiceInterno).HasMaxLength(50);
                 e.Property(c => c.RagioneSociale).IsRequired().HasMaxLength(255);
                 e.Property(c => c.PartitaIva).HasMaxLength(20);
                 e.Property(c => c.CodiceFiscale).HasMaxLength(20);
@@ -105,6 +104,7 @@ namespace NemesiLIB.Context
                 e.Property(c => c.Email).HasMaxLength(100);
                 e.Property(c => c.Sdi).HasMaxLength(7);
                 e.Property(c => c.Tipo).IsRequired().HasMaxLength(50);
+                e.Property(c => c.Sigla).HasMaxLength(20);
                 e.HasOne(c => c.ModalitaPagamento).WithMany().HasForeignKey(c => c.ModalitaPagamentoId).IsRequired(false);
             });
 

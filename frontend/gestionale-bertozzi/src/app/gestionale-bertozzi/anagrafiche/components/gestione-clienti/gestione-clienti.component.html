@@ -15,8 +15,7 @@
         @if(clienti && clienti.length > 0) {
         <p-table stripedRows [value]="clienti" [loading]="loading" dataKey="id" [expandedRowKeys]="expandedRowKeys"
             [scrollable]="true" scrollHeight="600px" [size]="'small'" styleClass="p-datatable-gridlines"
-            [globalFilterFields]="['ragioneSociale', 'codiceInterno', 'partitaIva', 'codiceFiscale']" [rowHover]="true"
-            #dt1>
+            [globalFilterFields]="['ragioneSociale', 'sigla', 'partitaIva', 'codiceFiscale']" [rowHover]="true" #dt1>
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
                     <div class="flex">
@@ -39,7 +38,7 @@
                     <th style="width: 1rem">Vedi personale</th>
                     <th style="width: 8rem">Azioni</th>
                     <th pSortableColumn="ragioneSociale">Ragione Sociale <p-sortIcon field="ragioneSociale" /></th>
-                    <th pSortableColumn="codiceInterno">Codice <p-sortIcon field="codiceInterno" /></th>
+                    <th pSortableColumn="sigla">Sigla <p-sortIcon field="sigla" /></th>
                     <th pSortableColumn="partitaIva">P.IVA <p-sortIcon field="partitaIva" /></th>
                     <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
                     <th pSortableColumn="telefono">Telefono <p-sortIcon field="telefono" /></th>
@@ -67,7 +66,7 @@
                         </div>
                     </td>
                     <td><strong>{{ cliente.ragioneSociale }}</strong></td>
-                    <td>{{ cliente.codiceInterno }}</td>
+                    <td>{{ cliente.sigla }}</td>
                     <td>{{ cliente.partitaIva }}</td>
                     <td>{{ cliente.email }}</td>
                     <td>{{ cliente.telefono }}</td>
@@ -145,8 +144,8 @@
                 </small>
             </div>
             <div class="col-12 md:col-4">
-                <label htmlFor="codiceInterno" class="font-semibold block mb-2">Codice Interno</label>
-                <input type="text" pInputText id="codiceInterno" formControlName="codiceInterno" class="w-full" />
+                <label htmlFor="sigla" class="font-semibold block mb-2">Sigla</label>
+                <input type="text" pInputText id="sigla" formControlName="sigla" class="w-full" />
             </div>
             <div class="col-12 md:col-4">
                 <label htmlFor="modalitaPagamento" class="font-semibold block mb-2">Modalità di Pagamento</label>
@@ -232,18 +231,13 @@
                 <label htmlFor="ragioneSocialeModifica" class="font-semibold block mb-2">Ragione Sociale *</label>
                 <input type="text" pInputText id="ragioneSocialeModifica" formControlName="ragioneSociale"
                     class="w-full" />
-                <small class="p-error block mt-1"
-                    *ngIf="modificaClienteForm.get('ragioneSociale')?.invalid && modificaClienteForm.get('ragioneSociale')?.touched">
-                    <span *ngIf="modificaClienteForm.get('ragioneSociale')?.errors?.['required']">Campo
-                        obbligatorio</span>
-                    <span *ngIf="modificaClienteForm.get('ragioneSociale')?.errors?.['minlength']">Minimo 2
-                        caratteri</span>
+                <small class="p-error block mt-1" *ngIf="modificaClienteForm.get('ragioneSociale')?.invalid">
+                    Campo obbligatorio
                 </small>
             </div>
             <div class="col-12 md:col-4">
-                <label htmlFor="codiceInternoModifica" class="font-semibold block mb-2">Codice Interno</label>
-                <input type="text" pInputText id="codiceInternoModifica" formControlName="codiceInterno"
-                    class="w-full" />
+                <label htmlFor="siglaModifica" class="font-semibold block mb-2">Sigla</label>
+                <input type="text" pInputText id="siglaModifica" formControlName="sigla" class="w-full" />
             </div>
             <div class="col-12 md:col-4">
                 <label htmlFor="modalitaPagamentoModifica" class="font-semibold block mb-2">Modalità di
@@ -256,6 +250,9 @@
             <div class="col-12 md:col-4">
                 <label htmlFor="partitaIvaModifica" class="font-semibold block mb-2">Partita IVA</label>
                 <input type="text" pInputText id="partitaIvaModifica" formControlName="partitaIva" class="w-full" />
+                <small class="p-error block mt-1" *ngIf="modificaClienteForm.get('partitaIva')?.invalid">
+                    Campo obbligatorio
+                </small>
             </div>
             <div class="col-12 md:col-4">
                 <label htmlFor="codiceFiscaleModifica" class="font-semibold block mb-2">Codice Fiscale</label>
@@ -294,8 +291,7 @@
             <div class="col-12 md:col-4">
                 <label htmlFor="emailModifica" class="font-semibold block mb-2">Email</label>
                 <input type="email" pInputText id="emailModifica" formControlName="email" class="w-full" />
-                <small class="p-error block mt-1"
-                    *ngIf="modificaClienteForm.get('email')?.invalid && modificaClienteForm.get('email')?.touched">
+                <small class="p-error block mt-1" *ngIf="modificaClienteForm.get('email')?.invalid">
                     Email non valida
                 </small>
             </div>
@@ -326,7 +322,6 @@
                 <input type="text" pInputText id="nome" formControlName="nome" class="w-full" />
                 <small class="p-error block mt-1" *ngIf="nuovoPersonaleForm.get('nome')?.invalid">
                     <span *ngIf="nuovoPersonaleForm.get('nome')?.errors?.['required']">Campo obbligatorio</span>
-                    <span *ngIf="nuovoPersonaleForm.get('nome')?.errors?.['minlength']">Minimo 2 caratteri</span>
                 </small>
             </div>
             <div class="col-12">
@@ -334,7 +329,6 @@
                 <input type="text" pInputText id="cognome" formControlName="cognome" class="w-full" />
                 <small class="p-error block mt-1" *ngIf="nuovoPersonaleForm.get('cognome')?.invalid">
                     <span *ngIf="nuovoPersonaleForm.get('cognome')?.errors?.['required']">Campo obbligatorio</span>
-                    <span *ngIf="nuovoPersonaleForm.get('cognome')?.errors?.['minlength']">Minimo 2 caratteri</span>
                 </small>
             </div>
             <div class="col-12">
@@ -372,17 +366,15 @@
             <div class="col-12">
                 <label htmlFor="nomeModifica" class="font-semibold block mb-2">Nome *</label>
                 <input type="text" pInputText id="nomeModifica" formControlName="nome" class="w-full" />
-                <small class="p-error block mt-1"
-                    *ngIf="modificaPersonaleForm.get('nome')?.invalid && modificaPersonaleForm.get('nome')?.touched">
-                    Campo obbligatorio (min 2 caratteri)
+                <small class="p-error block mt-1" *ngIf="modificaPersonaleForm.get('nome')?.invalid">
+                    Campo obbligatorio
                 </small>
             </div>
             <div class="col-12">
                 <label htmlFor="cognomeModifica" class="font-semibold block mb-2">Cognome *</label>
                 <input type="text" pInputText id="cognomeModifica" formControlName="cognome" class="w-full" />
-                <small class="p-error block mt-1"
-                    *ngIf="modificaPersonaleForm.get('cognome')?.invalid && modificaPersonaleForm.get('cognome')?.touched">
-                    Campo obbligatorio (min 2 caratteri)
+                <small class="p-error block mt-1" *ngIf="modificaPersonaleForm.get('cognome')?.invalid">
+                    Campo obbligatorio
                 </small>
             </div>
             <div class="col-12">
@@ -392,8 +384,7 @@
             <div class="col-12">
                 <label htmlFor="emailPersonaleModifica" class="font-semibold block mb-2">Email</label>
                 <input type="email" pInputText id="emailPersonaleModifica" formControlName="email" class="w-full" />
-                <small class="p-error block mt-1"
-                    *ngIf="modificaPersonaleForm.get('email')?.invalid && modificaPersonaleForm.get('email')?.touched">
+                <small class="p-error block mt-1" *ngIf="modificaPersonaleForm.get('email')?.invalid">
                     Email non valida
                 </small>
             </div>

@@ -119,7 +119,7 @@ export class GestioneClientiComponent implements OnInit {
     mostraFormCreazioneCliente() {
         this.nuovoClienteForm = this.fb.group({
             ragioneSociale: ['', [Validators.required, Validators.minLength(10)]],
-            codiceInterno: [''],
+            sigla: [''],
             modalitaPagamentoId: [null],
             partitaIva: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
             codiceFiscale: [''],
@@ -142,9 +142,9 @@ export class GestioneClientiComponent implements OnInit {
 
         this.modificaClienteForm = this.fb.group({
             ragioneSociale: [cliente.ragioneSociale, [Validators.required, Validators.minLength(2)]],
-            codiceInterno: [cliente.codiceInterno],
+            sigla: [cliente.sigla],
             modalitaPagamentoId: [cliente.modalitaPagamentoId],
-            partitaIva: [cliente.partitaIva, [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
+            partitaIva: [cliente.partitaIva, [Validators.required, Validators.minLength(11)]],
             codiceFiscale: [cliente.codiceFiscale],
             indirizzo: [cliente.indirizzo],
             comune: [cliente.comune],
@@ -391,7 +391,7 @@ export class GestioneClientiComponent implements OnInit {
                 clientiForExcel.push({
                     Tipo: 'Cliente',
                     'Ragione Sociale': cliente.ragioneSociale,
-                    'Codice Interno': cliente.codiceInterno,
+                    Sigla: cliente.sigla,
                     'Tipo Cliente': cliente.tipo,
                     'P.IVA': cliente.partitaIva,
                     'Codice Fiscale': cliente.codiceFiscale,

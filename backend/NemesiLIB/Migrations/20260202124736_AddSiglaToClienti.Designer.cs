@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NemesiLIB.Context;
 
@@ -11,9 +12,11 @@ using NemesiLIB.Context;
 namespace NemesiLIB.Migrations
 {
     [DbContext(typeof(GestionaleBertozziContext))]
-    partial class GestionaleBertozziContextModelSnapshot : ModelSnapshot
+    [Migration("20260202124736_AddSiglaToClienti")]
+    partial class AddSiglaToClienti
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,6 +173,10 @@ namespace NemesiLIB.Migrations
                     b.Property<string>("CodiceFiscale")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CodiceInterno")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Comune")
                         .HasMaxLength(100)
