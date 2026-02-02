@@ -26,7 +26,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpGet]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "pianosviluppo.read")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "templatepianosviluppo.read")]
         public async Task<ActionResult<List<TemplatePianoSviluppo>>> GetAll([FromQuery] bool includeAttivita = false)
         {
             IQueryable<TemplatePianoSviluppo> q = db.TemplatePianoSviluppo.AsNoTracking();
@@ -51,7 +51,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpGet("tipologia/{TipologiaCommessaId:int}")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "pianosviluppo.read")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "templatepianosviluppo.read")]
         public async Task<ActionResult<List<TemplatePianoSviluppo>>> getByTipologiaCommessa(int TipologiaCommessaId, [FromQuery] bool includeAttivita = false)
         {
             IQueryable<TemplatePianoSviluppo> q = db.TemplatePianoSviluppo.AsNoTracking();
@@ -77,7 +77,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpGet("{id:int}")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "pianosviluppo.read")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "templatepianosviluppo.read")]
         public async Task<ActionResult<TemplatePianoSviluppo>> Get(int id, [FromQuery] bool includeAttivita = false)
         {
             IQueryable<TemplatePianoSviluppo> q = db.TemplatePianoSviluppo.AsNoTracking();
@@ -92,7 +92,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpPost]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "pianosviluppo.create")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "templatepianosviluppo.create")]
         public async Task<ActionResult<TemplatePianoSviluppo>> Create([FromBody] TemplatePianoSviluppo piano)
         {
             if (piano == null)
@@ -135,7 +135,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "pianosviluppo.update")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "templatepianosviluppo.update")]
         public async Task<IActionResult> Update(int id, [FromBody] TemplatePianoSviluppo piano)
         {
             if (piano == null || id != piano.Id)
@@ -218,7 +218,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "pianosviluppo.delete")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "templatepianosviluppo.delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var entity = await db.TemplatePianoSviluppo.FindAsync(id);

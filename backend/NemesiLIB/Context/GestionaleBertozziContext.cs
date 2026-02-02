@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NemesiLIB.Model;
 using NemesiLIB.Model.Anagrafiche;
 using NemesiLIB.Model.PianiSviluppo;
+using NemesiLIB.Model.GestioneCommesse;
 using System.Reflection;
 using NemesiCOMMONS.Models;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +26,11 @@ namespace NemesiLIB.Context
         //PIANI DI SVILUPPO
         public virtual DbSet<TemplatePianoSviluppo> TemplatePianoSviluppo { get; set; }
         public virtual DbSet<TemplateAttivita> TemplateAttivita { get; set; }
+
+        //GESTIONE COMMESSE
+        public virtual DbSet<Commessa> Commessa { get; set; }
+        public virtual DbSet<PianoSviluppo> PianoSviluppo { get; set; }
+        public virtual DbSet<Attivita> Attivita { get; set; }
 
         private readonly IHttpContextAccessor httpContextAccessor;
 
@@ -134,8 +140,8 @@ namespace NemesiLIB.Context
                 e.HasMany(ps => ps.Attivita).WithOne(a => a.PianoSviluppo).HasForeignKey(a => a.PianoSviluppoId);
             });
 
-            //Attivita
-             model.Entity<TemplateAttivita>(e =>
+            //Attivita Template
+            model.Entity<TemplateAttivita>(e =>
             {
                 e.HasKey(a => a.Id);
                 e.Property(a => a.Id).ValueGeneratedOnAdd();
@@ -143,6 +149,56 @@ namespace NemesiLIB.Context
                 e.Property(a => a.Descrizione).IsRequired().HasMaxLength(1000);
                 e.Property(a => a.TipoInfoDaRegistrare).HasMaxLength(100);
                 e.HasOne(a => a.PianoSviluppo).WithMany(p => p.Attivita).HasForeignKey(a => a.PianoSviluppoId);
+            });
+
+            //GESTIONE COMMESSE
+            //Commessa
+            model.Entity<Commessa>(e =>
+            {
+                e.HasKey(c => c.Id);
+                e.Property(c => c.Id).ValueGeneratedOnAdd();
+                e.Property(c => c.ClienteId).IsRequired();
+                e.Property(c => c.LuogoCommessa).IsRequired().HasMaxLength(500);
+                e.Property(c => c.ProgressivoCommessa).IsRequired();
+                e.Property(c => c.Protocollo).HasMaxLength(20);
+                e.Property(c => c.PmEdileId).IsRequired();
+                e.Property(c => c.ReferenteClienteId).IsRequired();
+                e.Property(c => c.PmAmministrativoId).IsRequired();
+                e.Property(c => c.TipologiaCommessaId).IsRequired();
+                e.Property(c => c.Descrizione).HasMaxLength(2000);
+                e.Property(c => c.CostoAtteso).HasColumnType("decimal(18,2)").IsRequired();
+                e.Property(c => c.StatusCommessaId).IsRequired();
+                e.Property(c => c.DataInizioPorevista).IsRequired(false);
+                e.Property(c => c.DataConclusionePrevista).IsRequired(false);
+                e.HasOne(c => c.Cliente).WithMany().HasForeignKey(c => c.ClienteId);
+                e.HasOne(c => c.ReferenteCliente).WithMany().HasForeignKey(c => c.ReferenteClienteId);
+                e.HasOne(c => c.TipologiaCommessa).WithMany().HasForeignKey(c => c.TipologiaCommessaId);
+                e.HasOne(c => c.StatusCommessa).WithMany().HasForeignKey(c => c.StatusCommessaId);
+                e.HasMany(c => c.PianiSviluppo).WithOne().HasForeignKey(p => p.CommessaId);
+            });
+
+            //Piano Sviluppo
+            model.Entity<PianoSviluppo>(e =>
+            {
+                e.HasKey(p => p.Id);
+                e.Property(p => p.Id).ValueGeneratedOnAdd();
+                e.Property(p => p.CommessaId).IsRequired();
+                e.Property(p => p.Descrizione).IsRequired().HasMaxLength(500);
+                e.Property(p => p.Ordine).IsRequired();
+                e.HasMany(p => p.Attivita).WithOne().HasForeignKey(a => a.PianoSviluppoId);
+            });
+
+            //Attivita
+            model.Entity<Attivita>(e =>
+            {
+                e.HasKey(a => a.Id);
+                e.Property(a => a.Id).ValueGeneratedOnAdd();
+                e.Property(a => a.PianoSviluppoId).IsRequired();
+                e.Property(a => a.Descrizione).IsRequired().HasMaxLength(1000);
+                e.Property(a => a.PercentualeAvanzamento).IsRequired(true).HasDefaultValue(0);
+                e.Property(a => a.Completata).IsRequired(true).HasDefaultValue(false);
+                e.Property(a => a.DataRiferimento).IsRequired(false);
+                e.Property(a => a.Ordine).IsRequired();
             });
 
             base.OnModelCreating(model);

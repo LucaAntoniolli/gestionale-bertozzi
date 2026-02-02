@@ -26,7 +26,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpGet]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "attivita.read")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "teamplateattivita.read")]
         public async Task<ActionResult<List<TemplateAttivita>>> GetAll([FromQuery] int? pianoSviluppoId = null)
         {
             IQueryable<TemplateAttivita> q = db.TemplateAttivita.AsNoTracking();
@@ -38,7 +38,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpGet("{id:int}")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "attivita.read")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "teamplateattivita.read")]
         public async Task<ActionResult<TemplateAttivita>> Get(int id)
         {
             var entity = await db.TemplateAttivita.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
@@ -49,7 +49,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpPost]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "attivita.create")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "teamplateattivita.create")]
         public async Task<ActionResult<TemplateAttivita>> Create([FromBody] TemplateAttivita attivita)
         {
             if (attivita == null)
@@ -92,7 +92,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "attivita.update")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "teamplateattivita.update")]
         public async Task<IActionResult> Update(int id, [FromBody] TemplateAttivita attivita)
         {
             if (attivita == null || id != attivita.Id)
@@ -176,7 +176,7 @@ namespace NemesiAPI.Controllers.PianiSviluppo
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "attivita.delete")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "teamplateattivita.delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var entity = await db.TemplateAttivita.FindAsync(id);
