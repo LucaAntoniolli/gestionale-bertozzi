@@ -125,7 +125,7 @@ namespace NemesiLIB.Context
                 e.Property(pc => pc.Mansione).HasMaxLength(100);
                 e.Property(pc => pc.Email).HasMaxLength(100);
                 e.Property(pc => pc.Telefono).HasMaxLength(20);
-                e.HasOne(pc => pc.Cliente).WithMany(c => c.Personale).HasForeignKey(pc => pc.ClienteId);
+                e.HasOne(pc => pc.Cliente).WithMany(c => c.Personale).HasForeignKey(pc => pc.ClienteId).OnDelete(DeleteBehavior.Cascade);
             });
 
             //PIANI DI SVILUPPO
@@ -136,8 +136,8 @@ namespace NemesiLIB.Context
                 e.Property(ps => ps.Id).ValueGeneratedOnAdd();
                 e.Property(ps => ps.TipologiaCommessaId).IsRequired();
                 e.Property(ps => ps.Descrizione).IsRequired().HasMaxLength(500);
-                e.HasOne<TipologiaCommessa>().WithMany().HasForeignKey(ps => ps.TipologiaCommessaId);
-                e.HasMany(ps => ps.Attivita).WithOne(a => a.PianoSviluppo).HasForeignKey(a => a.PianoSviluppoId);
+                e.HasOne<TipologiaCommessa>().WithMany().HasForeignKey(ps => ps.TipologiaCommessaId).OnDelete(DeleteBehavior.NoAction);
+                e.HasMany(ps => ps.Attivita).WithOne(a => a.PianoSviluppo).HasForeignKey(a => a.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
             });
 
             //Attivita Template
@@ -148,7 +148,7 @@ namespace NemesiLIB.Context
                 e.Property(a => a.PianoSviluppoId).IsRequired();
                 e.Property(a => a.Descrizione).IsRequired().HasMaxLength(1000);
                 e.Property(a => a.TipoInfoDaRegistrare).HasMaxLength(100);
-                e.HasOne(a => a.PianoSviluppo).WithMany(p => p.Attivita).HasForeignKey(a => a.PianoSviluppoId);
+                e.HasOne(a => a.PianoSviluppo).WithMany(p => p.Attivita).HasForeignKey(a => a.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
             });
 
             //GESTIONE COMMESSE
@@ -170,11 +170,11 @@ namespace NemesiLIB.Context
                 e.Property(c => c.StatusCommessaId).IsRequired();
                 e.Property(c => c.DataInizioPorevista).IsRequired(false);
                 e.Property(c => c.DataConclusionePrevista).IsRequired(false);
-                e.HasOne(c => c.Cliente).WithMany().HasForeignKey(c => c.ClienteId);
-                e.HasOne(c => c.ReferenteCliente).WithMany().HasForeignKey(c => c.ReferenteClienteId);
-                e.HasOne(c => c.TipologiaCommessa).WithMany().HasForeignKey(c => c.TipologiaCommessaId);
-                e.HasOne(c => c.StatusCommessa).WithMany().HasForeignKey(c => c.StatusCommessaId);
-                e.HasMany(c => c.PianiSviluppo).WithOne().HasForeignKey(p => p.CommessaId);
+                e.HasOne(c => c.Cliente).WithMany().HasForeignKey(c => c.ClienteId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(c => c.ReferenteCliente).WithMany().HasForeignKey(c => c.ReferenteClienteId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(c => c.TipologiaCommessa).WithMany().HasForeignKey(c => c.TipologiaCommessaId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(c => c.StatusCommessa).WithMany().HasForeignKey(c => c.StatusCommessaId).OnDelete(DeleteBehavior.NoAction);
+                e.HasMany(c => c.PianiSviluppo).WithOne().HasForeignKey(p => p.CommessaId).OnDelete(DeleteBehavior.Cascade);
             });
 
             //Piano Sviluppo
@@ -185,7 +185,7 @@ namespace NemesiLIB.Context
                 e.Property(p => p.CommessaId).IsRequired();
                 e.Property(p => p.Descrizione).IsRequired().HasMaxLength(500);
                 e.Property(p => p.Ordine).IsRequired();
-                e.HasMany(p => p.Attivita).WithOne().HasForeignKey(a => a.PianoSviluppoId);
+                e.HasMany(p => p.Attivita).WithOne().HasForeignKey(a => a.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
             });
 
             //Attivita

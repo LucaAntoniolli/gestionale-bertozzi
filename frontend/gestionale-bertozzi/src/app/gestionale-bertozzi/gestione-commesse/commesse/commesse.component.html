@@ -1,0 +1,320 @@
+<div class="grid">
+  <div class="col-12">
+    <app-titolo-pagina [titoloPagina]="'Gestione Commesse'"></app-titolo-pagina>
+
+    <div class="mb-5">
+      <p-toolbar>
+        <div class="p-toolbar-group-center"></div>
+        <div class="p-toolbar-group-end">
+          <p-button label="Crea nuova commessa" icon="pi pi-plus" (click)="mostraFormCreazioneCommessa()" />
+        </div>
+      </p-toolbar>
+    </div>
+
+    <!-- TABELLA COMMESSE -->
+    @if(commesseList && commesseList.length > 0) {
+    <p-table #dt1 [size]="'small'" [value]="commesseList" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
+      styleClass="p-datatable-gridlines" [paginator]="true"
+      [globalFilterFields]="['cliente.ragioneSociale', 'protocollo', 'descrizione', 'tipologiaCommessa.descrizione', 'statusCommessa.descrizione', 'pmEdileId', 'referenteCliente.nome', 'pmAmministrativoId']"
+      responsiveLayout="scroll" sortMode="multiple">
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+          <div class="flex">
+          </div>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                placeholder="Cerca" />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 8rem">
+            <div class="flex justify-content-between align-items-center">
+              Azioni
+            </div>
+          </th>
+          <th style="min-width: 15rem" pSortableColumn="cliente.ragioneSociale">
+            <div class="flex justify-content-between align-items-center">
+              Cliente
+              <p-sortIcon field="cliente.ragioneSociale" />
+              <p-columnFilter type="text" field="cliente.ragioneSociale" display="menu"
+                placeholder="Cerca per cliente"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 10rem" pSortableColumn="protocollo">
+            <div class="flex justify-content-between align-items-center">
+              Protocollo
+              <p-sortIcon field="protocollo" />
+              <p-columnFilter type="text" field="protocollo" display="menu"
+                placeholder="Cerca per protocollo"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 20rem" pSortableColumn="descrizione">
+            <div class="flex justify-content-between align-items-center">
+              Descrizione
+              <p-sortIcon field="descrizione" />
+              <p-columnFilter type="text" field="descrizione" display="menu"
+                placeholder="Cerca per descrizione"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 12rem" pSortableColumn="tipologiaCommessa.descrizione">
+            <div class="flex justify-content-between align-items-center">
+              Tipologia
+              <p-sortIcon field="tipologiaCommessa.descrizione" />
+              <p-columnFilter type="text" field="tipologiaCommessa.descrizione" display="menu"
+                placeholder="Cerca per tipologia"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 10rem" pSortableColumn="statusCommessa.descrizione">
+            <div class="flex justify-content-between align-items-center">
+              Stato
+              <p-sortIcon field="statusCommessa.descrizione" />
+              <p-columnFilter type="text" field="statusCommessa.descrizione" display="menu"
+                placeholder="Cerca per stato"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 12rem" pSortableColumn="pmEdileId">
+            <div class="flex justify-content-between align-items-center">
+              PM Edile
+              <p-sortIcon field="pmEdileId" />
+              <p-columnFilter type="text" field="pmEdileId" display="menu"
+                placeholder="Cerca PM Edile"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 15rem" pSortableColumn="referenteCliente.nome">
+            <div class="flex justify-content-between align-items-center">
+              Referente Cliente
+              <p-sortIcon field="referenteCliente.nome" />
+              <p-columnFilter type="text" field="referenteCliente.nome" display="menu"
+                placeholder="Cerca referente"></p-columnFilter>
+            </div>
+          </th>
+          <th style="min-width: 12rem" pSortableColumn="pmAmministrativoId">
+            <div class="flex justify-content-between align-items-center">
+              PM Amministrativo
+              <p-sortIcon field="pmAmministrativoId" />
+              <p-columnFilter type="text" field="pmAmministrativoId" display="menu"
+                placeholder="Cerca PM Amm"></p-columnFilter>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-commessa>
+        <tr>
+          <td>
+            <div class="flex gap-2">
+              <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" pTooltip="Visualizza dettagli"
+                tooltipPosition="left"></p-button>
+            </div>
+          </td>
+          <td>
+            <span class="image-text">{{ commessa.cliente?.ragioneSociale }}</span>
+          </td>
+          <td>
+            <span class="image-text">{{ commessa.protocollo }}</span>
+          </td>
+          <td>
+            <span class="image-text">{{ commessa.descrizione }}</span>
+          </td>
+          <td>
+            <span class="image-text">{{ commessa.tipologiaCommessa?.descrizione }}</span>
+          </td>
+          <td>
+            <span class="image-text">{{ commessa.statusCommessa?.descrizione }}</span>
+          </td>
+          <td>
+            <span class="image-text">{{ getNomeUtente(commessa.pmEdileId) }}</span>
+          </td>
+          <td>
+            <span class="image-text">{{ commessa.referenteCliente?.nome }} {{ commessa.referenteCliente?.cognome
+              }}</span>
+          </td>
+          <td>
+            <span class="image-text">{{ getNomeUtente(commessa.pmAmministrativoId) }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="9">Commesse in caricamento...</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else if(!loading) {
+    <p-message severity="info" text="Nessuna commessa presente. Clicca su 'Crea nuova commessa' per iniziare." />
+    }
+  </div>
+</div>
+
+<!-- DIALOG CREAZIONE NUOVA COMMESSA -->
+<p-dialog header="Dati nuova commessa" [modal]="true" [(visible)]="showDialogCreazioneCommessa"
+  [style]="{ width: '600px' }">
+  <form [formGroup]="nuovaCommessaForm" *ngIf="nuovaCommessaForm">
+    <div class="p-fluid">
+      <!-- Riga 1: Cliente e Tipologia -->
+      <div class="grid">
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="clienteId" class="mb-2 font-semibold">Cliente</label>
+            <p-select id="clienteId" [options]="clientiList" optionLabel="ragioneSociale" optionValue="id"
+              placeholder="Seleziona cliente" formControlName="clienteId" [showClear]="true" class="w-full" />
+            <small id="clienteId-error" class="p-error" *ngIf="nuovaCommessaForm.get('clienteId')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="tipologiaCommessaId" class="mb-2 font-semibold">Tipologia Commessa</label>
+            <p-select id="tipologiaCommessaId" [options]="tipologieList" optionLabel="descrizione" optionValue="id"
+              placeholder="Seleziona tipologia" formControlName="tipologiaCommessaId" [showClear]="true"
+              class="w-full" />
+            <small id="tipologiaCommessaId-error" class="p-error"
+              *ngIf="nuovaCommessaForm.get('tipologiaCommessaId')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Riga 2: Protocollo e Luogo Commessa -->
+      <div class="grid">
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="protocollo" class="mb-2 font-semibold">Protocollo</label>
+            <input type="text" pInputText id="protocollo" class="w-full" autocomplete="off"
+              formControlName="protocollo" />
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="luogoCommessa" class="mb-2 font-semibold">Luogo Commessa</label>
+            <input type="text" pInputText id="luogoCommessa" class="w-full" autocomplete="off"
+              formControlName="luogoCommessa" />
+            <small id="luogoCommessa-error" class="p-error" *ngIf="nuovaCommessaForm.get('luogoCommessa')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Riga 3: Descrizione -->
+      <div class="field">
+        <label htmlFor="descrizione" class="mb-2 font-semibold">Descrizione</label>
+        <input type="text" pInputText id="descrizione" class="w-full" autocomplete="off"
+          formControlName="descrizione" />
+        <small id="descrizione-error" class="p-error" *ngIf="nuovaCommessaForm.get('descrizione')?.invalid">
+          Campo obbligatorio
+        </small>
+      </div>
+
+      <!-- Riga 4: Status e Costo Atteso -->
+      <div class="grid">
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="statusCommessaId" class="mb-2 font-semibold">Status Commessa</label>
+            <p-select id="statusCommessaId" [options]="statusList" optionLabel="descrizione" optionValue="id"
+              placeholder="Seleziona status" formControlName="statusCommessaId" [showClear]="true" class="w-full" />
+            <small id="statusCommessaId-error" class="p-error"
+              *ngIf="nuovaCommessaForm.get('statusCommessaId')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="costoAtteso" class="mb-2 font-semibold">Costo Atteso</label>
+            <p-inputnumber inputId="costoAtteso" formControlName="costoAtteso" class="w-full" [minFractionDigits]="2"
+              [maxFractionDigits]="2" />
+            <small id="costoAtteso-error" class="p-error" *ngIf="nuovaCommessaForm.get('costoAtteso')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Riga 5: PM Edile e PM Amministrativo -->
+      <div class="grid">
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="pmEdileId" class="mb-2 font-semibold">PM Edile</label>
+            <p-select id="pmEdileId" [options]="utentiList" optionLabel="nominativo" optionValue="id"
+              placeholder="Seleziona PM Edile" formControlName="pmEdileId" [showClear]="true" class="w-full" />
+            <small id="pmEdileId-error" class="p-error" *ngIf="nuovaCommessaForm.get('pmEdileId')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="pmAmministrativoId" class="mb-2 font-semibold">PM Amministrativo</label>
+            <p-select id="pmAmministrativoId" [options]="utentiList" optionLabel="nominativo" optionValue="id"
+              placeholder="Seleziona PM Amministrativo" formControlName="pmAmministrativoId" [showClear]="true"
+              class="w-full" />
+            <small id="pmAmministrativoId-error" class="p-error"
+              *ngIf="nuovaCommessaForm.get('pmAmministrativoId')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Riga 6: Referente Cliente -->
+      <div class="field">
+        <label htmlFor="referenteClienteId" class="mb-2 font-semibold">Referente Cliente</label>
+        <p-select id="referenteClienteId" [options]="personaleClienteFiltrato" optionValue="id"
+          placeholder="Prima seleziona un cliente" formControlName="referenteClienteId" [showClear]="true"
+          class="w-full" [disabled]="!nuovaCommessaForm.get('clienteId')?.value">
+          <ng-template let-value pTemplate="selectedItem">
+            @if(value) {
+            <span>
+              {{ value.nome }} {{ value.cognome }}
+            </span>
+            }
+          </ng-template>
+          <ng-template let-option pTemplate="item">
+            <span>{{ option.nome }} {{ option.cognome }}</span>
+          </ng-template>
+        </p-select>
+        <small id="referenteClienteId-error" class="p-error"
+          *ngIf="nuovaCommessaForm.get('referenteClienteId')?.invalid">
+          Campo obbligatorio
+        </small>
+      </div>
+
+      <!-- Riga 7: Date -->
+      <div class="grid">
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="dataInizioPrevista" class="mb-2 font-semibold">Data Inizio Prevista</label>
+            <p-datepicker inputId="dataInizioPrevista" formControlName="dataInizioPrevista" dateFormat="dd/mm/yy"
+              [showIcon]="true" class="w-full" />
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <label htmlFor="dataConclusionePrevista" class="mb-2 font-semibold">Data Conclusione Prevista</label>
+            <p-datepicker inputId="dataConclusionePrevista" formControlName="dataConclusionePrevista"
+              dateFormat="dd/mm/yy" [showIcon]="true" class="w-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field grid mt-5">
+      <div class="col-12 flex justify-content-end gap-2">
+        <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+          (click)="showDialogCreazioneCommessa = false" />
+        <p-button label="Crea Commessa" icon="pi pi-check" (click)="creaCommessa()"
+          [disabled]="!nuovaCommessaForm.valid" />
+      </div>
+    </div>
+  </form>
+</p-dialog>

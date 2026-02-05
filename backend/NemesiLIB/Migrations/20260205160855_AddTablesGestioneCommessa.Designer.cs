@@ -12,7 +12,7 @@ using NemesiLIB.Context;
 namespace NemesiLIB.Migrations
 {
     [DbContext(typeof(GestionaleBertozziContext))]
-    [Migration("20260202152734_AddTablesGestioneCommessa")]
+    [Migration("20260205160855_AddTablesGestioneCommessa")]
     partial class AddTablesGestioneCommessa
     {
         /// <inheritdoc />
@@ -801,25 +801,25 @@ namespace NemesiLIB.Migrations
                     b.HasOne("NemesiLIB.Model.Anagrafiche.Cliente", "Cliente")
                         .WithMany()
                         .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("NemesiLIB.Model.Anagrafiche.PersonaleCliente", "ReferenteCliente")
                         .WithMany()
                         .HasForeignKey("ReferenteClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("NemesiLIB.Model.Anagrafiche.StatusCommessa", "StatusCommessa")
                         .WithMany()
                         .HasForeignKey("StatusCommessaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("NemesiLIB.Model.Anagrafiche.TipologiaCommessa", "TipologiaCommessa")
                         .WithMany()
                         .HasForeignKey("TipologiaCommessaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Cliente");
@@ -856,7 +856,7 @@ namespace NemesiLIB.Migrations
                     b.HasOne("NemesiLIB.Model.Anagrafiche.TipologiaCommessa", null)
                         .WithMany()
                         .HasForeignKey("TipologiaCommessaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 

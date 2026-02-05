@@ -32,10 +32,25 @@ namespace NemesiAPI
                 options.AddPolicy(name: "NemesiPolicy",
                     builder =>
                     {
-                        builder
-                            .WithOrigins("*")
-                            .AllowAnyHeader()
-                            .AllowAnyMethod();
+                        var frontendUrl = configuration["ApplicationUrls:ApplicationFrontend"];
+                        
+                        if (string.IsNullOrEmpty(frontendUrl))
+                        {
+                            // Fallback per ambienti senza configurazione
+                            builder
+                                .WithOrigins("http://localhost:4200", "http://localhost:3000")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials();
+                        }
+                        else
+                        {
+                            builder
+                                .WithOrigins(frontendUrl)
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials();
+                        }
                     });
             });
 
@@ -87,8 +102,6 @@ namespace NemesiAPI
                     logger.LogError(ex, "An error occurred while seeding the database.");
                 }
             }
-
-           
 
             app.Run();
         }

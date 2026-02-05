@@ -11,6 +11,10 @@ namespace NemesiLIB.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_TemplatePianoSviluppo_TipologiaCommessa_TipologiaCommessaId",
+                table: "TemplatePianoSviluppo");
+
             migrationBuilder.CreateTable(
                 name: "Commessa",
                 columns: table => new
@@ -42,26 +46,22 @@ namespace NemesiLIB.Migrations
                         name: "FK_Commessa_Cliente_ClienteId",
                         column: x => x.ClienteId,
                         principalTable: "Cliente",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Commessa_PersonaleCliente_ReferenteClienteId",
                         column: x => x.ReferenteClienteId,
                         principalTable: "PersonaleCliente",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Commessa_StatusCommessa_StatusCommessaId",
                         column: x => x.StatusCommessaId,
                         principalTable: "StatusCommessa",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Commessa_TipologiaCommessa_TipologiaCommessaId",
                         column: x => x.TipologiaCommessaId,
                         principalTable: "TipologiaCommessa",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -146,11 +146,22 @@ namespace NemesiLIB.Migrations
                 name: "IX_PianoSviluppo_CommessaId",
                 table: "PianoSviluppo",
                 column: "CommessaId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_TemplatePianoSviluppo_TipologiaCommessa_TipologiaCommessaId",
+                table: "TemplatePianoSviluppo",
+                column: "TipologiaCommessaId",
+                principalTable: "TipologiaCommessa",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_TemplatePianoSviluppo_TipologiaCommessa_TipologiaCommessaId",
+                table: "TemplatePianoSviluppo");
+
             migrationBuilder.DropTable(
                 name: "Attivita");
 
@@ -159,6 +170,14 @@ namespace NemesiLIB.Migrations
 
             migrationBuilder.DropTable(
                 name: "Commessa");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_TemplatePianoSviluppo_TipologiaCommessa_TipologiaCommessaId",
+                table: "TemplatePianoSviluppo",
+                column: "TipologiaCommessaId",
+                principalTable: "TipologiaCommessa",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
     }
 }

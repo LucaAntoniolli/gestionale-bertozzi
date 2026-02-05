@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { Utente } from "../models/utente";
 
@@ -14,6 +15,15 @@ export class UtenteService {
 
     constructor(private http: HttpClient) {
         this.baseApiUrl = environment.baseApiUrl;
+    }
+
+    /**
+     * Recupera tutti gli utenti dal backend
+     * @returns Observable array di utenti
+     */
+    getAll(): Observable<Utente[]> {
+        return this.http.get<any[]>(`${this.baseApiUrl}/auth/get-users`)
+            .pipe(map(data => Utente.mapArray(data)));
     }
 
     /**
