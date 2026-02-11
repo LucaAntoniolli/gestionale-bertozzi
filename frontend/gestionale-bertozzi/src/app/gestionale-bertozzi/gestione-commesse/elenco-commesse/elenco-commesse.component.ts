@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { first, map, Observable } from 'rxjs';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { first, forkJoin, map, Observable } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -29,11 +30,12 @@ import { UtenteService } from '../../../services/utente.service';
 import moment from 'moment';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
+import { NavigatorService } from '../../../services/navigator.service';
 
 @Component({
-    selector: 'app-commesse',
-    templateUrl: './commesse.component.html',
-    styleUrls: ['./commesse.component.css'],
+    selector: 'app-elenco-commesse',
+    templateUrl: './elenco-commesse.component.html',
+    styleUrls: ['./elenco-commesse.component.css'],
     standalone: true,
     imports: [
         CommonModule,
@@ -50,14 +52,17 @@ import { DatePickerModule } from 'primeng/datepicker';
         MessageModule,
         SelectModule,
         DatePickerModule,
+        ConfirmDialogModule,
     ]
 })
-export class CommesseComponent implements OnInit {
+export class ElencoCommesseComponent implements OnInit {
 
-    commesseList?: Commessa[];
+    commesseList: Commessa[] = [];
     loading: boolean = true;
     nuovaCommessaForm?: FormGroup;
     showDialogCreazioneCommessa: boolean = false;
+    commessaInModifica?: Commessa;
+    isModifying: boolean = false;
 
     // Dati per i dropdown
     clientiList: Cliente[] = [];
@@ -74,12 +79,14 @@ export class CommesseComponent implements OnInit {
     constructor(
         private commessaService: CommessaService,
         private clienteService: ClienteService,
+        private navigator: NavigatorService,
         private statusService: StatusCommessaService,
         private tipologiaService: TipologiaCommessaService,
         private personaleService: PersonaleClienteService,
         private utenteService: UtenteService,
         private fb: FormBuilder,
         private ms: MessageService,
+        private cs: ConfirmationService,
         private bo: BreakpointObserver,
         private cdr: ChangeDetectorRef,
     ) { }
@@ -90,54 +97,36 @@ export class CommesseComponent implements OnInit {
             .pipe(map((result) => result.matches));
 
         this.loadReferenceData();
-        this.loadData();
     }
 
     /** Carica i dati delle tabelle di riferimento (clienti, status, tipologie, personale) */
     private loadReferenceData() {
-        this.clienteService.getAll().pipe(first()).subscribe({
-            next: (data: Cliente[]) => {
-                this.clientiList = data;
+        forkJoin({
+            clienti: this.clienteService.getAll(),
+            status: this.statusService.getAll(),
+            tipologie: this.tipologiaService.getAll(),
+            personale: this.personaleService.getAll(),
+            utenti: this.utenteService.getAll()
+        }).pipe(first()).subscribe({
+            next: (data) => {
+                this.clientiList = data.clienti;
+                this.statusList = data.status;
+                this.tipologieList = data.tipologie;
+                this.personaleClienteList = data.personale;
+                this.utentiList = data.utenti.filter(u => !u.isEsterno);
+                
+                // Carica le commesse solo dopo che i dati di riferimento sono disponibili
+                this.loadData();
             },
             error: (err: any) => {
-                console.error('Errore nel caricamento dei clienti', err);
-            }
-        });
-
-        this.statusService.getAll().pipe(first()).subscribe({
-            next: (data: StatusCommessa[]) => {
-                this.statusList = data;
-            },
-            error: (err: any) => {
-                console.error('Errore nel caricamento degli status', err);
-            }
-        });
-
-        this.tipologiaService.getAll().pipe(first()).subscribe({
-            next: (data: TipologiaCommessa[]) => {
-                this.tipologieList = data;
-            },
-            error: (err: any) => {
-                console.error('Errore nel caricamento delle tipologie', err);
-            }
-        });
-
-        this.personaleService.getAll().pipe(first()).subscribe({
-            next: (data: PersonaleCliente[]) => {
-                this.personaleClienteList = data;
-            },
-            error: (err: any) => {
-                console.error('Errore nel caricamento del personale cliente', err);
-            }
-        });
-
-        this.utenteService.getAll().pipe(first()).subscribe({
-            next: (data: Utente[]) => {
-                // Filtra solo gli utenti interni
-                this.utentiList = data.filter(u => !u.isEsterno);
-            },
-            error: (err: any) => {
-                console.error('Errore nel caricamento degli utenti', err);
+                this.loading = false;
+                console.error('Errore nel caricamento dei dati di riferimento', err);
+                this.ms.add({
+                    severity: 'error',
+                    summary: 'Errore',
+                    detail: 'Errore nel caricamento dei dati di riferimento',
+                    life: 3000,
+                });
             }
         });
     }
@@ -177,6 +166,9 @@ export class CommesseComponent implements OnInit {
 
     /** Mostra il dialog per la creazione di una nuova commessa */
     mostraFormCreazioneCommessa() {
+        this.commessaInModifica = undefined;
+        this.isModifying = false;
+        
         this.nuovaCommessaForm = this.fb.group({
             clienteId: ['', [Validators.required]],
             luogoCommessa: ['', [Validators.required]],
@@ -200,6 +192,41 @@ export class CommesseComponent implements OnInit {
         this.showDialogCreazioneCommessa = true;
     }
 
+    /** Mostra il dialog per la modifica di una commessa esistente */
+    modificaCommessa(commessa: Commessa) {
+        this.commessaInModifica = commessa;
+        this.isModifying = true;
+
+        // Filtra il personale cliente PRIMA di creare il form
+        if (commessa.clienteId) {
+            this.personaleClienteFiltrato = this.personaleClienteList.filter(
+                p => p.clienteId === commessa.clienteId
+            );
+        }
+
+        this.nuovaCommessaForm = this.fb.group({
+            clienteId: [commessa.clienteId, [Validators.required]],
+            luogoCommessa: [commessa.luogoCommessa, [Validators.required]],
+            protocollo: [commessa.protocollo || ''],
+            pmEdileId: [commessa.pmEdileId, [Validators.required]],
+            referenteClienteId: [commessa.referenteClienteId, [Validators.required]],
+            pmAmministrativoId: [commessa.pmAmministrativoId, [Validators.required]],
+            tipologiaCommessaId: [commessa.tipologiaCommessaId, [Validators.required]],
+            descrizione: [commessa.descrizione, [Validators.required]],
+            costoAtteso: [commessa.costoAtteso, [Validators.required, Validators.min(0)]],
+            statusCommessaId: [commessa.statusCommessaId, [Validators.required]],
+            dataInizioPrevista: [commessa.dataInizioPrevista ? new Date(commessa.dataInizioPrevista as any) : ''],
+            dataConclusionePrevista: [commessa.dataConclusionePrevista ? new Date(commessa.dataConclusionePrevista as any) : ''],
+        });
+
+        // Sottoscrivi ai cambiamenti del campo clienteId per filtrare il personale cliente
+        this.nuovaCommessaForm.get('clienteId')?.valueChanges.subscribe((clienteId: number) => {
+            this.onClienteChange(clienteId);
+        });
+
+        this.showDialogCreazioneCommessa = true;
+    }
+
     /** Filtra il personale cliente in base al cliente selezionato */
     onClienteChange(clienteId: number) {
         if (clienteId) {
@@ -209,12 +236,19 @@ export class CommesseComponent implements OnInit {
         } else {
             this.personaleClienteFiltrato = [];
         }
-        // Reset del campo referente cliente
-        this.nuovaCommessaForm?.get('referenteClienteId')?.setValue('');
+        
+        // Reset del campo referente cliente solo se il valore corrente non è valido
+        const currentValue = this.nuovaCommessaForm?.get('referenteClienteId')?.value;
+        if (currentValue) {
+            const isStillValid = this.personaleClienteFiltrato.some(p => p.id === currentValue);
+            if (!isStillValid) {
+                this.nuovaCommessaForm?.get('referenteClienteId')?.setValue('');
+            }
+        }
     }
 
-    /** Crea una nuova commessa */
-    creaCommessa() {
+    /** Crea o modifica una commessa a seconda se è in modalità creazione o modifica */
+    salvaCommessa() {
         if (!this.nuovaCommessaForm?.valid) {
             this.ms.add({
                 severity: 'warn',
@@ -225,46 +259,90 @@ export class CommesseComponent implements OnInit {
         }
 
         let formValue = this.nuovaCommessaForm.value;
-        const nuovaCommessa = new Commessa();
+        const commessa = new Commessa();
         
-        nuovaCommessa.clienteId = formValue.clienteId;
-        nuovaCommessa.luogoCommessa = formValue.luogoCommessa;
-        nuovaCommessa.protocollo = formValue.protocollo || null;
-        nuovaCommessa.pmEdileId = formValue.pmEdileId;
-        nuovaCommessa.referenteClienteId = formValue.referenteClienteId;
-        nuovaCommessa.pmAmministrativoId = formValue.pmAmministrativoId;
-        nuovaCommessa.tipologiaCommessaId = formValue.tipologiaCommessaId;
-        nuovaCommessa.descrizione = formValue.descrizione;
-        nuovaCommessa.costoAtteso = formValue.costoAtteso;
-        nuovaCommessa.statusCommessaId = formValue.statusCommessaId;
-        
-        if (formValue.dataInizioPrevista) {
-            nuovaCommessa.dataInizioPrevista = moment(formValue.dataInizioPrevista);
-        }
-        if (formValue.dataConclusionePrevista) {
-            nuovaCommessa.dataConclusionePrevista = moment(formValue.dataConclusionePrevista);
+        if (this.isModifying && this.commessaInModifica?.id) {
+            commessa.id = this.commessaInModifica.id;
         }
 
-        this.commessaService.create(nuovaCommessa)
-            .subscribe({
-                next: () => {
-                    this.showDialogCreazioneCommessa = false;
-                    this.ms.add({
-                        severity: 'success',
-                        summary: 'Conferma',
-                        detail: 'Commessa creata con successo',
+        commessa.clienteId = formValue.clienteId;
+        commessa.luogoCommessa = formValue.luogoCommessa;
+        commessa.protocollo = formValue.protocollo || null;
+        commessa.pmEdileId = formValue.pmEdileId;
+        commessa.referenteClienteId = formValue.referenteClienteId;
+        commessa.pmAmministrativoId = formValue.pmAmministrativoId;
+        commessa.tipologiaCommessaId = formValue.tipologiaCommessaId;
+        commessa.descrizione = formValue.descrizione;
+        commessa.costoAtteso = formValue.costoAtteso;
+        commessa.statusCommessaId = formValue.statusCommessaId;
+        
+        if (formValue.dataInizioPrevista) {
+            commessa.dataInizioPrevista = moment(formValue.dataInizioPrevista).startOf('day');
+        }
+        if (formValue.dataConclusionePrevista) {
+            commessa.dataConclusionePrevista = moment(formValue.dataConclusionePrevista).startOf('day');
+        }
+
+        const operation$ = this.isModifying && this.commessaInModifica?.id
+            ? this.commessaService.update(this.commessaInModifica.id, commessa)
+            : this.commessaService.create(commessa);
+
+        console.log('Dati da salvare:', commessa);
+
+        operation$.subscribe({
+            next: () => {
+                this.showDialogCreazioneCommessa = false;
+                this.ms.add({
+                    severity: 'success',
+                    summary: 'Conferma',
+                    detail: this.isModifying ? 'Commessa modificata con successo' : 'Commessa creata con successo',
+                });
+                this.loadData();
+            },
+            error: (err: any) => {
+                console.debug(err);
+                this.ms.add({
+                    severity: 'error',
+                    summary: 'Errore',
+                    detail: err.error?.error || 'Impossibile salvare la commessa',
+                });
+            },
+        });
+    }
+
+    /** Elimina una commessa con conferma */
+    eliminaCommessa(commessa: Commessa) {
+        this.cs.confirm({
+            message: `Sei sicuro di voler eliminare la commessa "${commessa.protocollo || commessa.descrizione}"?`,
+            header: 'Conferma eliminazione',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                if (commessa.id) {
+                    this.commessaService.delete(commessa.id).subscribe({
+                        next: () => {
+                            this.ms.add({
+                                severity: 'success',
+                                summary: 'Conferma',
+                                detail: 'Commessa eliminata con successo',
+                            });
+                            this.loadData();
+                        },
+                        error: (err: any) => {
+                            console.debug(err);
+                            this.ms.add({
+                                severity: 'error',
+                                summary: 'Errore',
+                                detail: err.error?.error || 'Impossibile eliminare la commessa',
+                            });
+                        },
                     });
-                    this.loadData();
-                },
-                error: (err: any) => {
-                    console.debug(err);
-                    this.ms.add({
-                        severity: 'error',
-                        summary: 'Errore',
-                        detail: err.error?.error || 'Impossibile creare la commessa',
-                    });
-                },
-            });
+                }
+            },
+        });
+    }
+
+    dettaglioCommessa(id: number) {
+        this.navigator.dettaglioCommessa(id);
     }
 
     /** Ottiene il nome del cliente per display */
@@ -288,7 +366,7 @@ export class CommesseComponent implements OnInit {
         return tipologia?.descrizione || '';
     }
 
-    /** Ottiene il nome del referente cliente */
+    /** Ottiene il nome del referente cliente per display */
     getNomePersonale(personaleId?: number): string {
         if (!personaleId) return '';
         const personale = this.personaleClienteList.find(p => p.id === personaleId);

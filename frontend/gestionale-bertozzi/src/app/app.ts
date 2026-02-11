@@ -71,6 +71,10 @@ export class App implements OnInit {
       icon: 'pi pi-refresh',
       acceptLabel: 'Aggiorna Ora',
       rejectLabel: 'Dopo',
+      acceptIcon: 'pi pi-check',
+      rejectIcon: 'pi pi-times',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-primary',
       accept: () => {
         this.applyUpdate();
       },

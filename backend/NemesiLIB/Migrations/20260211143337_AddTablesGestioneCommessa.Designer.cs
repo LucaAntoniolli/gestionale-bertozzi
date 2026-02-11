@@ -12,7 +12,7 @@ using NemesiLIB.Context;
 namespace NemesiLIB.Migrations
 {
     [DbContext(typeof(GestionaleBertozziContext))]
-    [Migration("20260205160855_AddTablesGestioneCommessa")]
+    [Migration("20260211143337_AddTablesGestioneCommessa")]
     partial class AddTablesGestioneCommessa
     {
         /// <inheritdoc />
@@ -377,6 +377,9 @@ namespace NemesiLIB.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<string>("Lettera")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Ordine")
                         .HasColumnType("int");
 
@@ -387,6 +390,10 @@ namespace NemesiLIB.Migrations
 
                     b.Property<int>("PianoSviluppoId")
                         .HasColumnType("int");
+
+                    b.Property<string>("TipoInfoDaRegistrare")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UtenteCreazione")
                         .HasColumnType("nvarchar(max)");
@@ -421,7 +428,7 @@ namespace NemesiLIB.Migrations
                     b.Property<DateTime>("DataCreazione")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DataInizioPorevista")
+                    b.Property<DateTime?>("DataInizioPrevista")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DataModifica")

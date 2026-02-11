@@ -125,7 +125,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (model == null || id != model.Id)
                 return BadRequest();
 
-            var pianoEsistente = await dbContext.PianoSviluppo.FirstOrDefaultAsync(x => x.Id == id);
+            var pianoEsistente = await dbContext.PianoSviluppo.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (pianoEsistente == null)
                 return NotFound();
 

@@ -4,9 +4,11 @@ export class Attivita {
     id?: number;
     pianoSviluppoId?: number;
     descrizione?: string;
+    tipoInfoDaRegistrare?: string;
     percentualeAvanzamento?: number;
     completata?: boolean;
     dataRiferimento?: moment.Moment;
+    lettera?: string;
     ordine?: number;
     utenteCreazione?: string;
     utenteModifica?: string;

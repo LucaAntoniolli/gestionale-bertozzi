@@ -6,13 +6,14 @@
       <p-toolbar>
         <div class="p-toolbar-group-center"></div>
         <div class="p-toolbar-group-end">
-          <p-button label="Crea nuova commessa" icon="pi pi-plus" (click)="mostraFormCreazioneCommessa()" />
+          <p-button label="Crea nuova commessa" icon="pi pi-plus" (click)="mostraFormCreazioneCommessa()"
+            [disabled]="loading" />
         </div>
       </p-toolbar>
     </div>
 
     <!-- TABELLA COMMESSE -->
-    @if(commesseList && commesseList.length > 0) {
+    @if((commesseList && commesseList.length > 0) || loading) {
     <p-table #dt1 [size]="'small'" [value]="commesseList" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
       styleClass="p-datatable-gridlines" [paginator]="true"
       [globalFilterFields]="['cliente.ragioneSociale', 'protocollo', 'descrizione', 'tipologiaCommessa.descrizione', 'statusCommessa.descrizione', 'pmEdileId', 'referenteCliente.nome', 'pmAmministrativoId']"
@@ -39,7 +40,7 @@
               Azioni
             </div>
           </th>
-          <th style="min-width: 15rem" pSortableColumn="cliente.ragioneSociale">
+          <th style="min-width: 10rem" pSortableColumn="protocollo">
             <div class="flex justify-content-between align-items-center">
               Cliente
               <p-sortIcon field="cliente.ragioneSociale" />
@@ -55,6 +56,7 @@
                 placeholder="Cerca per protocollo"></p-columnFilter>
             </div>
           </th>
+
           <th style="min-width: 20rem" pSortableColumn="descrizione">
             <div class="flex justify-content-between align-items-center">
               Descrizione
@@ -87,14 +89,6 @@
                 placeholder="Cerca PM Edile"></p-columnFilter>
             </div>
           </th>
-          <th style="min-width: 15rem" pSortableColumn="referenteCliente.nome">
-            <div class="flex justify-content-between align-items-center">
-              Referente Cliente
-              <p-sortIcon field="referenteCliente.nome" />
-              <p-columnFilter type="text" field="referenteCliente.nome" display="menu"
-                placeholder="Cerca referente"></p-columnFilter>
-            </div>
-          </th>
           <th style="min-width: 12rem" pSortableColumn="pmAmministrativoId">
             <div class="flex justify-content-between align-items-center">
               PM Amministrativo
@@ -103,19 +97,30 @@
                 placeholder="Cerca PM Amm"></p-columnFilter>
             </div>
           </th>
+          <th style="min-width: 15rem" pSortableColumn="referenteCliente.nome">
+            <div class="flex justify-content-between align-items-center">
+              Referente Cliente
+              <p-sortIcon field="referenteCliente.nome" />
+              <p-columnFilter type="text" field="referenteCliente.nome" display="menu"
+                placeholder="Cerca referente"></p-columnFilter>
+            </div>
+          </th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-commessa>
         <tr>
           <td>
             <div class="flex gap-2">
-              <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info" pTooltip="Visualizza dettagli"
-                tooltipPosition="left"></p-button>
+              <button pButton icon="pi pi-eye" class="p-button-primary p-button-sm" pTooltip="Dettaglio"
+                tooltipPosition="top" (click)="dettaglioCommessa(commessa.id)"></button>
+              <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
+                tooltipPosition="top" (click)="modificaCommessa(commessa)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
+                tooltipPosition="top" (click)="eliminaCommessa(commessa)"></button>
             </div>
           </td>
           <td>
             <span class="image-text">{{ commessa.cliente?.ragioneSociale }}</span>
-          </td>
           <td>
             <span class="image-text">{{ commessa.protocollo }}</span>
           </td>
@@ -129,14 +134,13 @@
             <span class="image-text">{{ commessa.statusCommessa?.descrizione }}</span>
           </td>
           <td>
+            <span class="image-text">{{ getNomeUtente(commessa.pmAmministrativoId) }}</span>
+          </td>
+          <td>
             <span class="image-text">{{ getNomeUtente(commessa.pmEdileId) }}</span>
           </td>
           <td>
-            <span class="image-text">{{ commessa.referenteCliente?.nome }} {{ commessa.referenteCliente?.cognome
-              }}</span>
-          </td>
-          <td>
-            <span class="image-text">{{ getNomeUtente(commessa.pmAmministrativoId) }}</span>
+            <span class="image-text">{{ getNomePersonale(commessa.referenteClienteId) }}</span>
           </td>
         </tr>
       </ng-template>
@@ -153,9 +157,9 @@
   </div>
 </div>
 
-<!-- DIALOG CREAZIONE NUOVA COMMESSA -->
-<p-dialog header="Dati nuova commessa" [modal]="true" [(visible)]="showDialogCreazioneCommessa"
-  [style]="{ width: '600px' }">
+<!-- DIALOG CREAZIONE/MODIFICA COMMESSA -->
+<p-dialog [header]="isModifying ? 'Modifica commessa' : 'Dati nuova commessa'" [modal]="true"
+  [(visible)]="showDialogCreazioneCommessa" [style]="{ width: '600px' }">
   <form [formGroup]="nuovaCommessaForm" *ngIf="nuovaCommessaForm">
     <div class="p-fluid">
       <!-- Riga 1: Cliente e Tipologia -->
@@ -270,12 +274,13 @@
       <div class="field">
         <label htmlFor="referenteClienteId" class="mb-2 font-semibold">Referente Cliente</label>
         <p-select id="referenteClienteId" [options]="personaleClienteFiltrato" optionValue="id"
-          placeholder="Prima seleziona un cliente" formControlName="referenteClienteId" [showClear]="true"
-          class="w-full" [disabled]="!nuovaCommessaForm.get('clienteId')?.value">
+          [placeholder]="personaleClienteFiltrato.length > 0 ? 'Seleziona referente' : 'Prima seleziona un cliente'"
+          formControlName="referenteClienteId" [showClear]="true" class="w-full"
+          [disabled]="personaleClienteFiltrato.length === 0">
           <ng-template let-value pTemplate="selectedItem">
             @if(value) {
             <span>
-              {{ value.nome }} {{ value.cognome }}
+              {{ getNomePersonale(value) }}
             </span>
             }
           </ng-template>
@@ -312,8 +317,8 @@
       <div class="col-12 flex justify-content-end gap-2">
         <p-button label="Annulla" severity="secondary" icon="pi pi-times"
           (click)="showDialogCreazioneCommessa = false" />
-        <p-button label="Crea Commessa" icon="pi pi-check" (click)="creaCommessa()"
-          [disabled]="!nuovaCommessaForm.valid" />
+        <p-button [label]="isModifying ? 'Salva Commessa' : 'Crea Commessa'" icon="pi pi-check"
+          (click)="salvaCommessa()" [disabled]="!nuovaCommessaForm.valid" />
       </div>
     </div>
   </form>

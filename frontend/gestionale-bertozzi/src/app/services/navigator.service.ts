@@ -38,5 +38,11 @@ export class NavigatorService {
     this.router.navigate(['/anagrafiche/gestione-clienti']);
   }
 
+  elencoCommesse() {
+    this.router.navigate(['/gestione-commesse/elenco-commesse']);
+  }
 
+  dettaglioCommessa(id: number) {
+    this.router.navigate(['/gestione-commesse/dettaglio-commessa', id]);
+  }
 }

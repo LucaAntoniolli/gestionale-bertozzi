@@ -175,7 +175,8 @@ export class TipologieCommessaComponent implements OnInit {
       acceptLabel: 'Sì',
       acceptIcon: 'pi pi-check',
       rejectIcon: 'pi pi-times',
-      rejectButtonStyleClass: 'p-button-text',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-primary',
       accept: () => {
         this.tipologiaService.delete(tipologia.id!).subscribe({
           next: () => {

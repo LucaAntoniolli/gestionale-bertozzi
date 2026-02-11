@@ -175,7 +175,8 @@ export class ModalitaPagamentoComponent implements OnInit {
             acceptLabel: 'Sì',
             acceptIcon: 'pi pi-check',
             rejectIcon: 'pi pi-times',
-            rejectButtonStyleClass: 'p-button-text',
+            acceptButtonStyleClass: 'p-button-danger',
+            rejectButtonStyleClass: 'p-button-primary',
             accept: () => {
                 this.modalitaService.delete(modalita.id!).subscribe({
                     next: () => {

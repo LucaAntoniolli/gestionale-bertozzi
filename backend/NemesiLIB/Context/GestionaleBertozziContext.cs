@@ -168,7 +168,7 @@ namespace NemesiLIB.Context
                 e.Property(c => c.Descrizione).HasMaxLength(2000);
                 e.Property(c => c.CostoAtteso).HasColumnType("decimal(18,2)").IsRequired();
                 e.Property(c => c.StatusCommessaId).IsRequired();
-                e.Property(c => c.DataInizioPorevista).IsRequired(false);
+                e.Property(c => c.DataInizioPrevista).IsRequired(false);
                 e.Property(c => c.DataConclusionePrevista).IsRequired(false);
                 e.HasOne(c => c.Cliente).WithMany().HasForeignKey(c => c.ClienteId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne(c => c.ReferenteCliente).WithMany().HasForeignKey(c => c.ReferenteClienteId).OnDelete(DeleteBehavior.NoAction);

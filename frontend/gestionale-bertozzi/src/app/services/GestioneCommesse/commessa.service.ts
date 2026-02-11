@@ -72,17 +72,17 @@ export class CommessaService {
 
   /**
    * Prepara i dati della commessa per l'invio al backend
-   * Converte i moment in stringhe ISO
+   * Converte i moment in stringhe formato YYYY-MM-DD (solo data, senza ora/timezone)
    */
   private preparePayload(commessa: Commessa): any {
     const payload: any = { ...commessa };
     
-    // Converti moment in formato ISO per il backend
+    // Converti moment in formato YYYY-MM-DD per il backend (evita problemi di timezone)
     if (commessa.dataInizioPrevista) {
-      payload.dataInizioPrevista = commessa.dataInizioPrevista.toISOString();
+      payload.dataInizioPrevista = commessa.dataInizioPrevista.format('YYYY-MM-DD');
     }
     if (commessa.dataConclusionePrevista) {
-      payload.dataConclusionePrevista = commessa.dataConclusionePrevista.toISOString();
+      payload.dataConclusionePrevista = commessa.dataConclusionePrevista.format('YYYY-MM-DD');
     }
     
     // Rimuovi le proprietà di navigazione prima dell'invio

@@ -58,7 +58,7 @@ export class AppMenu {
                     label: 'GESTIONE COMMESSE',
                     items: [
                             { label: 'Gestione template piani di sviluppo', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/template-piani-sviluppo'] },
-                            { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/commesse'] },
+                            { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
                     ]
                 },
             );

@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { first, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -8,43 +9,64 @@ import { DialogModule } from 'primeng/dialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { InputText } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { TemplatePianoSviluppo } from '../../../models/TemplatePianiSviluppo/template-piano-sviluppo';
-import { TemplateAttivita } from '../../../models/TemplatePianiSviluppo/template-attivita';
-import { TipologiaCommessa } from '../../../models/Anagrafiche/tipologia-commessa';
-import { TemplatePianoSviluppoService } from '../../../services/TemplatePianiSviluppo/template-piano-sviluppo.service';
-import { TemplateAttivitaService } from '../../../services/TemplatePianiSviluppo/template-attivita.service';
-import { TipologiaCommessaService } from '../../../services/Anagrafiche/tipologia-commessa.service';
-import { TitoloPaginaComponent } from '../../shared/components/titolo-pagina/titolo-pagina.component';
+import { DatePickerModule } from 'primeng/datepicker';
+import { CheckboxModule } from 'primeng/checkbox';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { Commessa } from '../../../models/GestioneCommesse/commessa';
+import { PianoSviluppo } from '../../../models/GestioneCommesse/piano-sviluppo';
+import { Attivita } from '../../../models/GestioneCommesse/attivita';
+import { Utente } from '../../../models/utente';
+import { PersonaleCliente } from '../../../models/Anagrafiche/personale-cliente';
+import { CommessaService } from '../../../services/GestioneCommesse/commessa.service';
+import { PianoSviluppoService } from '../../../services/GestioneCommesse/piano-sviluppo.service';
+import { AttivitaService } from '../../../services/GestioneCommesse/attivita.service';
+import { UtenteService } from '../../../services/utente.service';
+import { PersonaleClienteService } from '../../../services/Anagrafiche/personale-cliente.service';
+import moment from 'moment';
+import { NavigatorService } from '../../../services/navigator.service';
 
 @Component({
-  selector: 'app-template-piani-sviluppo',
-  templateUrl: './template-piani-sviluppo.component.html',
-  styleUrls: ['./template-piani-sviluppo.component.css'],
+  selector: 'app-dettaglio-commessa',
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    TitoloPaginaComponent,
     ButtonModule,
     DialogModule,
     ToolbarModule,
     TableModule,
     InputText,
-    InputIconModule,
-    IconFieldModule,
+    InputNumberModule,
     MessageModule,
     SelectModule,
-  ]
+    DatePickerModule,
+    CheckboxModule,
+    ProgressBarModule,
+  ],
+  templateUrl: './dettaglio-commessa.component.html',
+  styleUrl: './dettaglio-commessa.component.css'
 })
-export class TemplatePianiSviluppoComponent implements OnInit {
+export class DettaglioCommessaComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private commessaService = inject(CommessaService);
+  private navigator = inject(NavigatorService);
+  private pianoService = inject(PianoSviluppoService);
+  private attivitaService = inject(AttivitaService);
+  private utenteService = inject(UtenteService);
+  private personaleService = inject(PersonaleClienteService);
+  private fb = inject(FormBuilder);
+  private conf = inject(ConfirmationService);
+  private ms = inject(MessageService);
+  private cdr = inject(ChangeDetectorRef);
 
-  pianiSviluppo: TemplatePianoSviluppo[] = [];
-  tipologieCommessa: TipologiaCommessa[] = [];
-  selectedTipologiaCommessa?: TipologiaCommessa;
+  commessaId?: number;
+  commessa?: Commessa;
+  pianiSviluppo: PianoSviluppo[] = [];
+  utentiList: Utente[] = [];
+  personaleClienteList: PersonaleCliente[] = [];
   expandedRowKeys: { [key: string]: boolean } = {};
   loading: boolean = false;
 
@@ -53,17 +75,19 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   modificaPianoForm?: FormGroup;
   nuovaAttivitaForm?: FormGroup;
   modificaAttivitaForm?: FormGroup;
+  aggiornamentoValoreForm?: FormGroup;
 
   // Dialog visibility
   showDialogCreazionePiano: boolean = false;
   showDialogModificaPiano: boolean = false;
   showDialogCreazioneAttivita: boolean = false;
   showDialogModificaAttivita: boolean = false;
+  showDialogAggiornamentoValore: boolean = false;
 
   // Selected items
-  selectedPiano?: TemplatePianoSviluppo;
-  selectedAttivita?: TemplateAttivita;
-  pianoForAttivita?: TemplatePianoSviluppo;
+  selectedPiano?: PianoSviluppo;
+  selectedAttivita?: Attivita;
+  pianoForAttivita?: PianoSviluppo;
 
   // Tipo info da registrare
   tipiInfoDaRegistrare: string[] = [
@@ -73,53 +97,51 @@ export class TemplatePianiSviluppoComponent implements OnInit {
     'Data'
   ];
 
-  constructor(
-    private pianoService: TemplatePianoSviluppoService,
-    private attivitaService: TemplateAttivitaService,
-    private tipologiaService: TipologiaCommessaService,
-    private fb: FormBuilder,
-    private conf: ConfirmationService,
-    private ms: MessageService,
-    private cdr: ChangeDetectorRef,
-  ) { }
-
   ngOnInit() {
-    this.loadTipologie();
+    // Recupera l'ID della commessa dalla route
+    this.route.params.subscribe(params => {
+      this.commessaId = +params['id'];
+      if (this.commessaId) {
+        this.loadData();
+      }
+    });
   }
 
-  private loadTipologie() {
-    this.tipologiaService.getAll()
-      .pipe(first())
-      .subscribe({
-        next: (result) => {
-          this.tipologieCommessa = result;
-          this.cdr.detectChanges();
-        },
-        error: (err: any) => {
-          this.ms.add({
-            severity: 'error',
-            summary: 'Errore',
-            detail: 'Errore nel caricamento delle tipologie',
-            life: 3000,
-          });
-        },
-      });
-  }
+  private loadData() {
+    this.loading = true;
 
-  onTipologiaChange() {
-    if (this.selectedTipologiaCommessa) {
-      this.loadPianiSviluppo();
-    } else {
-      this.pianiSviluppo = [];
-    }
+    forkJoin({
+      commessa: this.commessaService.getById(this.commessaId!),
+      utenti: this.utenteService.getAll(),
+      personale: this.personaleService.getAll()
+    }).pipe(first()).subscribe({
+      next: (data) => {
+        this.commessa = data.commessa;
+        this.utentiList = data.utenti.filter(u => !u.isEsterno);
+        this.personaleClienteList = data.personale;
+        this.pianiSviluppo = this.commessa.pianiSviluppo || [];
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.loading = false;
+        console.error('Errore nel caricamento dei dati', err);
+        this.ms.add({
+          severity: 'error',
+          summary: 'Errore',
+          detail: 'Errore nel caricamento dei dati della commessa',
+          life: 3000,
+        });
+      }
+    });
   }
 
   private loadPianiSviluppo() {
-    if (!this.selectedTipologiaCommessa?.id) return;
+    if (!this.commessaId) return;
 
     this.loading = true;
 
-    this.pianoService.getByTipologiaCommessa(this.selectedTipologiaCommessa.id, true)
+    this.pianoService.getByCommessa(this.commessaId, true)
       .pipe(first())
       .subscribe({
         next: (result) => {
@@ -145,11 +167,11 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   // ==================== PIANO CRUD ====================
 
   mostraFormCreazionePiano() {
-    if (!this.selectedTipologiaCommessa) {
+    if (!this.commessaId) {
       this.ms.add({
         severity: 'warn',
         summary: 'Attenzione',
-        detail: 'Seleziona prima una tipologia di commessa',
+        detail: 'ID commessa non valido',
         life: 3000,
       });
       return;
@@ -163,7 +185,7 @@ export class TemplatePianiSviluppoComponent implements OnInit {
     this.showDialogCreazionePiano = true;
   }
 
-  mostraFormModificaPiano(piano: TemplatePianoSviluppo) {
+  mostraFormModificaPiano(piano: PianoSviluppo) {
     this.selectedPiano = piano;
 
     this.modificaPianoForm = this.fb.group({
@@ -175,11 +197,13 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   }
 
   creaPiano() {
-    let formValue = this.nuovoPianoForm?.value;
-    const nuovoPiano = new TemplatePianoSviluppo();
+    if (!this.nuovoPianoForm?.valid) return;
+
+    let formValue = this.nuovoPianoForm.value;
+    const nuovoPiano = new PianoSviluppo();
     nuovoPiano.descrizione = formValue.descrizione;
     nuovoPiano.ordine = formValue.ordine;
-    nuovoPiano.tipologiaCommessaId = this.selectedTipologiaCommessa!.id!;
+    nuovoPiano.commessaId = this.commessaId!;
 
     this.pianoService.create(nuovoPiano)
       .subscribe({
@@ -204,8 +228,10 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   }
 
   modificaPiano() {
-    let formValue = this.modificaPianoForm?.value;
-    const pianoAggiornato = { ...this.selectedPiano! } as TemplatePianoSviluppo;
+    if (!this.modificaPianoForm?.valid) return;
+
+    let formValue = this.modificaPianoForm.value;
+    const pianoAggiornato = { ...this.selectedPiano! } as PianoSviluppo;
     pianoAggiornato.descrizione = formValue.descrizione;
     pianoAggiornato.ordine = formValue.ordine;
 
@@ -221,7 +247,6 @@ export class TemplatePianiSviluppoComponent implements OnInit {
           this.loadPianiSviluppo();
         },
         error: (err: any) => {
-          console.log("Error updating piano:", err);  
           console.debug(err);
           this.ms.add({
             severity: 'error',
@@ -232,7 +257,7 @@ export class TemplatePianiSviluppoComponent implements OnInit {
       });
   }
 
-  eliminaPiano(event: Event, piano: TemplatePianoSviluppo) {
+  eliminaPiano(event: Event, piano: PianoSviluppo) {
     this.conf.confirm({
       target: event.target as EventTarget,
       message: 'Sei sicuro di voler eliminare questo piano di sviluppo?',
@@ -240,8 +265,6 @@ export class TemplatePianiSviluppoComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sì',
       rejectLabel: 'No',
-      acceptIcon: 'pi pi-check',
-      rejectIcon: 'pi pi-times',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-primary',
       accept: () => {
@@ -270,7 +293,7 @@ export class TemplatePianiSviluppoComponent implements OnInit {
 
   // ==================== ATTIVITA CRUD ====================
 
-  mostraFormCreazioneAttivita(piano: TemplatePianoSviluppo) {
+  mostraFormCreazioneAttivita(piano: PianoSviluppo) {
     this.pianoForAttivita = piano;
 
     this.nuovaAttivitaForm = this.fb.group({
@@ -282,7 +305,7 @@ export class TemplatePianiSviluppoComponent implements OnInit {
     this.showDialogCreazioneAttivita = true;
   }
 
-  mostraFormModificaAttivita(attivita: TemplateAttivita) {
+  mostraFormModificaAttivita(attivita: Attivita) {
     this.selectedAttivita = attivita;
 
     this.modificaAttivitaForm = this.fb.group({
@@ -295,8 +318,10 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   }
 
   creaAttivita() {
-    let formValue = this.nuovaAttivitaForm?.value;
-    const nuovaAttivita = new TemplateAttivita();
+    if (!this.nuovaAttivitaForm?.valid) return;
+
+    let formValue = this.nuovaAttivitaForm.value;
+    const nuovaAttivita = new Attivita();
     Object.assign(nuovaAttivita, formValue);
     nuovaAttivita.pianoSviluppoId = this.pianoForAttivita!.id!;
 
@@ -323,8 +348,10 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   }
 
   modificaAttivita() {
-    let formValue = this.modificaAttivitaForm?.value;
-    const attivitaAggiornata = { ...this.selectedAttivita! } as TemplateAttivita;
+    if (!this.modificaAttivitaForm?.valid) return;
+
+    let formValue = this.modificaAttivitaForm.value;
+    const attivitaAggiornata = { ...this.selectedAttivita! } as Attivita;
     Object.assign(attivitaAggiornata, formValue);
 
     this.attivitaService.update(this.selectedAttivita!.id!, attivitaAggiornata)
@@ -349,7 +376,7 @@ export class TemplatePianiSviluppoComponent implements OnInit {
       });
   }
 
-  eliminaAttivita(event: Event, attivita: TemplateAttivita) {
+  eliminaAttivita(event: Event, attivita: Attivita) {
     this.conf.confirm({
       target: event.target as EventTarget,
       message: 'Sei sicuro di voler eliminare questa attività?',
@@ -385,39 +412,88 @@ export class TemplatePianiSviluppoComponent implements OnInit {
     });
   }
 
-  // ==================== EXPORT ====================
+  // ==================== AGGIORNAMENTO VALORE ATTIVITA ====================
 
-  exportExcel() {
-    import('xlsx').then((xlsx) => {
-      const data = this.pianiSviluppo.map(piano => ({
-        'Descrizione Piano': piano.descrizione,
-        'Numero Attività': piano.attivita?.length || 0,
-      }));
-      const worksheet = xlsx.utils.json_to_sheet(data);
-      const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
-      const excelBuffer: any = xlsx.write(workbook, {
-        bookType: 'xlsx',
-        type: 'array',
+  mostraFormAggiornamentoValore(attivita: Attivita) {
+    this.selectedAttivita = attivita;
+
+    // Crea il form in base al tipo di info da registrare
+    if (attivita.tipoInfoDaRegistrare === 'Percentuale completamento') {
+      this.aggiornamentoValoreForm = this.fb.group({
+        percentualeAvanzamento: [attivita.percentualeAvanzamento || 0, [Validators.required, Validators.min(0), Validators.max(100)]],
       });
-      this.saveAsExcelFile(excelBuffer, 'template-piani-sviluppo');
-    });
+    } else if (attivita.tipoInfoDaRegistrare === 'Flag completamento') {
+      this.aggiornamentoValoreForm = this.fb.group({
+        completata: [attivita.completata || false],
+      });
+    } else if (attivita.tipoInfoDaRegistrare === 'Data') {
+      this.aggiornamentoValoreForm = this.fb.group({
+        dataRiferimento: [attivita.dataRiferimento ? new Date(attivita.dataRiferimento as any) : null, [Validators.required]],
+      });
+    } else if (attivita.tipoInfoDaRegistrare === 'Lettera') {
+      this.aggiornamentoValoreForm = this.fb.group({
+        lettera: [attivita.lettera || '', [Validators.required]],
+      });
+    }
+
+    this.showDialogAggiornamentoValore = true;
+    this.cdr.detectChanges();
   }
 
-  saveAsExcelFile(buffer: any, fileName: string): void {
-    import('file-saver').then((module) => {
-      if (module && module.default) {
-        let EXCEL_TYPE =
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-        let EXCEL_EXTENSION = '.xlsx';
-        const data: Blob = new Blob([buffer], {
-          type: EXCEL_TYPE,
-        });
-        module.default.saveAs(
-          data,
-          fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION
-        );
-      }
-    });
+  aggiornaValore() {
+    if (!this.aggiornamentoValoreForm?.valid || !this.selectedAttivita) return;
+
+    let formValue = this.aggiornamentoValoreForm.value;
+    const attivitaAggiornata = { ...this.selectedAttivita } as Attivita;
+
+    // Aggiorna il campo specifico in base al tipo
+    if (this.selectedAttivita.tipoInfoDaRegistrare === 'Percentuale completamento') {
+      attivitaAggiornata.percentualeAvanzamento = formValue.percentualeAvanzamento;
+    } else if (this.selectedAttivita.tipoInfoDaRegistrare === 'Flag completamento') {
+      attivitaAggiornata.completata = formValue.completata;
+    } else if (this.selectedAttivita.tipoInfoDaRegistrare === 'Data') {
+      attivitaAggiornata.dataRiferimento = formValue.dataRiferimento ? moment(formValue.dataRiferimento).startOf('day') : undefined;
+    } else if (this.selectedAttivita.tipoInfoDaRegistrare === 'Lettera') {
+      attivitaAggiornata.lettera = formValue.lettera;
+    }
+
+    this.attivitaService.update(this.selectedAttivita.id!, attivitaAggiornata)
+      .subscribe({
+        next: () => {
+          this.showDialogAggiornamentoValore = false;
+          this.ms.add({
+            severity: 'success',
+            summary: 'Conferma',
+            detail: 'Valore attività aggiornato con successo',
+          });
+          this.loadPianiSviluppo();
+        },
+        error: (err: any) => {
+          console.debug(err);
+          this.ms.add({
+            severity: 'error',
+            summary: 'Errore',
+            detail: 'Impossibile aggiornare il valore dell\'attività',
+          });
+        },
+      });
   }
 
+  tornaAllElencoCommesse() {
+    this.navigator.elencoCommesse();
+  }
+
+  // ==================== UTILITY ====================
+
+  getNomeUtente(utenteId?: string): string {
+    if (!utenteId) return '';
+    const utente = this.utentiList.find(u => u.id === utenteId);
+    return utente?.nominativo || '';
+  }
+
+  getNomePersonale(personaleId?: number): string {
+    if (!personaleId) return '';
+    const personale = this.personaleClienteList.find(p => p.id === personaleId);
+    return personale ? `${personale.nome} ${personale.cognome}` : '';
+  }
 }

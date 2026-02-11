@@ -249,7 +249,8 @@ export class GestioneUtentiComponent implements OnInit {
       acceptLabel: 'Sì',
       acceptIcon: 'pi pi-check',
       rejectIcon: 'pi pi-times',
-      rejectButtonStyleClass: 'p-button-text',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-primary',
       accept: () => {
         this.gas.eliminaUtente(email).subscribe({
           next: () => {

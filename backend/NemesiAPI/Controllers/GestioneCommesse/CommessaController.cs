@@ -55,7 +55,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
                 .Include(c => c.ReferenteCliente)
                 .Include(c => c.TipologiaCommessa)
                 .Include(c => c.StatusCommessa)
-                .Include(c => c.PianiSviluppo)
+                .Include(c => c.PianiSviluppo).ThenInclude(p => p.Attivita)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (item == null)
@@ -111,11 +111,23 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (model == null || id != model.Id)
                 return BadRequest();
 
-            var exists = await dbContext.Commessa.AnyAsync(c => c.Id == id);
-            if (!exists)
+            var existing = await dbContext.Commessa.FirstOrDefaultAsync(c => c.Id == id);
+            if (existing == null)
                 return NotFound();
 
-            dbContext.Entry(model).State = EntityState.Modified;
+            // Aggiorna solo i campi modificabili, preservando l'audit trail
+            existing.ClienteId = model.ClienteId;
+            existing.LuogoCommessa = model.LuogoCommessa;
+            existing.Protocollo = model.Protocollo;
+            existing.PmEdileId = model.PmEdileId;
+            existing.ReferenteClienteId = model.ReferenteClienteId;
+            existing.PmAmministrativoId = model.PmAmministrativoId;
+            existing.TipologiaCommessaId = model.TipologiaCommessaId;
+            existing.Descrizione = model.Descrizione;
+            existing.CostoAtteso = model.CostoAtteso;
+            existing.StatusCommessaId = model.StatusCommessaId;
+            existing.DataInizioPrevista = model.DataInizioPrevista;
+            existing.DataConclusionePrevista = model.DataConclusionePrevista;
 
             try
             {
@@ -190,6 +202,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
                         {
                             PianoSviluppoId = nuovoPiano.Id,
                             Descrizione = templateAttivita.Descrizione,
+                            TipoInfoDaRegistrare = templateAttivita.TipoInfoDaRegistrare,
                             PercentualeAvanzamento = 0,
                             Completata = false,
                             Ordine = templateAttivita.Ordine

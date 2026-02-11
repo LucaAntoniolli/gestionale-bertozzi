@@ -111,7 +111,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (model == null || id != model.Id)
                 return BadRequest();
 
-            var attivitaEsistente = await dbContext.Attivita.FirstOrDefaultAsync(x => x.Id == id);
+            var attivitaEsistente = await dbContext.Attivita.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (attivitaEsistente == null)
                 return NotFound();
 

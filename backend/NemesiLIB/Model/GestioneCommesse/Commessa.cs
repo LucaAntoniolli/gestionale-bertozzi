@@ -18,7 +18,7 @@ namespace NemesiLIB.Model.GestioneCommesse
         public string Descrizione { get; set; }
         public decimal CostoAtteso { get; set; }
         public int StatusCommessaId { get; set; }
-        public DateTime? DataInizioPorevista { get; set; }
+        public DateTime? DataInizioPrevista { get; set; }
         public DateTime? DataConclusionePrevista { get; set; }
         public DateTime DataCreazione { get; set; }
         public DateTime? DataModifica { get; set; }
