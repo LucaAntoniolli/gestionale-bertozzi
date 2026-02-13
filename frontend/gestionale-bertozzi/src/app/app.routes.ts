@@ -3,6 +3,7 @@ import { AppLayout } from './layout/component/app.layout';
 import { NotfoundComponent } from './gestionale-bertozzi/components/notfound/notfound.component';
 import { accessoGuard } from './services/Guards/accesso.guard';
 import { HomeComponent } from './gestionale-bertozzi/components/home/home.component';
+import { AppInfoComponent } from './gestionale-bertozzi/components/app-info/app-info.component';
 
 export const routes: Routes = [
     {
@@ -10,6 +11,7 @@ export const routes: Routes = [
         children: [
             { path: 'home', component: HomeComponent },
             { path: 'user', loadChildren: () => import('./gestionale-bertozzi/user/user.routes') },
+            { path: 'info', component: AppInfoComponent, canActivate: [accessoGuard] },
             { path: '', loadChildren: () => import('./gestionale-bertozzi/gestionale-bertozzi.routes') }, 
         ]
     },

@@ -49,7 +49,7 @@ export class AppTopbar {
             { 
                 icon: 'pi pi-fw pi-info',
                 label: 'About',
-                routerLink: ['/framework/app-info'] }
+                routerLink: ['/info'] }
         ];
 
     }
