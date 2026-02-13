@@ -275,7 +275,7 @@
 
 <!-- DIALOG CREAZIONE NUOVA ATTIVITA -->
 <p-dialog header="Dati nuova attività" [modal]="true" [(visible)]="showDialogCreazioneAttivita"
-  [style]="{width: '50dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
+  [style]="{width: '30dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
   <span class="p-text-secondary block mb-5">Inserisci i dati per creare la nuova attività.</span>
   <form [formGroup]="nuovaAttivitaForm" *ngIf="nuovaAttivitaForm">
     <div class="grid">
@@ -315,7 +315,7 @@
 </p-dialog>
 
 <!-- DIALOG MODIFICA ATTIVITA -->
-<p-dialog header="Modifica attività" [modal]="true" [(visible)]="showDialogModificaAttivita" [style]="{width: '50dvw'}"
+<p-dialog header="Modifica attività" [modal]="true" [(visible)]="showDialogModificaAttivita" [style]="{width: '30dvw'}"
   [closable]="true" [draggable]="false" [resizable]="false">
   <span class="p-text-secondary block mb-5">Modifica i dati dell'attività.</span>
   <form [formGroup]="modificaAttivitaForm" *ngIf="modificaAttivitaForm">
@@ -357,7 +357,7 @@
 
 <!-- DIALOG AGGIORNAMENTO VALORE ATTIVITA -->
 <p-dialog header="Aggiorna valore attività" [modal]="true" [(visible)]="showDialogAggiornamentoValore"
-  [style]="{width: '40dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
+  [style]="{width: '15dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
   <span class="p-text-secondary block mb-5">Aggiorna il valore dell'attività.</span>
   <form [formGroup]="aggiornamentoValoreForm" *ngIf="aggiornamentoValoreForm && selectedAttivita">
     <div class="grid">
