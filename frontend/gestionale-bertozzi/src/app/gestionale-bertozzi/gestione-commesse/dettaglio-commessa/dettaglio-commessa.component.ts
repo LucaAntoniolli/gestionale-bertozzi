@@ -27,6 +27,7 @@ import { UtenteService } from '../../../services/utente.service';
 import { PersonaleClienteService } from '../../../services/Anagrafiche/personale-cliente.service';
 import moment from 'moment';
 import { NavigatorService } from '../../../services/navigator.service';
+import { PermissionsService } from '../../../auth/permissions.service';
 
 @Component({
   selector: 'app-dettaglio-commessa',
@@ -61,6 +62,7 @@ export class DettaglioCommessaComponent implements OnInit {
   private conf = inject(ConfirmationService);
   private ms = inject(MessageService);
   private cdr = inject(ChangeDetectorRef);
+  private permissionsService = inject(PermissionsService);
 
   commessaId?: number;
   commessa?: Commessa;
@@ -96,6 +98,14 @@ export class DettaglioCommessaComponent implements OnInit {
     'Lettera',
     'Data'
   ];
+
+  //Getter per gestione permessi - ora centralizzati nel service
+  get canDeletePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canDelete(); }
+  get canCreatePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canCreate(); }
+  get canEditPianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canUpdate(); }
+  get canDeleteAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canDelete(); }
+  get canCreateAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canCreate(); }
+  get canEditAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canUpdate(); }
 
   ngOnInit() {
     // Recupera l'ID della commessa dalla route

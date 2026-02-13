@@ -10,10 +10,10 @@ export default [
     {
         path: '', component: AnagraficheComponent,
         children: [
-            { path: 'tipologie-commessa', component: TipologieCommessaComponent },
-            { path: 'status-commessa', component: StatusCommessaComponent },
-            { path: 'modalita-pagamento', component: ModalitaPagamentoComponent },
-            { path: 'gestione-clienti', component: GestioneClientiComponent },
+            { path: 'tipologie-commessa', component: TipologieCommessaComponent, canActivate: [accessoGuard, AdminGuard] },
+            { path: 'status-commessa', component: StatusCommessaComponent, canActivate: [accessoGuard, AdminGuard] },
+            { path: 'modalita-pagamento', component: ModalitaPagamentoComponent, canActivate: [accessoGuard, AdminGuard] },
+            { path: 'gestione-clienti', component: GestioneClientiComponent, canActivate: [accessoGuard, AdminGuard] },
         ]
     },
 ]

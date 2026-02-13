@@ -31,6 +31,8 @@ import moment from 'moment';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { NavigatorService } from '../../../services/navigator.service';
+import { AuthService } from '../../../auth/auth.service';
+import { PermissionsService } from '../../../auth/permissions.service';
 
 @Component({
     selector: 'app-elenco-commesse',
@@ -76,7 +78,14 @@ export class ElencoCommesseComponent implements OnInit {
 
     @ViewChild('dt1') table!: Table;
 
+    //Getter per gestione permessi - ora centralizzati nel service
+    get canDeleteCommessa(): boolean { return this.permissionsService.createEntityHelper('commessa').canDelete();}
+    get canCreateCommessa(): boolean { return this.permissionsService.createEntityHelper('commessa').canCreate(); }
+    get canEditCommessa(): boolean { return this.permissionsService.createEntityHelper('commessa').canUpdate(); }
+    
     constructor(
+        private authService: AuthService,
+        private permissionsService: PermissionsService,
         private commessaService: CommessaService,
         private clienteService: ClienteService,
         private navigator: NavigatorService,
@@ -89,7 +98,8 @@ export class ElencoCommesseComponent implements OnInit {
         private cs: ConfirmationService,
         private bo: BreakpointObserver,
         private cdr: ChangeDetectorRef,
-    ) { }
+    ) {
+     }
 
     ngOnInit() {
         this.isMobile$ = this.bo

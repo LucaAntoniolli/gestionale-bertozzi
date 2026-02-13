@@ -63,6 +63,30 @@ export class AppMenu {
                 },
             );
         }
+
+        if (this.ruoloUtente == "Backoffice") {
+            this.model.push(
+                {
+                    label: 'GESTIONE COMMESSE',
+                    items: [
+                        { label: 'Gestione template piani di sviluppo', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/template-piani-sviluppo'] },
+                        { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
+                    ]
+                },
+            );
+        }
+
+        if (this.ruoloUtente == "Utente Base") {
+            this.model.push(
+                {
+                    label: 'GESTIONE COMMESSE',
+                    items: [
+                        { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
+                    ]
+                },
+            );
+        }
+        
         this.cdr.detectChanges();
     }
 }

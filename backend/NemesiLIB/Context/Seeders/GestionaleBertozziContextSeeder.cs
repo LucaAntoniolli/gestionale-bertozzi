@@ -104,8 +104,39 @@ namespace NemesiLIB.Context.Seeders
                     "attivita.update",
                     "attivita.delete"
                 } },
-                { "Backoffice", new List<string> {} },
-                { "Utente Base", new List<string> {} }
+                { "Backoffice", new List<string> {
+                    "cliente.read",
+                    "cliente.create",
+                    "cliente.update",
+                    "cliente.delete",
+                    "templatepianosviluppo.read",
+                    "templatepianosviluppo.create",
+                    "templatepianosviluppo.update",
+                    "templatepianosviluppo.delete",
+                    "templateattivita.read",
+                    "templateattivita.create",
+                    "templateattivita.update",
+                    "templateattivita.delete",
+                    "commessa.read",
+                    "commessa.create",
+                    "commessa.update",
+                    "commessa.delete",
+                    "pianosviluppo.read",
+                    "pianosviluppo.create",
+                    "pianosviluppo.update",
+                    "pianosviluppo.delete",
+                    "attivita.read",
+                    "attivita.create",
+                    "attivita.update",
+                    "attivita.delete"
+                } },
+                { "Utente Base", new List<string> {
+                    "commessa.read",
+                    "pianosviluppo.read",
+                    "pianosviluppo.update",
+                    "attivita.read",
+                    "attivita.update",
+                } }
             };
 
             foreach (var kvp in rolePermissions)

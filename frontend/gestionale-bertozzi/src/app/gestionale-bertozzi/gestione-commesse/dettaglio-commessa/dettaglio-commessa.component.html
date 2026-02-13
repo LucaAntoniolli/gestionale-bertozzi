@@ -98,10 +98,11 @@
     <div class="mb-4">
       <p-toolbar>
         <div class="p-toolbar-group-start">
-          <h3 class="m-0">Piani di Sviluppo</h3>
+          <h3 class="m-0">Piani di Sviluppo e Attività</h3>
         </div>
         <div class="p-toolbar-group-end">
-          <p-button label="Aggiungi Piano di Sviluppo" icon="pi pi-plus" (click)="mostraFormCreazionePiano()" />
+          <p-button label="Aggiungi Piano di Sviluppo" icon="pi pi-plus" (click)="mostraFormCreazionePiano()"
+            *ngIf="canCreatePianoSviluppo"></p-button>
         </div>
       </p-toolbar>
     </div>
@@ -114,7 +115,7 @@
       <ng-template #header>
         <tr>
           <th style="width: 1rem">Vedi attività</th>
-          <th style="width: 8rem">Azioni</th>
+          <th style="width: 3rem">Azioni</th>
           <th pSortableColumn="ordine">Ordine <p-sortIcon field="ordine" /></th>
           <th pSortableColumn="descrizione">Descrizione Piano <p-sortIcon field="descrizione" /></th>
           <th>N. Attività</th>
@@ -131,11 +132,11 @@
           <td>
             <div class="flex gap-2">
               <button pButton icon="pi pi-plus" class="p-button-success p-button-sm" pTooltip="Aggiungi attività"
-                tooltipPosition="top" (click)="mostraFormCreazioneAttivita(piano)"></button>
+                tooltipPosition="top" (click)="mostraFormCreazioneAttivita(piano)" *ngIf="canCreateAttivita"></button>
               <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
-                tooltipPosition="top" (click)="mostraFormModificaPiano(piano)"></button>
+                tooltipPosition="top" (click)="mostraFormModificaPiano(piano)" *ngIf="canEditPianoSviluppo"></button>
               <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina piano"
-                tooltipPosition="top" (click)="eliminaPiano($event, piano)"></button>
+                tooltipPosition="top" (click)="eliminaPiano($event, piano)" *ngIf="canDeletePianoSviluppo"></button>
             </div>
           </td>
           <td>{{ piano.ordine }}</td>
@@ -152,7 +153,7 @@
               <p-table [value]="piano.attivita" [scrollable]="true">
                 <ng-template pTemplate="header">
         <tr>
-          <th style="width: 6rem">Azioni</th>
+          <th style="width: 3rem">Azioni</th>
           <th pSortableColumn="ordine">Ordine <p-sortIcon field="ordine" /></th>
           <th pSortableColumn="descrizione">Descrizione <p-sortIcon field="descrizione" /></th>
           <th>Valore</th>
@@ -163,11 +164,11 @@
           <td>
             <div class="flex gap-2">
               <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
-                tooltipPosition="top" (click)="mostraFormModificaAttivita(attivita)"></button>
+                tooltipPosition="top" (click)="mostraFormModificaAttivita(attivita)" *ngIf="canEditAttivita"></button>
               <button pButton icon="pi pi-pen-to-square" class="p-button-info p-button-sm" pTooltip="Aggiorna valore"
                 tooltipPosition="top" (click)="mostraFormAggiornamentoValore(attivita)"></button>
               <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
-                tooltipPosition="top" (click)="eliminaAttivita($event, attivita)"></button>
+                tooltipPosition="top" (click)="eliminaAttivita($event, attivita)" *ngIf="canDeleteAttivita"></button>
             </div>
           </td>
           <td>{{ attivita.ordine }}</td>

@@ -7,7 +7,7 @@
         <div class="p-toolbar-group-center"></div>
         <div class="p-toolbar-group-end">
           <p-button label="Crea nuova commessa" icon="pi pi-plus" (click)="mostraFormCreazioneCommessa()"
-            [disabled]="loading" />
+            [disabled]="loading" *ngIf="canCreateCommessa" />
         </div>
       </p-toolbar>
     </div>
@@ -35,7 +35,7 @@
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-          <th style="width: 8rem">
+          <th style="width: 3rem">
             <div class="flex justify-content-between align-items-center">
               Azioni
             </div>
@@ -114,9 +114,9 @@
               <button pButton icon="pi pi-eye" class="p-button-primary p-button-sm" pTooltip="Dettaglio"
                 tooltipPosition="top" (click)="dettaglioCommessa(commessa.id)"></button>
               <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
-                tooltipPosition="top" (click)="modificaCommessa(commessa)"></button>
+                tooltipPosition="top" (click)="modificaCommessa(commessa)" *ngIf="canEditCommessa"></button>
               <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
-                tooltipPosition="top" (click)="eliminaCommessa(commessa)"></button>
+                tooltipPosition="top" (click)="eliminaCommessa(commessa)" *ngIf="canDeleteCommessa"></button>
             </div>
           </td>
           <td>

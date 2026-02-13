@@ -254,8 +254,8 @@ export class AuthService {
     return this.hasRole('Backoffice');
   }
 
-  isUserTecnico(): boolean {
-    return this.hasRole('Tecnico');
+  isUserUtenteBase(): boolean {
+    return this.hasRole('Utente Base');
   }
 
   getUser(): Observable<any> {
