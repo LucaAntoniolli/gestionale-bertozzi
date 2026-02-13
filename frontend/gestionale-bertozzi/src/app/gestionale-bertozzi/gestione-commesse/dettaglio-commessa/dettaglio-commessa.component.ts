@@ -174,6 +174,21 @@ export class DettaglioCommessaComponent implements OnInit {
       });
   }
 
+  // ==================== EXPAND/COLLAPSE ROWS ====================
+
+  expandAll() {
+    this.expandedRowKeys = {};
+    this.pianiSviluppo.forEach(piano => {
+      if (piano.id && piano.attivita && piano.attivita.length > 0) {
+        this.expandedRowKeys[piano.id.toString()] = true;
+      }
+    });
+  }
+
+  collapseAll() {
+    this.expandedRowKeys = {};
+  }
+
   // ==================== PIANO CRUD ====================
 
   mostraFormCreazionePiano() {
