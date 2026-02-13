@@ -4,10 +4,15 @@
 
     <div class="mb-5">
       <p-toolbar>
-        <div class="p-toolbar-group-center"></div>
-        <div class="p-toolbar-group-end">
+        <div class="p-toolbar-group-start">
           <p-button label="Crea nuova commessa" icon="pi pi-plus" (click)="mostraFormCreazioneCommessa()"
             [disabled]="loading" *ngIf="canCreateCommessa" />
+        </div>
+        <div class="p-toolbar-group-center"></div>
+        <div class="p-toolbar-group-end">
+
+          <p-selectbutton [options]="commessaStateOptions" [(ngModel)]="soloChiuse" optionLabel="label"
+            optionValue="value" aria-labelledby="basic" (onChange)="loadData($event)" />
         </div>
       </p-toolbar>
     </div>

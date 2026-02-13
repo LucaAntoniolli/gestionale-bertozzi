@@ -9,6 +9,7 @@ using NemesiLIB.Model.PianiSviluppo;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NemesiAPI.Controllers.GestioneCommesse
 {
@@ -18,15 +19,17 @@ namespace NemesiAPI.Controllers.GestioneCommesse
     public class CommessaController : ControllerBase
     {
         private readonly GestionaleBertozziContext dbContext;
+        private readonly IConfiguration configuration;
 
-        public CommessaController(GestionaleBertozziContext db)
+        public CommessaController(GestionaleBertozziContext db, IConfiguration config)
         {
             dbContext = db;
+            configuration = config; 
         }
 
         [HttpGet]
         [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "commessa.read")]
-        public async Task<ActionResult<IEnumerable<Commessa>>> GetAll([FromQuery] int? clienteId = null)
+        public async Task<ActionResult<IEnumerable<Commessa>>> GetAll([FromQuery] int? clienteId = null, [FromQuery] bool soloChiuse = false)
         {
             IQueryable<Commessa> q = dbContext.Commessa.AsNoTracking();
 
@@ -34,6 +37,11 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             {
                 q = q.Where(c => c.ClienteId == clienteId.Value);
             }
+
+            if (soloChiuse)
+                q = q.Where(c => c.StatusCommessaId == configuration.GetValue<int>("ApplicationParameters:IdStatusCommessaChiusa"));
+            else
+                q = q.Where(c => c.StatusCommessaId != configuration.GetValue<int>("ApplicationParameters:IdStatusCommessaChiusa"));
 
             var list = await q
                 .Include(c => c.Cliente)

@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { first, forkJoin, map, Observable } from 'rxjs';
@@ -31,8 +31,8 @@ import moment from 'moment';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { NavigatorService } from '../../../services/navigator.service';
-import { AuthService } from '../../../auth/auth.service';
 import { PermissionsService } from '../../../auth/permissions.service';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 @Component({
     selector: 'app-elenco-commesse',
@@ -40,21 +40,23 @@ import { PermissionsService } from '../../../auth/permissions.service';
     styleUrls: ['./elenco-commesse.component.css'],
     standalone: true,
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        TitoloPaginaComponent,
         ButtonModule,
+        CommonModule,
+        ConfirmDialogModule,
+        DatePickerModule,
         DialogModule,
-        TableModule,
-        ToolbarModule,
-        InputText,
-        InputNumberModule,
+        FormsModule,
         IconFieldModule,
         InputIconModule,
+        InputNumberModule,
+        InputText,
         MessageModule,
+        ReactiveFormsModule,
+        SelectButtonModule,
         SelectModule,
-        DatePickerModule,
-        ConfirmDialogModule,
+        TableModule,
+        TitoloPaginaComponent,
+        ToolbarModule,
     ]
 })
 export class ElencoCommesseComponent implements OnInit {
@@ -78,13 +80,18 @@ export class ElencoCommesseComponent implements OnInit {
 
     @ViewChild('dt1') table!: Table;
 
+    soloChiuse: boolean = false;
+    commessaStateOptions = [
+        { label: 'Solo chiuse', value: true },
+        { label: 'Solo aperte', value: false },
+    ];
+
     //Getter per gestione permessi - ora centralizzati nel service
     get canDeleteCommessa(): boolean { return this.permissionsService.createEntityHelper('commessa').canDelete();}
     get canCreateCommessa(): boolean { return this.permissionsService.createEntityHelper('commessa').canCreate(); }
     get canEditCommessa(): boolean { return this.permissionsService.createEntityHelper('commessa').canUpdate(); }
     
     constructor(
-        private authService: AuthService,
         private permissionsService: PermissionsService,
         private commessaService: CommessaService,
         private clienteService: ClienteService,
@@ -142,9 +149,12 @@ export class ElencoCommesseComponent implements OnInit {
     }
 
     /** Carica le commesse dal server */
-    private loadData() {
+    loadData(event?: any) {
         this.loading = true;
-        this.commessaService.getAll().pipe(first())
+        if (event && event.value !== undefined) {
+            this.soloChiuse = event.value;
+        }
+        this.commessaService.getAll(undefined, this.soloChiuse).pipe(first())
             .subscribe({
                 next: (commesseList: Commessa[]) => {
                     this.loading = false;

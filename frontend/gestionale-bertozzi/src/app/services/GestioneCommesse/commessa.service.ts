@@ -17,12 +17,16 @@ export class CommessaService {
   /**
    * Recupera tutte le commesse, opzionalmente filtrate per cliente
    * @param clienteId - ID del cliente per filtrare le commesse (opzionale)
+   * @param soloChiuse - Se true, recupera solo le commesse chiuse (default: false)
    * @returns Observable array di commesse
    */
-  getAll(clienteId?: number): Observable<Commessa[]> {
+  getAll(clienteId?: number, soloChiuse: boolean = false): Observable<Commessa[]> {
     let params = new HttpParams();
     if (clienteId) {
       params = params.set('clienteId', clienteId.toString());
+    }
+    if (soloChiuse) {
+      params = params.set('soloChiuse', soloChiuse.toString());
     }
     return this.httpClient.get<any[]>(this.baseUrl, { params })
       .pipe(map(data => Commessa.mapArray(data)));
