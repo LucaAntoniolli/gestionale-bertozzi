@@ -1,5 +1,5 @@
 import { accessoGuard } from "../../services/Guards/accesso.guard";
-import { AdminGuard } from "../../services/Guards/admin.guard";
+import { hasAnyRoleGuard } from "../../services/Guards/role.guard";
 import { AnagraficheComponent } from "./anagrafiche.component";
 import { GestioneClientiComponent } from "./components/gestione-clienti/gestione-clienti.component";
 import { ModalitaPagamentoComponent } from "./components/modalita-pagamento/modalita-pagamento.component";
@@ -10,10 +10,10 @@ export default [
     {
         path: '', component: AnagraficheComponent,
         children: [
-            { path: 'tipologie-commessa', component: TipologieCommessaComponent, canActivate: [accessoGuard, AdminGuard] },
-            { path: 'status-commessa', component: StatusCommessaComponent, canActivate: [accessoGuard, AdminGuard] },
-            { path: 'modalita-pagamento', component: ModalitaPagamentoComponent, canActivate: [accessoGuard, AdminGuard] },
-            { path: 'gestione-clienti', component: GestioneClientiComponent, canActivate: [accessoGuard, AdminGuard] },
+            { path: 'tipologie-commessa', component: TipologieCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
+            { path: 'status-commessa', component: StatusCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
+            { path: 'modalita-pagamento', component: ModalitaPagamentoComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
+            { path: 'gestione-clienti', component: GestioneClientiComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
         ]
     },
 ]
