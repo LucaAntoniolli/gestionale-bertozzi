@@ -47,6 +47,7 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   selectedTipologiaCommessa?: TipologiaCommessa;
   expandedRowKeys: { [key: string]: boolean } = {};
   loading: boolean = false;
+  canAddPianoSviluppo: boolean = true;
 
   // Forms
   nuovoPianoForm?: FormGroup;
@@ -125,6 +126,7 @@ export class TemplatePianiSviluppoComponent implements OnInit {
         next: (result) => {
           this.loading = false;
           this.pianiSviluppo = result;
+          this.canAddPianoSviluppo = this.pianiSviluppo.length === 0;
           this.cdr.detectChanges();
         },
         error: (err: any) => {

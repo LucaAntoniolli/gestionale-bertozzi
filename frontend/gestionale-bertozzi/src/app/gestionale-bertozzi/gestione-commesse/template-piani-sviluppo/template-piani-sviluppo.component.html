@@ -9,7 +9,7 @@
     </div>
 
     @if(selectedTipologiaCommessa) {
-    <div class="mb-5">
+    <div class="mb-5" *ngIf="canAddPianoSviluppo">
       <p-toolbar>
         <div class="p-toolbar-group-center"></div>
         <div class="p-toolbar-group-end">
