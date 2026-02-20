@@ -16,6 +16,9 @@ namespace NemesiLIB.Context
     {
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod()?.DeclaringType);
 
+        //TOKEN
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
         //ANAGRAFICHE
         public virtual DbSet<Cliente> Cliente{ get; set; }
         public virtual DbSet<ModalitaPagamento> ModalitaPagamento { get; set; }
@@ -38,8 +41,6 @@ namespace NemesiLIB.Context
         {
             this.httpContextAccessor = httpContextAccessor;
         }
-
-        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder model)
         {
