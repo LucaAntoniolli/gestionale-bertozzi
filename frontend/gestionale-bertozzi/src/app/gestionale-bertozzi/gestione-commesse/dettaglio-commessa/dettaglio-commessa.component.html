@@ -4,7 +4,10 @@
     <div class="mb-4">
       <p-toolbar>
         <div class="p-toolbar-group-start">
-          <h3 class="m-0">Dettaglio commessa</h3>
+          <div class="p-toolbar-group-start flex items-center align-items-center justify-content-center gap-2">
+            <i class="pi pi-info-circle text-2xl"></i>
+            <h3 class="m-0">Dettaglio commessa</h3>
+          </div>
         </div>
         <div class="p-toolbar-group-end">
           <p-button label="Torna all'elenco commesse" icon="pi pi-arrow-left" (click)="tornaAllElencoCommesse()" />
@@ -99,7 +102,8 @@
     <!-- TOOLBAR PIANI DI SVILUPPO -->
     <div class="mb-4">
       <p-toolbar>
-        <div class="p-toolbar-group-start">
+        <div class="p-toolbar-group-start flex items-center align-items-center justify-content-center gap-2">
+          <i class="pi pi-list text-2xl"></i>
           <h3 class="m-0">Piani di Sviluppo e Attività</h3>
         </div>
         <div class="p-toolbar-group-end">
@@ -113,6 +117,35 @@
           </div>
         </div>
       </p-toolbar>
+      <p-panel [toggleable]="true">
+        <ng-template #header>
+          <div class="flex items-center align-items-center justify-content-center gap-2">
+            <i class="pi pi-chart-pie text-xl"></i>
+            <span class="font-bold text-xl">Statistiche sintetiche</span>
+          </div>
+        </ng-template>
+        <div class="flex flex-wrap gap-4">
+          <div class="flex flex-column align-items-center">
+            <p>Numero totale attività</p>
+            <p-avatar label="{{numeroTotaleAttivita}}" styleClass="avatar-xlarge" />
+          </div>
+          <div class="flex flex-column align-items-center" *ngFor="let tipo of tipiInfoDaRegistrare">
+            <p>{{ tipo }}</p>
+            <p-avatar label="{{ numeroAttivitaPerTipo[tipo] || 0 }}" styleClass="avatar-xlarge" />
+          </div>
+          <div class="flex flex-column align-items-center">
+            <p>Percentuale attività completate</p>
+            <p-knob [(ngModel)]="percentualeAttivitaCompletate" [readonly]="true" valueTemplate="{value}%"
+              [size]="70"></p-knob>
+          </div>
+          <div class="flex flex-column align-items-center">
+            <p>Media percentuale completamento</p>
+            <p-knob [(ngModel)]="mediaPercentualeCompletamento" [readonly]="true" valueTemplate="{value}%"
+              [size]="70"></p-knob>
+          </div>
+
+        </div>
+      </p-panel>
     </div>
 
     <!-- TABELLA PIANI DI SVILUPPO E ATTIVITÀ -->

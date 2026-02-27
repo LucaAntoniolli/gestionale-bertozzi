@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { first, forkJoin } from 'rxjs';
+import { count, first, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -28,6 +28,9 @@ import { PersonaleClienteService } from '../../../services/Anagrafiche/personale
 import moment from 'moment';
 import { NavigatorService } from '../../../services/navigator.service';
 import { PermissionsService } from '../../../auth/permissions.service';
+import { PanelModule } from 'primeng/panel';
+import { KnobModule } from 'primeng/knob';
+import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-dettaglio-commessa',
@@ -46,6 +49,9 @@ import { PermissionsService } from '../../../auth/permissions.service';
     DatePickerModule,
     CheckboxModule,
     ProgressBarModule,
+    PanelModule,
+    KnobModule,
+    AvatarModule
   ],
   templateUrl: './dettaglio-commessa.component.html',
   styleUrl: './dettaglio-commessa.component.css'
@@ -71,6 +77,10 @@ export class DettaglioCommessaComponent implements OnInit {
   personaleClienteList: PersonaleCliente[] = [];
   expandedRowKeys: { [key: string]: boolean } = {};
   loading: boolean = false;
+  percentualeAttivitaCompletate: number = 0;
+  mediaPercentualeCompletamento: number = 0;
+  numeroAttivitaPerTipo: { [key: string]: number } = {};
+  numeroTotaleAttivita: number = 0;
 
   // Forms
   nuovoPianoForm?: FormGroup;
@@ -130,6 +140,9 @@ export class DettaglioCommessaComponent implements OnInit {
         this.utentiList = data.utenti.filter(u => !u.isEsterno);
         this.personaleClienteList = data.personale;
         this.pianiSviluppo = this.commessa.pianiSviluppo || [];
+        this.calcolaNumeroAttivitaCompletate();
+        this.calcolaPercentualeCompletamento();
+        this.calcolaNumeroAttivitaTotaliePerTipo();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -157,6 +170,9 @@ export class DettaglioCommessaComponent implements OnInit {
         next: (result) => {
           this.loading = false;
           this.pianiSviluppo = result;
+          this.calcolaNumeroAttivitaCompletate();
+          this.calcolaPercentualeCompletamento();
+          this.calcolaNumeroAttivitaTotaliePerTipo();
           this.cdr.detectChanges();
         },
         error: (err: any) => {
@@ -520,5 +536,50 @@ export class DettaglioCommessaComponent implements OnInit {
     if (!personaleId) return '';
     const personale = this.personaleClienteList.find(p => p.id === personaleId);
     return personale ? `${personale.nome} ${personale.cognome}` : '';
+  }
+
+  calcolaNumeroAttivitaCompletate(): void {
+    let countTotale = 0;
+    let countCompletate = 0;  
+    this.pianiSviluppo.forEach(piano => {
+      piano.attivita?.forEach(attivita => {
+          countTotale++;
+        if (attivita.tipoInfoDaRegistrare === 'Flag completamento' && attivita.completata) {
+          countCompletate++;
+        }
+      });
+    });
+
+    this.percentualeAttivitaCompletate = countTotale > 0 ? Number(((countCompletate / countTotale) * 100).toFixed(1)) : 0;
+  } 
+
+  calcolaPercentualeCompletamento(): void {
+    let countAttConPercentuale = 0;
+    let percentualeTotale = 0;
+    this.pianiSviluppo.forEach(piano => {
+      piano.attivita?.forEach(attivita => {
+        if(attivita.tipoInfoDaRegistrare === 'Percentuale completamento' && attivita.percentualeAvanzamento) {
+          countAttConPercentuale++;
+          percentualeTotale += attivita.percentualeAvanzamento;
+        }
+      });
+    });
+
+    this.mediaPercentualeCompletamento = countAttConPercentuale > 0 ? Math.round((percentualeTotale / countAttConPercentuale)) : 0;
+  }
+
+  calcolaNumeroAttivitaTotaliePerTipo(): void{
+    
+    this.numeroAttivitaPerTipo = {};
+    this.numeroTotaleAttivita = 0;
+
+    this.pianiSviluppo.forEach(piano => {
+      piano.attivita?.forEach(attivita => {
+        this.numeroTotaleAttivita++;
+        if(attivita.tipoInfoDaRegistrare) {
+          this.numeroAttivitaPerTipo[attivita.tipoInfoDaRegistrare] = (this.numeroAttivitaPerTipo[attivita.tipoInfoDaRegistrare] || 0) + 1;
+        }
+      });
+    });
   }
 }

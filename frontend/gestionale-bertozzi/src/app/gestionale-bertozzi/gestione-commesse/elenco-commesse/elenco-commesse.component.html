@@ -279,13 +279,13 @@
       <div class="field">
         <label htmlFor="referenteClienteId" class="mb-2 font-semibold">Referente Cliente</label>
         <p-select id="referenteClienteId" [options]="personaleClienteFiltrato" optionValue="id"
-          [placeholder]="personaleClienteFiltrato.length > 0 ? 'Seleziona referente' : 'Prima seleziona un cliente'"
+          [placeholder]="personaleClienteFiltrato.length > 0 ? 'Seleziona referente' : 'Nessun referente disponibile'"
           formControlName="referenteClienteId" [showClear]="true" class="w-full"
           [disabled]="personaleClienteFiltrato.length === 0">
           <ng-template let-value pTemplate="selectedItem">
             @if(value) {
             <span>
-              {{ getNomePersonale(value) }}
+              {{ getNomePersonale(value.id) }}
             </span>
             }
           </ng-template>
