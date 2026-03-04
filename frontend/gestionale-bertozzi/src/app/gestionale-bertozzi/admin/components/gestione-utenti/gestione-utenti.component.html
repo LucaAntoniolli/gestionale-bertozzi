@@ -15,7 +15,7 @@
         @if(utenti) {
         <p-table #dt1 [size]="'small'" [value]="utenti" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
             styleClass="p-datatable-gridlines" [paginator]="true"
-            [globalFilterFields]="['nominativo', 'cliente', 'email', 'societa']" responsiveLayout="scroll"
+            [globalFilterFields]="['nominativo', 'cliente', 'email', 'societa', 'ruoli']" responsiveLayout="scroll"
             sortMode="multiple">
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
@@ -45,24 +45,24 @@
                         <div class="flex justify-content-between align-items-center">
                             Nominativo
                             <p-sortIcon field="nominativo" />
-                            <p-columnFilter type="text" field="nominativo" display="menu"
-                                placeholder="Cerca per nominativo"></p-columnFilter>
                         </div>
                     </th>
                     <th style="min-width: 12rem" pSortableColumn="email">
                         <div class="flex justify-content-between align-items-center">
                             E-mail
                             <p-sortIcon field="email" />
-                            <p-columnFilter type="text" field="email" display="menu"
-                                placeholder="Cerca per email"></p-columnFilter>
                         </div>
                     </th>
-                    <th style="min-width: 12rem" pSortableColumn="ruolo">
+                    <th style="min-width: 12rem" pSortableColumn="ruoli">
                         <div class="flex justify-content-between align-items-center">
-                            Ruolo
-                            <p-sortIcon field="ruoli[0]" />
-                            <p-columnFilter type="text" field="ruoli[0]" display="menu"
-                                placeholder="Cerca per ruolo"></p-columnFilter>
+                            Profilo
+                            <p-sortIcon field="ruoli" />
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="ruoloAziendale">
+                        <div class="flex justify-content-between align-items-center">
+                            Ruolo aziendale
+                            <p-sortIcon field="ruoloAziendale" />
                         </div>
                     </th>
                     <th style="min-width: 8rem" pSortableColumn="isEsterno">
@@ -75,8 +75,6 @@
                         <div class="flex justify-content-between align-items-center">
                             Società
                             <p-sortIcon field="societa" />
-                            <p-columnFilter type="text" field="societa" display="menu"
-                                placeholder="Cerca per società"></p-columnFilter>
                         </div>
                     </th>
                     <th style="min-width: 10rem" pSortableColumn="costoOrario">
@@ -92,7 +90,7 @@
                     <td>
                         <div class="flex gap-2">
                             <button pButton label="" class="p-button-primary" icon="pi pi-user-edit" (click)="
-                                        mostraFormModificaUtente($event, utente.email, utente.nominativo, utente.ruoli)
+                                        mostraFormModificaUtente($event, utente.email, utente.nominativo, utente.ruoli, utente.ruoloAziendale)
                                     "></button>
                             <button pButton label="" class="p-button-danger" icon="pi pi-trash" (click)="
                                         eliminaUtente($event, utente.email)" [disabled]="
@@ -110,6 +108,9 @@
                         <span class="image-text">{{ utente.ruoli?.join(', ') }}</span>
                     </td>
                     <td>
+                        <span class="image-text">{{ utente.ruoloAziendale }}</span>
+                    </td>
+                    <td>
                         <span class="image-text">
                             <i class="pi" [class.pi-check]="utente.isEsterno" [class.pi-times]="!utente.isEsterno"
                                 [class.text-green-500]="utente.isEsterno" [class.text-red-500]="!utente.isEsterno"></i>
@@ -125,12 +126,12 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="7">Nessun utente presente.</td>
+                    <td colspan="8">Nessun utente presente.</td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="loadingbody">
                 <tr>
-                    <td colspan="7">Utenti in caricamento...</td>
+                    <td colspan="8">Utenti in caricamento...</td>
                 </tr>
             </ng-template>
         </p-table>
@@ -140,7 +141,7 @@
 
 <!-- DIALOG CENSIMENTO NUOVO UTENTE -->
 <p-dialog header="Dati nuovo utente" [modal]="true" [(visible)]="showDialogCreazioneUtente"
-    [style]="{ width: '450px', height: '68dvh' }">
+    [style]="{ width: '450px', height: '75dvh' }">
     <form [formGroup]="nuovoUtenteForm" *ngIf="nuovoUtenteForm">
         <div class="p-fluid">
             <div class="field grid">
@@ -178,10 +179,17 @@
                 </div>
             </div>
             <div class="field grid">
-                <label htmlFor="naclienteme3" class="col-12 mb-2 font-semibold w-full">Ruolo</label>
+                <label htmlFor="ruolo" class="col-12 mb-2 font-semibold w-full">Profilo</label>
                 <div class="col-12">
                     <p-select formControlName="ruolo" [options]="ruoli" optionValue="name" optionLabel="name"
-                        placeholder="Seleziona un ruolo" [showClear]="true" class="w-full" appendTo="body" />
+                        placeholder="Seleziona un profilo" [showClear]="true" class="w-full" appendTo="body" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="ruoloAziendale" class="col-12 mb-2 font-semibold w-full">Ruolo aziendale</label>
+                <div class="col-12">
+                    <p-select formControlName="ruoloAziendale" [options]="ruoliAziendali"
+                        placeholder="Seleziona un ruolo aziendale" [showClear]="true" class="w-full" appendTo="body" />
                 </div>
             </div>
             <div class="field grid">
@@ -195,6 +203,10 @@
                 <div class="col-12">
                     <input type="text" pInputText id="societa" class="w-full" autocomplete="off"
                         formControlName="societa" />
+                    <small id="societa-error" class="p-error"
+                        *ngIf="nuovoUtenteForm?.hasError('societaRequiredForEsterno') && nuovoUtenteForm.get('isEsterno')?.value">
+                        La società è obbligatoria per gli utenti esterni
+                    </small>
                 </div>
             </div>
             <div class="field grid">
@@ -217,7 +229,8 @@
 </p-dialog>
 
 <!-- DIALOG MODIFICA UTENTE -->
-<p-dialog header="Modifca utente" [modal]="true" [(visible)]="showDialogModificaUtente">
+<p-dialog header="Modifca utente" [modal]="true" [(visible)]="showDialogModificaUtente"
+    [style]="{ width: '450px', height: '60dvh' }">
     <form [formGroup]="modificaUtenteForm" *ngIf="modificaUtenteForm">
         <div class="p-fluid">
             <div class="field grid">
@@ -226,7 +239,7 @@
                     <input type="text" pInputText id="nominativo" class="flex-auto" autocomplete="off"
                         formControlName="nominativo" class="w-full" />
                     <small id="nominativo-error" class="p-error"
-                        *ngIf="modificaUtenteForm.get('nominativo')?.invalid && modificaUtenteForm.get('nominativo')?.touched">Devi
+                        *ngIf="modificaUtenteForm.get('nominativo')?.invalid">Devi
                         specificare il nominativo dell'utente
                     </small>
                 </div>
@@ -236,6 +249,13 @@
                 <div class="col-12">
                     <p-select formControlName="ruolo" [options]="ruoli" optionValue="name" optionLabel="name"
                         placeholder="Seleziona un ruolo" [showClear]="true" class="w-full" appendTo="body" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="ruoloAziendale" class="col-12 mb-2 font-semibold w-full">Ruolo aziendale</label>
+                <div class="col-12">
+                    <p-select formControlName="ruoloAziendale" [options]="ruoliAziendali"
+                        placeholder="Seleziona un ruolo aziendale" [showClear]="true" class="w-full" appendTo="body" />
                 </div>
             </div>
             <div class="field grid">
@@ -249,6 +269,10 @@
                 <div class="col-12">
                     <input type="text" pInputText id="societaModifica" class="w-full" autocomplete="off"
                         formControlName="societa" />
+                    <small id="societa-error" class="p-error"
+                        *ngIf="modificaUtenteForm?.hasError('societaRequiredForEsterno') && modificaUtenteForm.get('isEsterno')?.value">
+                        La società è obbligatoria per gli utenti esterni
+                    </small>
                 </div>
             </div>
             <div class="field grid">

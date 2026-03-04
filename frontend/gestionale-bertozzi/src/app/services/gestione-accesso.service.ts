@@ -24,12 +24,12 @@ export class GestioneAccessoService {
     return this.httpClient.get<any>(`${environment.baseApiUrl}/auth/get-all-roles`);
   }
 
-  creaUtente(nominativo: string, email: string, password: string, ruolo: string, isEsterno: boolean, societa: string, costoOrario: number) : Observable<any>{
-    return this.httpClient.post<any>(`${environment.baseApiUrl}/auth/register`, { Email: email, Password: password, Nominativo: nominativo, Ruolo: ruolo, IsEsterno: isEsterno, Societa: societa, CostoOrario: costoOrario});
+  creaUtente(nominativo: string, email: string, password: string, ruolo: string, ruoloAziendale: string, isEsterno: boolean, societa: string, costoOrario: number) : Observable<any>{
+    return this.httpClient.post<any>(`${environment.baseApiUrl}/auth/register`, { Email: email, Password: password, Nominativo: nominativo, Ruolo: ruolo, RuoloAziendale: ruoloAziendale, IsEsterno: isEsterno, Societa: societa, CostoOrario: costoOrario});
   }
 
-  modificaUtente(email: string, nominativo: string, ruolo: string, isEsterno: boolean, societa: string, costoOrario: number) : Observable<any>{
-    return this.httpClient.patch<any>(`${environment.baseApiUrl}/auth/update-user`, { Email: email, Password: '', Nominativo: nominativo, Ruolo: ruolo, IsEsterno: isEsterno, Societa: societa, CostoOrario: costoOrario  });
+  modificaUtente(email: string, nominativo: string, ruolo: string, ruoloAziendale: string, isEsterno: boolean, societa: string, costoOrario: number) : Observable<any>{
+    return this.httpClient.patch<any>(`${environment.baseApiUrl}/auth/update-user`, { Email: email, Password: '', Nominativo: nominativo, Ruolo: ruolo, RuoloAziendale: ruoloAziendale, IsEsterno: isEsterno, Societa: societa, CostoOrario: costoOrario  });
   }
 
   eliminaUtente(email: string) : Observable<any>{

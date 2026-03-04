@@ -104,7 +104,7 @@
           </th>
           <th style="min-width: 15rem" pSortableColumn="referenteCliente.nome">
             <div class="flex justify-content-between align-items-center">
-              Referente Cliente
+              Referenti Cliente
               <p-sortIcon field="referenteCliente.nome" />
               <p-columnFilter type="text" field="referenteCliente.nome" display="menu"
                 placeholder="Cerca referente"></p-columnFilter>
@@ -145,7 +145,7 @@
             <span class="image-text">{{ getNomeUtente(commessa.pmEdileId) }}</span>
           </td>
           <td>
-            <span class="image-text">{{ getNomePersonale(commessa.referenteClienteId) }}</span>
+            <span class="image-text">{{ commessa.referentiCliente }}</span>
           </td>
         </tr>
       </ng-template>
@@ -195,19 +195,30 @@
 
       <!-- Riga 2: Protocollo e Luogo Commessa -->
       <div class="grid">
-        <div class="col-6">
+        <div class="col-4">
           <div class="field">
             <label htmlFor="protocollo" class="mb-2 font-semibold">Protocollo</label>
             <input type="text" pInputText id="protocollo" class="w-full" autocomplete="off"
               formControlName="protocollo" />
           </div>
         </div>
-        <div class="col-6">
+        <div class="col-4">
           <div class="field">
             <label htmlFor="luogoCommessa" class="mb-2 font-semibold">Luogo Commessa</label>
             <input type="text" pInputText id="luogoCommessa" class="w-full" autocomplete="off"
               formControlName="luogoCommessa" />
             <small id="luogoCommessa-error" class="p-error" *ngIf="nuovaCommessaForm.get('luogoCommessa')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="field">
+            <label htmlFor="commessaCodiceInterno" class="mb-2 font-semibold">Commessa codice interno:</label>
+            <input type="text" pInputText id="commessaCodiceInterno" class="w-full" autocomplete="off"
+              formControlName="commessaCodiceInterno" />
+            <small id="commessaCodiceInterno-error" class="p-error"
+              *ngIf="nuovaCommessaForm.get('commessaCodiceInterno')?.invalid">
               Campo obbligatorio
             </small>
           </div>
@@ -254,7 +265,7 @@
         <div class="col-6">
           <div class="field">
             <label htmlFor="pmEdileId" class="mb-2 font-semibold">PM Edile</label>
-            <p-select id="pmEdileId" [options]="utentiList" optionLabel="nominativo" optionValue="id"
+            <p-select id="pmEdileId" [options]="utentiPmEdile" optionLabel="nominativo" optionValue="id"
               placeholder="Seleziona PM Edile" formControlName="pmEdileId" [showClear]="true" class="w-full" />
             <small id="pmEdileId-error" class="p-error" *ngIf="nuovaCommessaForm.get('pmEdileId')?.invalid">
               Campo obbligatorio
@@ -264,9 +275,9 @@
         <div class="col-6">
           <div class="field">
             <label htmlFor="pmAmministrativoId" class="mb-2 font-semibold">PM Amministrativo</label>
-            <p-select id="pmAmministrativoId" [options]="utentiList" optionLabel="nominativo" optionValue="id"
-              placeholder="Seleziona PM Amministrativo" formControlName="pmAmministrativoId" [showClear]="true"
-              class="w-full" />
+            <p-select id="pmAmministrativoId" [options]="utentiPmAmministrativo" optionLabel="nominativo"
+              optionValue="id" placeholder="Seleziona PM Amministrativo" formControlName="pmAmministrativoId"
+              [showClear]="true" class="w-full" />
             <small id="pmAmministrativoId-error" class="p-error"
               *ngIf="nuovaCommessaForm.get('pmAmministrativoId')?.invalid">
               Campo obbligatorio
@@ -275,26 +286,12 @@
         </div>
       </div>
 
-      <!-- Riga 6: Referente Cliente -->
+      <!-- Riga 6: Referenti Cliente -->
       <div class="field">
-        <label htmlFor="referenteClienteId" class="mb-2 font-semibold">Referente Cliente</label>
-        <p-select id="referenteClienteId" [options]="personaleClienteFiltrato" optionValue="id"
-          [placeholder]="personaleClienteFiltrato.length > 0 ? 'Seleziona referente' : 'Nessun referente disponibile'"
-          formControlName="referenteClienteId" [showClear]="true" class="w-full"
-          [disabled]="personaleClienteFiltrato.length === 0">
-          <ng-template let-value pTemplate="selectedItem">
-            @if(value) {
-            <span>
-              {{ getNomePersonale(value.id) }}
-            </span>
-            }
-          </ng-template>
-          <ng-template let-option pTemplate="item">
-            <span>{{ option.nome }} {{ option.cognome }}</span>
-          </ng-template>
-        </p-select>
-        <small id="referenteClienteId-error" class="p-error"
-          *ngIf="nuovaCommessaForm.get('referenteClienteId')?.invalid">
+        <label htmlFor="referenteClienteId" class="mb-2 font-semibold">Referenti Cliente</label>
+        <input type="text" pInputText id="referenteClienteId" class="w-full" autocomplete="off"
+          formControlName="referentiCliente" />
+        <small id="referenteClienteId-error" class="p-error" *ngIf="nuovaCommessaForm.get('referentiCliente')?.invalid">
           Campo obbligatorio
         </small>
       </div>
@@ -305,14 +302,14 @@
           <div class="field">
             <label htmlFor="dataInizioPrevista" class="mb-2 font-semibold">Data Inizio Prevista</label>
             <p-datepicker inputId="dataInizioPrevista" formControlName="dataInizioPrevista" dateFormat="dd/mm/yy"
-              [showIcon]="true" class="w-full" />
+              [showIcon]="true" class="w-full" appendTo="body" />
           </div>
         </div>
         <div class="col-6">
           <div class="field">
             <label htmlFor="dataConclusionePrevista" class="mb-2 font-semibold">Data Conclusione Prevista</label>
             <p-datepicker inputId="dataConclusionePrevista" formControlName="dataConclusionePrevista"
-              dateFormat="dd/mm/yy" [showIcon]="true" class="w-full" />
+              dateFormat="dd/mm/yy" [showIcon]="true" class="w-full" appendTo="body" />
           </div>
         </div>
       </div>

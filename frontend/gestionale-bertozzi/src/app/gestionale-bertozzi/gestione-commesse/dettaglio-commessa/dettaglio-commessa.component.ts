@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { count, first, forkJoin } from 'rxjs';
+import { first, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -78,7 +78,6 @@ export class DettaglioCommessaComponent implements OnInit {
   expandedRowKeys: { [key: string]: boolean } = {};
   loading: boolean = false;
   percentualeAttivitaCompletate: number = 0;
-  mediaPercentualeCompletamento: number = 0;
   numeroAttivitaPerTipo: { [key: string]: number } = {};
   numeroTotaleAttivita: number = 0;
 
@@ -565,8 +564,6 @@ export class DettaglioCommessaComponent implements OnInit {
         }
       });
     });
-
-    this.mediaPercentualeCompletamento = countAttConPercentuale > 0 ? Math.round((percentualeTotale / countAttConPercentuale)) : 0;
   }
 
   calcolaNumeroAttivitaTotaliePerTipo(): void{

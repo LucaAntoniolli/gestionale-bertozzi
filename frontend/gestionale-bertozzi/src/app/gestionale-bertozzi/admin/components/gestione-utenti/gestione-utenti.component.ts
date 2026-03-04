@@ -48,17 +48,7 @@ import { GestioneAccessoService } from '../../../../services/gestione-accesso.se
 })
 export class GestioneUtentiComponent implements OnInit {
 
-  // Validatore personalizzato per società obbligatoria quando utente è esterno
-  private societaRequiredWhenEsterno(control: AbstractControl): ValidationErrors | null {
-    const isEsterno = control.get('isEsterno')?.value;
-    const societa = control.get('societa')?.value;
-
-    if (isEsterno && (!societa || societa.trim() === '')) {
-      return { societaRequiredForEsterno: true };
-    }
-
-    return null;
-  }
+  ruoliAziendali: string[] = ['PM Edile', 'PM Amministrativo'];
 
   utenti?: Utente[];
   ruoli?: Ruolo[];
@@ -137,6 +127,7 @@ export class GestioneUtentiComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(12), Validators.pattern(/^(?=.*[0-9])(?=.*[a-zA-Z]).{12,}$/)]],
       ruolo: ['', [Validators.required]],
+      ruoloAziendale : [''],
       isEsterno: [false],
       societa: [''],
       costoOrario: [0],
@@ -150,12 +141,13 @@ export class GestioneUtentiComponent implements OnInit {
     this.showDialogCreazioneUtente = true;
   }
 
-  mostraFormModificaUtente(event: Event, email: string, nominativo: string, ruoli?: string[]) {
+  mostraFormModificaUtente(event: Event, email: string, nominativo: string, ruoli?: string[], ruoloAziendale?: string) {
     this.isNewUser = false;
     this.utente = new Utente();
     this.utente.email = email;
     this.utente.nominativo = nominativo;
     this.utente.ruoli = ruoli || [];
+    this.utente.ruoloAziendale = ruoloAziendale || '';
 
     // Trova l'utente completo per ottenere tutti i dati
     const utenteCompleto = this.utenti?.find(u => u.email === email);
@@ -163,6 +155,7 @@ export class GestioneUtentiComponent implements OnInit {
     this.modificaUtenteForm = this.fb.group({
       nominativo: new FormControl({ value: this.utente.nominativo, disabled: false }, Validators.required),
       ruolo: new FormControl({ value: this.utente.ruoli && this.utente.ruoli.length > 0 ? this.utente.ruoli[0] : '', disabled: false }, Validators.required),
+      ruoloAziendale: new FormControl({ value: this.utente.ruoloAziendale || '', disabled: false }),
       isEsterno: new FormControl({ value: utenteCompleto?.isEsterno || false, disabled: false }),
       societa: new FormControl({ value: utenteCompleto?.societa || '', disabled: false }),
       costoOrario: new FormControl({ value: utenteCompleto?.costoOrario || null, disabled: false }),
@@ -183,6 +176,7 @@ export class GestioneUtentiComponent implements OnInit {
       formValue.email,
       formValue.password,
       formValue.ruolo,
+      formValue.ruoloAziendale,
       formValue.isEsterno,
       formValue.societa,
       formValue.costoOrario
@@ -214,6 +208,7 @@ export class GestioneUtentiComponent implements OnInit {
       this.utente!.email!,
       formValue.nominativo,
       formValue.ruolo,
+      formValue.ruoloAziendale,
       formValue.isEsterno,
       formValue.societa,
       formValue.costoOrario ? formValue.costoOrario : 0
@@ -272,6 +267,18 @@ export class GestioneUtentiComponent implements OnInit {
         });
       },
     });
+  }
+
+  // Validatore personalizzato per società obbligatoria quando utente è esterno
+  private societaRequiredWhenEsterno(control: AbstractControl): ValidationErrors | null {
+    const isEsterno = control.get('isEsterno')?.value;
+    const societa = control.get('societa')?.value;
+
+    if (isEsterno && (!societa || societa.trim() === '')) {
+      return { societaRequiredForEsterno: true };
+    }
+
+    return null;
   }
 
   onGlobalFilter(table: Table, event: Event) {

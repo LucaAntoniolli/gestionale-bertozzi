@@ -12,10 +12,11 @@ export class Commessa {
     progressivoCommessa?: number;
     protocollo?: string;
     pmEdileId?: string;
-    referenteClienteId?: number;
+    referentiCliente?: string;
     pmAmministrativoId?: string;
     tipologiaCommessaId?: number;
     descrizione?: string;
+    commessaCodiceInterno?: string;
     costoAtteso?: number;
     statusCommessaId?: number;
     dataInizioPrevista?: moment.Moment;
@@ -25,7 +26,6 @@ export class Commessa {
     
     // Navigation properties
     cliente?: Cliente;
-    referenteCliente?: PersonaleCliente;
     tipologiaCommessa?: TipologiaCommessa;
     statusCommessa?: StatusCommessa;
     pianiSviluppo?: PianoSviluppo[];
@@ -44,9 +44,6 @@ export class Commessa {
         // Mappa le proprietà di navigazione se presenti
         if (commessa.cliente) {
             c.cliente = Cliente.map(commessa.cliente);
-        }
-        if (commessa.referenteCliente) {
-            c.referenteCliente = PersonaleCliente.map(commessa.referenteCliente);
         }
         if (commessa.tipologiaCommessa) {
             c.tipologiaCommessa = TipologiaCommessa.map(commessa.tipologiaCommessa);

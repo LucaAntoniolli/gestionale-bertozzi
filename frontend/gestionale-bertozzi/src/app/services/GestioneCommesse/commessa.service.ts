@@ -91,7 +91,6 @@ export class CommessaService {
     
     // Rimuovi le proprietà di navigazione prima dell'invio
     delete payload.cliente;
-    delete payload.referenteCliente;
     delete payload.tipologiaCommessa;
     delete payload.statusCommessa;
     delete payload.pianiSviluppo;

@@ -12,10 +12,11 @@ namespace NemesiLIB.Model.GestioneCommesse
         public int ProgressivoCommessa { get; set; }
         public string? Protocollo { get; set; }
         public string PmEdileId { get; set; }
-        public int ReferenteClienteId { get; set; }
+        public string ReferentiCliente { get; set; }
         public string PmAmministrativoId { get; set; }
         public int TipologiaCommessaId { get; set; }
         public string Descrizione { get; set; }
+        public string CommessaCodiceInterno { get; set; }
         public decimal CostoAtteso { get; set; }
         public int StatusCommessaId { get; set; }
         public DateTime? DataInizioPrevista { get; set; }
@@ -27,9 +28,10 @@ namespace NemesiLIB.Model.GestioneCommesse
 
         // Navigation properties
         public virtual Anagrafiche.Cliente? Cliente { get; set; }
-        public virtual Anagrafiche.PersonaleCliente? ReferenteCliente { get; set; }
         public virtual Anagrafiche.TipologiaCommessa? TipologiaCommessa { get; set; }
         public virtual Anagrafiche.StatusCommessa? StatusCommessa { get; set; }
+        public virtual Utente? PmAmministrativo { get; set; }
+        public virtual Utente? PmEdile { get; set; }
         public virtual List<PianoSviluppo>? PianiSviluppo { get; set; }
     }
 }

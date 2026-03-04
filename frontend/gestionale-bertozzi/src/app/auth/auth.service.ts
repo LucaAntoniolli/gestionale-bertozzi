@@ -227,7 +227,6 @@ export class AuthService {
    */
   hasPermission(permission: string): boolean {
     const permissions = this.getPermissionsFromToken();
-    console.log("Verifica permesso:", permission, "Permessi utente:", permissions);
     return permissions.includes(permission);
   }
 

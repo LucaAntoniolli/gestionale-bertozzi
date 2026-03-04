@@ -75,6 +75,8 @@ export class ElencoCommesseComponent implements OnInit {
     personaleClienteList: PersonaleCliente[] = [];
     personaleClienteFiltrato: PersonaleCliente[] = [];
     utentiList: Utente[] = [];
+    utentiPmEdile: Utente[] = [];
+    utentiPmAmministrativo: Utente[] = [];
 
     isMobile$?: Observable<boolean>;
 
@@ -130,7 +132,9 @@ export class ElencoCommesseComponent implements OnInit {
                 this.statusList = data.status;
                 this.tipologieList = data.tipologie;
                 this.personaleClienteList = data.personale;
-                this.utentiList = data.utenti.filter(u => !u.isEsterno);
+                this.utentiList = data.utenti;
+                this.utentiPmEdile = this.utentiList.filter(u => u.ruoloAziendale === 'PM Edile');
+                this.utentiPmAmministrativo = this.utentiList.filter(u => u.ruoloAziendale === 'PM Amministrativo');
                 
                 // Carica le commesse solo dopo che i dati di riferimento sono disponibili
                 this.loadData();
@@ -194,19 +198,15 @@ export class ElencoCommesseComponent implements OnInit {
             luogoCommessa: ['', [Validators.required]],
             protocollo: [''],
             pmEdileId: ['', [Validators.required]],
-            referenteClienteId: ['', [Validators.required]],
+            referentiCliente: ['', [Validators.required, Validators.maxLength(255)]],
             pmAmministrativoId: ['', [Validators.required]],
             tipologiaCommessaId: ['', [Validators.required]],
             descrizione: ['', [Validators.required]],
+            commessaCodiceInterno: ['', [Validators.required, Validators.maxLength(50)]],
             costoAtteso: [0, [Validators.required, Validators.min(0)]],
             statusCommessaId: ['', [Validators.required]],
             dataInizioPrevista: [''],
             dataConclusionePrevista: [''],
-        });
-
-        // Sottoscrivi ai cambiamenti del campo clienteId per filtrare il personale cliente
-        this.nuovaCommessaForm.get('clienteId')?.valueChanges.subscribe((clienteId: number) => {
-            this.onClienteChange(clienteId);
         });
 
         this.showDialogCreazioneCommessa = true;
@@ -229,42 +229,18 @@ export class ElencoCommesseComponent implements OnInit {
             luogoCommessa: [commessa.luogoCommessa, [Validators.required]],
             protocollo: [commessa.protocollo || ''],
             pmEdileId: [commessa.pmEdileId, [Validators.required]],
-            referenteClienteId: [commessa.referenteClienteId, [Validators.required]],
+            referentiCliente: [commessa.referentiCliente, [Validators.required, Validators.maxLength(255)]],
             pmAmministrativoId: [commessa.pmAmministrativoId, [Validators.required]],
             tipologiaCommessaId: [commessa.tipologiaCommessaId, [Validators.required]],
             descrizione: [commessa.descrizione, [Validators.required]],
+            commessaCodiceInterno: [commessa.commessaCodiceInterno, [Validators.required, Validators.maxLength(50)]],
             costoAtteso: [commessa.costoAtteso, [Validators.required, Validators.min(0)]],
             statusCommessaId: [commessa.statusCommessaId, [Validators.required]],
             dataInizioPrevista: [commessa.dataInizioPrevista ? new Date(commessa.dataInizioPrevista as any) : ''],
             dataConclusionePrevista: [commessa.dataConclusionePrevista ? new Date(commessa.dataConclusionePrevista as any) : ''],
         });
 
-        // Sottoscrivi ai cambiamenti del campo clienteId per filtrare il personale cliente
-        this.nuovaCommessaForm.get('clienteId')?.valueChanges.subscribe((clienteId: number) => {
-            this.onClienteChange(clienteId);
-        });
-
         this.showDialogCreazioneCommessa = true;
-    }
-
-    /** Filtra il personale cliente in base al cliente selezionato */
-    onClienteChange(clienteId: number) {
-        if (clienteId) {
-            this.personaleClienteFiltrato = this.personaleClienteList.filter(
-                p => p.clienteId === clienteId
-            );
-        } else {
-            this.personaleClienteFiltrato = [];
-        }
-        
-        // Reset del campo referente cliente solo se il valore corrente non è valido
-        const currentValue = this.nuovaCommessaForm?.get('referenteClienteId')?.value;
-        if (currentValue) {
-            const isStillValid = this.personaleClienteFiltrato.some(p => p.id === currentValue);
-            if (!isStillValid) {
-                this.nuovaCommessaForm?.get('referenteClienteId')?.setValue('');
-            }
-        }
     }
 
     /** Crea o modifica una commessa a seconda se è in modalità creazione o modifica */
@@ -289,10 +265,11 @@ export class ElencoCommesseComponent implements OnInit {
         commessa.luogoCommessa = formValue.luogoCommessa;
         commessa.protocollo = formValue.protocollo || null;
         commessa.pmEdileId = formValue.pmEdileId;
-        commessa.referenteClienteId = formValue.referenteClienteId;
+        commessa.referentiCliente = formValue.referentiCliente;
         commessa.pmAmministrativoId = formValue.pmAmministrativoId;
         commessa.tipologiaCommessaId = formValue.tipologiaCommessaId;
         commessa.descrizione = formValue.descrizione;
+        commessa.commessaCodiceInterno = formValue.commessaCodiceInterno;
         commessa.costoAtteso = formValue.costoAtteso;
         commessa.statusCommessaId = formValue.statusCommessaId;
         
@@ -306,8 +283,6 @@ export class ElencoCommesseComponent implements OnInit {
         const operation$ = this.isModifying && this.commessaInModifica?.id
             ? this.commessaService.update(this.commessaInModifica.id, commessa)
             : this.commessaService.create(commessa);
-
-        console.log('Dati da salvare:', commessa);
 
         operation$.subscribe({
             next: () => {

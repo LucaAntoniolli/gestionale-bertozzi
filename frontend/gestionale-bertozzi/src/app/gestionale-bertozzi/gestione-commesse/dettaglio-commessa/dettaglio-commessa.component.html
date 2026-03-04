@@ -19,16 +19,22 @@
     @if(commessa) {
     <div class="mb-4">
       <div class="grid">
-        <div class="col-12 md:col-6">
+        <div class="col-12 md:col-4">
           <div class="field mb-3">
             <label class="font-semibold block mb-2 bg-blue-100 p-2 border-round-sm">Cliente</label>
             <span class="text-lg p-2">{{ commessa.cliente?.ragioneSociale || '-' }}</span>
           </div>
         </div>
-        <div class="col-12 md:col-6">
+        <div class="col-12 md:col-4">
           <div class="field mb-3">
             <label class="font-semibold block mb-2 bg-blue-100 p-2 border-round-sm">Protocollo</label>
             <span class="text-lg p-2">{{ commessa.protocollo || '-' }}</span>
+          </div>
+        </div>
+        <div class="col-12 md:col-4">
+          <div class="field mb-3">
+            <label class="font-semibold block mb-2 bg-blue-100 p-2 border-round-sm">Codice interno commessa</label>
+            <span class="text-lg p-2">{{ commessa.commessaCodiceInterno || '-' }}</span>
           </div>
         </div>
         <div class="col-12">
@@ -77,7 +83,7 @@
         <div class="col-12 md:col-4">
           <div class="field mb-3">
             <label class="font-semibold block mb-2 bg-blue-100 p-2 border-round-sm">Referente Cliente</label>
-            <span class="text-lg p-2">{{ getNomePersonale(commessa.referenteClienteId) || '-' }}</span>
+            <span class="text-lg p-2">{{ commessa.referentiCliente }}</span>
           </div>
         </div>
         <div class="col-12 md:col-6">
@@ -138,12 +144,6 @@
             <p-knob [(ngModel)]="percentualeAttivitaCompletate" [readonly]="true" valueTemplate="{value}%"
               [size]="70"></p-knob>
           </div>
-          <div class="flex flex-column align-items-center">
-            <p>Media percentuale completamento</p>
-            <p-knob [(ngModel)]="mediaPercentualeCompletamento" [readonly]="true" valueTemplate="{value}%"
-              [size]="70"></p-knob>
-          </div>
-
         </div>
       </p-panel>
     </div>
@@ -189,9 +189,10 @@
         <tr>
           <td colspan="5">
             <div class="p-3">
-              <p class="mb-3 text-lg font-semibold">Attività</p>
+              <p class="mb-3 text-lg font-semibold">{{piano.descrizione}} <i class="pi pi-arrow-right"></i> Attività
+              </p>
               @if(piano.attivita && piano.attivita.length > 0) {
-              <p-table [value]="piano.attivita" [scrollable]="true">
+              <p-table [value]=" piano.attivita" [scrollable]="true">
                 <ng-template pTemplate="header">
         <tr>
           <th style="width: 3rem">Azioni</th>

@@ -52,6 +52,7 @@ namespace NemesiLIB.Context
                 e.Property(u => u.Societa).HasMaxLength(200);
                 e.Property(u => u.IsEsterno).IsRequired().HasDefaultValue(false);
                 e.Property(u => u.CostoOrario).HasColumnType("decimal(18,2)").IsRequired();
+                e.Property(u => u.RuoloAziendale).HasMaxLength(100);
             });
 
             // RefreshToken
@@ -130,7 +131,7 @@ namespace NemesiLIB.Context
             });
 
             //PIANI DI SVILUPPO
-            //Piano Sviluppo
+            //Piano Sviluppo template
             model.Entity<TemplatePianoSviluppo>(e =>
             {
                 e.HasKey(ps => ps.Id);
@@ -163,16 +164,18 @@ namespace NemesiLIB.Context
                 e.Property(c => c.ProgressivoCommessa).IsRequired();
                 e.Property(c => c.Protocollo).HasMaxLength(20);
                 e.Property(c => c.PmEdileId).IsRequired();
-                e.Property(c => c.ReferenteClienteId).IsRequired();
+                e.Property(c => c.ReferentiCliente).IsRequired().HasMaxLength(255);
                 e.Property(c => c.PmAmministrativoId).IsRequired();
                 e.Property(c => c.TipologiaCommessaId).IsRequired();
                 e.Property(c => c.Descrizione).HasMaxLength(2000);
+                e.Property(c => c.CommessaCodiceInterno).IsRequired().HasMaxLength(50);
                 e.Property(c => c.CostoAtteso).HasColumnType("decimal(18,2)").IsRequired();
                 e.Property(c => c.StatusCommessaId).IsRequired();
                 e.Property(c => c.DataInizioPrevista).IsRequired(false);
                 e.Property(c => c.DataConclusionePrevista).IsRequired(false);
+                e.HasOne(c => c.PmAmministrativo).WithMany().HasForeignKey(c => c.PmAmministrativoId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(c => c.PmEdile).WithMany().HasForeignKey(c => c.PmEdileId).OnDelete(DeleteBehavior.NoAction);  
                 e.HasOne(c => c.Cliente).WithMany().HasForeignKey(c => c.ClienteId).OnDelete(DeleteBehavior.NoAction);
-                e.HasOne(c => c.ReferenteCliente).WithMany().HasForeignKey(c => c.ReferenteClienteId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne(c => c.TipologiaCommessa).WithMany().HasForeignKey(c => c.TipologiaCommessaId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne(c => c.StatusCommessa).WithMany().HasForeignKey(c => c.StatusCommessaId).OnDelete(DeleteBehavior.NoAction);
                 e.HasMany(c => c.PianiSviluppo).WithOne().HasForeignKey(p => p.CommessaId).OnDelete(DeleteBehavior.Cascade);

@@ -65,7 +65,7 @@ namespace NemesiAPI.Controllers
         {
             var users = await db.Users
                 .AsNoTracking()
-                .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo, u.IsEsterno, u.Societa, u.CostoOrario })
+                .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo, u.IsEsterno, u.Societa, u.CostoOrario, u.RuoloAziendale })
                 .ToListAsync();
 
             var userRolePairs = await (from ur in db.UserRoles
@@ -82,6 +82,7 @@ namespace NemesiAPI.Controllers
                 IsEsterno = u.IsEsterno,
                 Societa = u.Societa,
                 CostoOrario = u.CostoOrario,
+                RuoloAziendale = u.RuoloAziendale,
                 Ruoli = userRolePairs.Where(ur => ur.UserId == u.Id).Select(ur => ur.RoleName ?? string.Empty).ToList()
             });
 
@@ -112,6 +113,7 @@ namespace NemesiAPI.Controllers
                 IsEsterno = user.IsEsterno,
                 Societa = user.Societa,
                 CostoOrario = user.CostoOrario,
+                RuoloAziendale = user.RuoloAziendale,
                 Ruoli = roles.ToList()
             };
 
@@ -162,7 +164,7 @@ namespace NemesiAPI.Controllers
                 return BadRequest("L'email è già stata utilizzata");
             }
 
-            var user = new Utente(model.Email, model.Nominativo, model.IsEsterno, model.Societa, model.CostoOrario);
+            var user = new Utente(model.Email, model.Nominativo, model.IsEsterno, model.Societa, model.CostoOrario, model.RuoloAziendale);
             var result = await userManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded)
@@ -198,6 +200,7 @@ namespace NemesiAPI.Controllers
             utente.IsEsterno = model.IsEsterno;
             utente.Societa = model.Societa;
             utente.CostoOrario = model.CostoOrario;
+            utente.RuoloAziendale = model.RuoloAziendale;
 
             var result = await userManager.UpdateAsync(utente);
 

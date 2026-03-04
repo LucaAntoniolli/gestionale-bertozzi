@@ -9,6 +9,7 @@ export class Utente {
     isEsterno: boolean = false;
     societa?: string;
     costoOrario?: number;
+    ruoloAziendale?: string;
 
     static map(utente: any): Utente {
         let u = Object.assign(new Utente(), utente) as Utente;

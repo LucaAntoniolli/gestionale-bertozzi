@@ -60,7 +60,6 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             var item = await dbContext.Commessa
                 .AsNoTracking()
                 .Include(c => c.Cliente)
-                .Include(c => c.ReferenteCliente)
                 .Include(c => c.TipologiaCommessa)
                 .Include(c => c.StatusCommessa)
                 .Include(c => c.PianiSviluppo).ThenInclude(p => p.Attivita)
@@ -99,10 +98,6 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (!await dbContext.StatusCommessa.AnyAsync(s => s.Id == model.StatusCommessaId))
                 return BadRequest("Status commessa non trovato");
 
-            // Valida che il referente cliente esista
-            if (!await dbContext.PersonaleCliente.AnyAsync(p => p.Id == model.ReferenteClienteId))
-                return BadRequest("Referente cliente non trovato");
-
             dbContext.Commessa.Add(model);
             await dbContext.SaveChangesAsync();
 
@@ -128,10 +123,11 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             existing.LuogoCommessa = model.LuogoCommessa;
             existing.Protocollo = model.Protocollo;
             existing.PmEdileId = model.PmEdileId;
-            existing.ReferenteClienteId = model.ReferenteClienteId;
+            existing.ReferentiCliente = model.ReferentiCliente;
             existing.PmAmministrativoId = model.PmAmministrativoId;
             existing.TipologiaCommessaId = model.TipologiaCommessaId;
             existing.Descrizione = model.Descrizione;
+            existing.CommessaCodiceInterno = model.CommessaCodiceInterno;
             existing.CostoAtteso = model.CostoAtteso;
             existing.StatusCommessaId = model.StatusCommessaId;
             existing.DataInizioPrevista = model.DataInizioPrevista;

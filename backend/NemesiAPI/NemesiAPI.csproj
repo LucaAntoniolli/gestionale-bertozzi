@@ -14,7 +14,6 @@
     </PackageReference>
     <PackageReference Include="MimeKit" Version="4.15.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
-    <PackageReference Include="System.Formats.Asn1" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
