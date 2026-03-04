@@ -3,8 +3,11 @@
         <img src="images/logo-cliente.svg" style="height: 40px;" alt="logo">
     </div>
 
+    <p-divider align="left" type="solid" *ngIf="hasBasicInfoPermissions">
+        <b>Informazioni di base</b>
+    </p-divider>
     <div class="grid">
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadUser">
             <p-card class="h-full">
                 <div class="text-center p-2">
                     <i class="pi pi-users text-6xl text-primary mb-3"></i>
@@ -19,7 +22,7 @@
             </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadTipologiaCommessa">
             <p-card class="h-full">
                 <div class="text-center p-2">
                     <i class="pi pi-calendar text-6xl text-primary mb-3"></i>
@@ -34,7 +37,7 @@
             </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadStatusCommessa">
             <p-card class="h-full">
                 <div class="text-center p-2">
                     <i class="pi pi-chart-line text-6xl text-primary mb-3"></i>
@@ -49,7 +52,7 @@
             </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadModalitaPagamento">
             <p-card class="h-full">
                 <div class="text-center p-2">
                     <i class="pi pi-money-bill text-6xl text-primary mb-3"></i>
@@ -63,7 +66,12 @@
                 </div>
             </p-card>
         </div>
-        <div class="col-12 md:col-6 lg:col-3">
+    </div>
+    <p-divider align="left" type="solid" *ngIf="hasClientAndCommessaPermissions">
+        <b>Clienti e commesse</b>
+    </p-divider>
+    <div class="grid">
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadCliente">
             <p-card class="h-full">
                 <div class="text-center p-2">
                     <i class="pi pi-users text-6xl text-600 mb-3"></i>
@@ -73,6 +81,34 @@
                     </p>
                     <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
                         (onClick)="navigateToGestioneClienti()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadTempleatePianoSviluppo">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-users text-6xl text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Piani di sviluppo e attività</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci i template dei piani di sviluppo e delle attività
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToGestioneTemplatePianoSviluppo()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadCommessa">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-users text-6xl text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Gestione commesse</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci le commesse e le attività ad esse associate
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToGestioneCommesse()">
                     </p-button>
                 </div>
             </p-card>

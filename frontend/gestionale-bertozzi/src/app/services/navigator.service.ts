@@ -38,6 +38,10 @@ export class NavigatorService {
     this.router.navigate(['/anagrafiche/gestione-clienti']);
   }
 
+  gestioneTemplatePianoSviluppo() {
+    this.router.navigate(['/gestione-commesse/template-piani-sviluppo']);
+  }
+
   elencoCommesse() {
     this.router.navigate(['/gestione-commesse/elenco-commesse']);
   }

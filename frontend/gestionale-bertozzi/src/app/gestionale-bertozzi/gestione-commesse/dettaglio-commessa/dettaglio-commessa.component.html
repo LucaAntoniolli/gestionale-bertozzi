@@ -207,7 +207,8 @@
               <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
                 tooltipPosition="top" (click)="mostraFormModificaAttivita(attivita)" *ngIf="canEditAttivita"></button>
               <button pButton icon="pi pi-pen-to-square" class="p-button-info p-button-sm" pTooltip="Aggiorna valore"
-                tooltipPosition="top" (click)="mostraFormAggiornamentoValore(attivita)"></button>
+                tooltipPosition="top" (click)="mostraFormAggiornamentoValore(attivita)"
+                *ngIf="canEditAvanzamentoAttivita"></button>
               <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
                 tooltipPosition="top" (click)="eliminaAttivita($event, attivita)" *ngIf="canDeleteAttivita"></button>
             </div>

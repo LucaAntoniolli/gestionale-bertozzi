@@ -116,6 +116,7 @@ export class DettaglioCommessaComponent implements OnInit {
   get canDeleteAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canDelete(); }
   get canCreateAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canCreate(); }
   get canEditAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canUpdate(); }
+  get canEditAvanzamentoAttivita(): boolean { return this.permissionsService.createEntityHelper('avanzamento-attivita').canUpdate(); }
 
   ngOnInit() {
     // Recupera l'ID della commessa dalla route

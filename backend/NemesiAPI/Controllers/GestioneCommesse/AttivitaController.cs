@@ -105,7 +105,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "attivita.update")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "attivita.update, avanzamento-attivita.update")]
         public async Task<IActionResult> Update(int id, [FromBody] Attivita model)
         {
             if (model == null || id != model.Id)
