@@ -19,7 +19,7 @@
             <p-button label="Comprimi tutto" icon="pi pi-chevron-up" [outlined]="true" size="small"
               (click)="collapseAll()" *ngIf="pianiSviluppo && pianiSviluppo.length > 0"></p-button>
             <p-button label="Crea nuovo piano di sviluppo" icon="pi pi-plus" (click)="mostraFormCreazionePiano()"
-              *ngIf="canAddPianoSviluppo" />
+              *ngIf="canCreatePianoSviluppo"></p-button>
           </div>
         </div>
       </p-toolbar>
@@ -67,11 +67,11 @@
           <td>
             <div class="flex gap-2">
               <button pButton icon="pi pi-plus" class="p-button-success p-button-sm" pTooltip="Aggiungi attività"
-                tooltipPosition="top" (click)="mostraFormCreazioneAttivita(piano)"></button>
+                tooltipPosition="top" (click)="mostraFormCreazioneAttivita(piano)" *ngIf="canCreateAttivita"></button>
               <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
-                tooltipPosition="top" (click)="mostraFormModificaPiano(piano)"></button>
+                tooltipPosition="top" (click)="mostraFormModificaPiano(piano)" *ngIf="canEditPianoSviluppo"></button>
               <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina piano"
-                tooltipPosition="top" (click)="eliminaPiano($event, piano)"></button>
+                tooltipPosition="top" (click)="eliminaPiano($event, piano)" *ngIf="canDeletePianoSviluppo"></button>
             </div>
           </td>
           <td>{{ piano.ordine }}</td>
@@ -101,9 +101,9 @@
           <td>
             <div class="flex gap-2">
               <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
-                tooltipPosition="top" (click)="mostraFormModificaAttivita(attivita)"></button>
+                tooltipPosition="top" (click)="mostraFormModificaAttivita(attivita)" *ngIf="canEditAttivita"></button>
               <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina attività"
-                tooltipPosition="top" (click)="eliminaAttivita($event, attivita)"></button>
+                tooltipPosition="top" (click)="eliminaAttivita($event, attivita)" *ngIf="canDeleteAttivita"></button>
             </div>
           </td>
           <td>{{ attivita.ordine }}</td>

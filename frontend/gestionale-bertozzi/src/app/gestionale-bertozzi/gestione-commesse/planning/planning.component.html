@@ -1,0 +1,242 @@
+<div class="grid">
+    <div class="col-12">
+        <app-titolo-pagina [titoloPagina]="'Planning'"></app-titolo-pagina>
+
+        <!-- Selezione Commessa -->
+        <div class="mb-3">
+            <div class="field">
+                <label htmlFor="commessaFiltro" class="mb-2 font-semibold">Commessa</label>
+                <p-select id="commessaFiltro" [options]="commesseList" optionLabel="descrizione" optionValue="id"
+                    placeholder="Seleziona una commessa" [(ngModel)]="commessaSelezionata" [showClear]="true"
+                    class="w-full" [filter]="true" (onChange)="onCommessaChange()" />
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <p-toolbar>
+                <div class="p-toolbar-group-start">
+                    <p-button label="Crea nuovo ToDo" icon="pi pi-plus" (click)="mostraFormCreazioneTodo()"
+                        [disabled]="loading || !commessaSelezionata" *ngIf="canCreateTodo" />
+                </div>
+                <div class="p-toolbar-group-center"></div>
+                <div class="p-toolbar-group-end"></div>
+            </p-toolbar>
+        </div>
+
+        <!-- TABELLA TODO -->
+        @if((todoList && todoList.length > 0 && commessaSelezionata)) {
+        <p-table #dt1 [size]="'small'" [value]="todoList" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
+            styleClass="p-datatable-gridlines" [paginator]="true"
+            [globalFilterFields]="['descrizioneTodo', 'assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo', 'commessa.descrizione']"
+            responsiveLayout="scroll" sortMode="multiple">
+            <ng-template pTemplate="caption">
+                <div class="flex justify-content-between flex-column sm:flex-row">
+                    <div class="flex">
+                    </div>
+                    <div class="flex">
+                        <p-iconfield iconPosition="left" class="ml-auto">
+                            <p-inputicon>
+                                <i class="pi pi-search"></i>
+                            </p-inputicon>
+                            <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Cerca" />
+                        </p-iconfield>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <div class="flex justify-content-between align-items-center">
+                            Azioni
+                        </div>
+                    </th>
+                    <th style="min-width: 8rem" pSortableColumn="completato">
+                        <div class="flex justify-content-between align-items-center">
+                            Stato
+                            <p-sortIcon field="completato" />
+                        </div>
+                    </th>
+                    <th style="min-width: 15rem" pSortableColumn="commessa.descrizione">
+                        <div class="flex justify-content-between align-items-center">
+                            Commessa
+                            <p-sortIcon field="commessa.descrizione" />
+                            <p-columnFilter type="text" field="commessa.descrizione" display="menu"
+                                placeholder="Cerca per commessa"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 20rem" pSortableColumn="descrizioneTodo">
+                        <div class="flex justify-content-between align-items-center">
+                            Descrizione ToDo
+                            <p-sortIcon field="descrizioneTodo" />
+                            <p-columnFilter type="text" field="descrizioneTodo" display="menu"
+                                placeholder="Cerca per descrizione"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="assegnatarioPrimario.nominativo">
+                        <div class="flex justify-content-between align-items-center">
+                            Assegnatario Primario
+                            <p-sortIcon field="assegnatarioPrimario.nominativo" />
+                            <p-columnFilter type="text" field="assegnatarioPrimario.nominativo" display="menu"
+                                placeholder="Cerca assegnatario"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 12rem" pSortableColumn="assegnatarioSecondario.nominativo">
+                        <div class="flex justify-content-between align-items-center">
+                            Assegnatario Secondario
+                            <p-sortIcon field="assegnatarioSecondario.nominativo" />
+                            <p-columnFilter type="text" field="assegnatarioSecondario.nominativo" display="menu"
+                                placeholder="Cerca assegnatario"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem" pSortableColumn="dataConsegna">
+                        <div class="flex justify-content-between align-items-center">
+                            Data Consegna
+                            <p-sortIcon field="dataConsegna" />
+                        </div>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-todo>
+                <tr>
+                    <td>
+                        <div class="flex gap-2">
+                            @if(!todo.completato) {
+                            <button pButton icon="pi pi-check" class="p-button-success p-button-sm" pTooltip="Completa"
+                                tooltipPosition="top" (click)="completaTodo(todo)" *ngIf="canEditTodo"></button>
+                            } @else {
+                            <button pButton icon="pi pi-replay" class="p-button-warning p-button-sm" pTooltip="Riapri"
+                                tooltipPosition="top" (click)="riapriTodo(todo)" *ngIf="canEditTodo"></button>
+                            }
+                            <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
+                                tooltipPosition="top" (click)="modificaTodo(todo)" *ngIf="canEditTodo"></button>
+                            <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
+                                tooltipPosition="top" (click)="eliminaTodo(todo)" *ngIf="canDeleteTodo"></button>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="getTestoCompletato(todo.completato)" [severity]="'success'" />
+                    </td>
+                    <td>
+                        <span class="image-text">{{ getDescrizioneCommessa(todo.commessaId) }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ todo.descrizioneTodo }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ getNominativoUtente(todo.assegnatarioPrimarioId) }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ getNominativoUtente(todo.assegnatarioSecondarioId) }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ todo.dataConsegna ? (todo.dataConsegna.format('DD/MM/YYYY')) : '-'
+                            }}</span>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="loadingbody">
+                <tr>
+                    <td colspan="7">ToDo in caricamento...</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        } @else if(!loading && !commessaSelezionata) {
+        <p-message severity="info" text="Seleziona una commessa per visualizzare i ToDo." />
+        } @else if(!loading && commessaSelezionata) {
+        <p-message severity="info"
+            text="Nessun ToDo presente per questa commessa. Clicca su 'Crea nuovo ToDo' per iniziare." />
+        }
+    </div>
+</div>
+
+<!-- DIALOG CREAZIONE/MODIFICA TODO -->
+<p-dialog [header]="isModifying ? 'Modifica ToDo' : 'Dati nuovo ToDo'" [modal]="true"
+    [(visible)]="showDialogCreazioneTodo" [style]="{ width: '600px' }">
+    <form [formGroup]="nuovoTodoForm" *ngIf="nuovoTodoForm">
+        <div class="p-fluid">
+            <!-- Riga 1: Commessa -->
+            <div class="field">
+                <label htmlFor="commessaId" class="mb-2 font-semibold">Commessa</label>
+                <p-select id="commessaId" [options]="commesseList" optionLabel="descrizione" optionValue="id"
+                    placeholder="Seleziona commessa" formControlName="commessaId" [showClear]="true" class="w-full"
+                    [filter]="true" />
+                <small id="commessaId-error" class="p-error" *ngIf="nuovoTodoForm.get('commessaId')?.invalid">
+                    Campo obbligatorio
+                </small>
+            </div>
+
+            <!-- Riga 2: Descrizione ToDo -->
+            <div class="field">
+                <label htmlFor="descrizioneTodo" class="mb-2 font-semibold">Descrizione ToDo</label>
+                <textarea pTextarea id="descrizioneTodo" class="w-full" autocomplete="off" rows="3"
+                    formControlName="descrizioneTodo"></textarea>
+                <small id="descrizioneTodo-error" class="p-error" *ngIf="nuovoTodoForm.get('descrizioneTodo')?.invalid">
+                    Campo obbligatorio
+                </small>
+            </div>
+
+            <!-- Riga 3: Assegnatari -->
+            <div class="grid">
+                <div class="col-6">
+                    <div class="field">
+                        <label htmlFor="assegnatarioPrimarioId" class="mb-2 font-semibold">Assegnatario Primario</label>
+                        <p-select id="assegnatarioPrimarioId" [options]="utentiList" optionLabel="nominativo"
+                            optionValue="id" placeholder="Seleziona utente" formControlName="assegnatarioPrimarioId"
+                            [showClear]="true" class="w-full" [filter]="true" />
+                        <small id="assegnatarioPrimarioId-error" class="p-error"
+                            *ngIf="nuovoTodoForm.get('assegnatarioPrimarioId')?.invalid">
+                            Campo obbligatorio
+                        </small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="field">
+                        <label htmlFor="assegnatarioSecondarioId" class="mb-2 font-semibold">Assegnatario
+                            Secondario</label>
+                        <p-select id="assegnatarioSecondarioId" [options]="utentiList" optionLabel="nominativo"
+                            optionValue="id" placeholder="Seleziona utente (opzionale)"
+                            formControlName="assegnatarioSecondarioId" [showClear]="true" class="w-full"
+                            [filter]="true" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Riga 4: Data Consegna -->
+            <div class="field">
+                <label htmlFor="dataConsegna" class="mb-2 font-semibold">Data Consegna</label>
+                <p-datepicker inputId="dataConsegna" formControlName="dataConsegna" dateFormat="dd/mm/yy"
+                    [showIcon]="true" class="w-full" appendTo="body" />
+            </div>
+
+            <!-- Riga 5: Descrizione Attività Svolta -->
+            <div class="field">
+                <label htmlFor="descrizioneAttivitaSvolta" class="mb-2 font-semibold">Descrizione Attività
+                    Svolta</label>
+                <textarea pTextarea id="descrizioneAttivitaSvolta" class="w-full" autocomplete="off" rows="3"
+                    formControlName="descrizioneAttivitaSvolta"></textarea>
+            </div>
+
+            <!-- Riga 6: Completato -->
+            <div class="field">
+                <div class="flex align-items-center">
+                    <p-checkbox inputId="completato" formControlName="completato" [binary]="true" />
+                    <label htmlFor="completato" class="ml-2">Completato</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="field grid mt-5">
+            <div class="col-12 flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times"
+                    (click)="showDialogCreazioneTodo = false" />
+                <p-button [label]="isModifying ? 'Salva ToDo' : 'Crea ToDo'" icon="pi pi-check" (click)="salvaTodo()"
+                    [disabled]="!nuovoTodoForm.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- Confirm Dialog -->
+<p-confirmDialog />

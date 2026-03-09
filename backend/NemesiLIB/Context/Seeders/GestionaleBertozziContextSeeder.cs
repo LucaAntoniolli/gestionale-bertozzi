@@ -115,7 +115,11 @@ namespace NemesiLIB.Context.Seeders
                     "attivita.create",
                     "attivita.update",
                     "attivita.delete",
-                    "avanzamento-attivita.update"
+                    "avanzamento-attivita.update",
+                    "todo.read",
+                    "todo.create",
+                    "todo.update",
+                    "todo.delete"
                 } },
                 { "Backoffice", new List<string> {
                     "cliente.read",
@@ -142,13 +146,21 @@ namespace NemesiLIB.Context.Seeders
                     "attivita.create",
                     "attivita.update",
                     "attivita.delete",
-                    "avanzamento-attivita.update"
+                    "avanzamento-attivita.update",
+                    "todo.read",
+                    "todo.create",
+                    "todo.update",
+                    "todo.delete"
                 } },
                 { "Utente Base", new List<string> {
                     "commessa.read",
                     "pianosviluppo.read",
                     "attivita.read",
-                    "avanzamento-attivita.update"
+                    "avanzamento-attivita.update",
+                    "todo.read",
+                    "todo.create",
+                    "todo.update",
+                    "todo.delete"
                 } }
             };
 

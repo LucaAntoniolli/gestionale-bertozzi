@@ -59,6 +59,8 @@ export class AppMenu {
                     items: [
                             { label: 'Gestione template piani di sviluppo', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/template-piani-sviluppo'] },
                             { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
+                            { label: 'Planning', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
+
                     ]
                 },
             );
@@ -71,6 +73,7 @@ export class AppMenu {
                     items: [
                         { label: 'Gestione template piani di sviluppo', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/template-piani-sviluppo'] },
                         { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
+                        { label: 'Planning', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
                     ]
                 },
             );
@@ -82,6 +85,7 @@ export class AppMenu {
                     label: 'GESTIONE COMMESSE',
                     items: [
                         { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
+                        { label: 'Planning', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
                     ]
                 },
             );

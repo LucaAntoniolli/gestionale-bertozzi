@@ -19,6 +19,7 @@ import { TemplatePianoSviluppoService } from '../../../services/TemplatePianiSvi
 import { TemplateAttivitaService } from '../../../services/TemplatePianiSviluppo/template-attivita.service';
 import { TipologiaCommessaService } from '../../../services/Anagrafiche/tipologia-commessa.service';
 import { TitoloPaginaComponent } from '../../shared/components/titolo-pagina/titolo-pagina.component';
+import { PermissionsService } from '../../../auth/permissions.service';
 
 @Component({
   selector: 'app-template-piani-sviluppo',
@@ -74,6 +75,14 @@ export class TemplatePianiSviluppoComponent implements OnInit {
     'Data'
   ];
 
+  //Getter per gestione permessi - ora centralizzati nel service
+  get canDeletePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canDelete(); }
+  get canCreatePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canCreate(); }
+  get canEditPianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canUpdate(); }
+  get canDeleteAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canDelete(); }
+  get canCreateAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canCreate(); }
+  get canEditAttivita(): boolean { return this.permissionsService.createEntityHelper('attivita').canUpdate(); }
+
   constructor(
     private pianoService: TemplatePianoSviluppoService,
     private attivitaService: TemplateAttivitaService,
@@ -82,6 +91,7 @@ export class TemplatePianiSviluppoComponent implements OnInit {
     private conf: ConfirmationService,
     private ms: MessageService,
     private cdr: ChangeDetectorRef,
+    private permissionsService: PermissionsService
   ) { }
 
   ngOnInit() {

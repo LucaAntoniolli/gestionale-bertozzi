@@ -34,6 +34,7 @@ namespace NemesiLIB.Context
         public virtual DbSet<Commessa> Commessa { get; set; }
         public virtual DbSet<PianoSviluppo> PianoSviluppo { get; set; }
         public virtual DbSet<Attivita> Attivita { get; set; }
+        public virtual DbSet<ToDo> ToDo { get; set; }
 
         private readonly IHttpContextAccessor httpContextAccessor;
 
@@ -203,6 +204,23 @@ namespace NemesiLIB.Context
                 e.Property(a => a.Completata).IsRequired(true).HasDefaultValue(false);
                 e.Property(a => a.DataRiferimento).IsRequired(false);
                 e.Property(a => a.Ordine).IsRequired();
+            });
+
+            //ToDo
+            model.Entity<ToDo>(e =>
+            {
+                e.HasKey(t => t.Id);
+                e.Property(t => t.Id).ValueGeneratedOnAdd();
+                e.Property(t => t.AssegnatarioPrimarioId).IsRequired();
+                e.Property(t => t.AssegnatarioSecondarioId).IsRequired(false);
+                e.Property(t => t.CommessaId).IsRequired();
+                e.Property(t => t.DescrizioneTodo).IsRequired().HasColumnType("nvarchar(max)");
+                e.Property(t => t.DataConsegna).IsRequired(false);
+                e.Property(t => t.DescrizioneAttivitaSvolta).IsRequired(false).HasColumnType("nvarchar(max)");
+                e.Property(t => t.Completato).IsRequired().HasDefaultValue(false);
+                e.HasOne(t => t.AssegnatarioPrimario).WithMany().HasForeignKey(t => t.AssegnatarioPrimarioId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(t => t.AssegnatarioSecondario).WithMany().HasForeignKey(t => t.AssegnatarioSecondarioId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne<Commessa>().WithMany().HasForeignKey(t => t.CommessaId).OnDelete(DeleteBehavior.NoAction);
             });
 
             base.OnModelCreating(model);
