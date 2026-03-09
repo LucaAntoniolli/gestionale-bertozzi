@@ -141,7 +141,8 @@
 
 <!-- DIALOG CENSIMENTO NUOVO UTENTE -->
 <p-dialog header="Dati nuovo utente" [modal]="true" [(visible)]="showDialogCreazioneUtente"
-    [style]="{ width: '450px', height: '75dvh' }">
+    [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false"
+    [resizable]="false">
     <form [formGroup]="nuovoUtenteForm" *ngIf="nuovoUtenteForm">
         <div class="p-fluid">
             <div class="field grid">
@@ -230,7 +231,7 @@
 
 <!-- DIALOG MODIFICA UTENTE -->
 <p-dialog header="Modifca utente" [modal]="true" [(visible)]="showDialogModificaUtente"
-    [style]="{ width: '450px', height: '60dvh' }">
+    [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
     <form [formGroup]="modificaUtenteForm" *ngIf="modificaUtenteForm">
         <div class="p-fluid">
             <div class="field grid">

@@ -313,7 +313,7 @@
 
 <!-- DIALOG CREAZIONE NUOVO PERSONALE -->
 <p-dialog header="Aggiungi personale" [modal]="true" [(visible)]="showDialogCreazionePersonale"
-    [style]="{ width: '500px' }">
+    [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
     <span class="p-text-secondary block mb-5">Inserisci i dati del nuovo membro del personale.</span>
     <form [formGroup]="nuovoPersonaleForm" *ngIf="nuovoPersonaleForm">
         <div class="grid">
@@ -360,7 +360,7 @@
 
 <!-- DIALOG MODIFICA PERSONALE -->
 <p-dialog header="Modifica personale" [modal]="true" [(visible)]="showDialogModificaPersonale"
-    [style]="{ width: '500px' }">
+    [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
     <form [formGroup]="modificaPersonaleForm" *ngIf="modificaPersonaleForm">
         <div class="grid">
             <div class="col-12">

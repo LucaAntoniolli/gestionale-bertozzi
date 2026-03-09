@@ -99,7 +99,7 @@
 
 <!-- DIALOG CREAZIONE NUOVO STATUS -->
 <p-dialog header="Dati nuovo status" [modal]="true" [(visible)]="showDialogCreazioneStatus"
-    [style]="{ width: '400px' }">
+    [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
     <form [formGroup]="nuovoStatusForm" *ngIf="nuovoStatusForm">
         <div class="p-fluid">
             <div class="field grid">
@@ -134,7 +134,8 @@
 </p-dialog>
 
 <!-- DIALOG MODIFICA STATUS -->
-<p-dialog header="Modifica status" [modal]="true" [(visible)]="showDialogModificaStatus" [style]="{ width: '400px' }">
+<p-dialog header="Modifica status" [modal]="true" [(visible)]="showDialogModificaStatus"
+    [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
     <form [formGroup]="modificaStatusForm" *ngIf="modificaStatusForm">
         <div class="p-fluid">
             <div class="field grid">

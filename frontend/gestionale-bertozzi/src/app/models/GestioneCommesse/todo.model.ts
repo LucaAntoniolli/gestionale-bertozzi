@@ -9,6 +9,7 @@ export class ToDo {
     commessaId?: number;
     descrizioneTodo?: string;
     dataConsegna?: moment.Moment;
+    priorita?: number;
     descrizioneAttivitaSvolta?: string;
     completato: boolean = false;
     dataCreazione?: Date;

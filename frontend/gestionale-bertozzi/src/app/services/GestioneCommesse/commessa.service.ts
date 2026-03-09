@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Commessa } from '../../models/GestioneCommesse/commessa';
+import { CommessaLight } from '../../models/GestioneCommesse/commessa-light';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +31,15 @@ export class CommessaService {
     }
     return this.httpClient.get<any[]>(this.baseUrl, { params })
       .pipe(map(data => Commessa.mapArray(data)));
+  }
+
+  getAllLight(soloChiuse: boolean = false): Observable<CommessaLight[]> {
+    let params = new HttpParams();
+    if (soloChiuse) {
+      params = params.set('soloChiuse', soloChiuse.toString());
+    }
+    return this.httpClient.get<any[]>(`${this.baseUrl}/light`, { params })
+      .pipe(map(data => CommessaLight.mapArray(data)));
   }
 
   /**

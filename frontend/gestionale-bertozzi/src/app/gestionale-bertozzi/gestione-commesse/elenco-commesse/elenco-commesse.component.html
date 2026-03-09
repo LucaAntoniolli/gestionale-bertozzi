@@ -164,7 +164,7 @@
 
 <!-- DIALOG CREAZIONE/MODIFICA COMMESSA -->
 <p-dialog [header]="isModifying ? 'Modifica commessa' : 'Dati nuova commessa'" [modal]="true"
-  [(visible)]="showDialogCreazioneCommessa" [style]="{ width: '600px' }">
+  [(visible)]="showDialogCreazioneCommessa" [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
   <form [formGroup]="nuovaCommessaForm" *ngIf="nuovaCommessaForm">
     <div class="p-fluid">
       <!-- Riga 1: Cliente e Tipologia -->

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { first, forkJoin } from 'rxjs';
+import { first, forkJoin, map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -20,6 +20,7 @@ import * as FileSaver from 'file-saver';
 import { SelectModule } from 'primeng/select';
 import { IconField, IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
     selector: 'app-gestione-clienti',
@@ -71,6 +72,8 @@ export class GestioneClientiComponent implements OnInit {
     //Filtro tabella
     @ViewChild('filter') filter!: ElementRef;
 
+    isMobile$?: Observable<boolean>;
+
     constructor(
         private clienteService: ClienteService,
         private personaleService: PersonaleClienteService,
@@ -79,10 +82,15 @@ export class GestioneClientiComponent implements OnInit {
         private conf: ConfirmationService,
         private ms: MessageService,
         private cdr: ChangeDetectorRef,
+        private bo: BreakpointObserver,
     ) { }
 
     ngOnInit() {
         this.loadData();
+
+        this.isMobile$ = this.bo
+            .observe([Breakpoints.Handset, Breakpoints.Tablet])
+            .pipe(map((result) => result.matches));
     }
 
     private loadData() {

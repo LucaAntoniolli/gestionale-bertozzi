@@ -90,7 +90,7 @@
 
 <!-- DIALOG CREAZIONE NUOVA MODALITA -->
 <p-dialog header="Aggiungi modalità pagamento" [modal]="true" [(visible)]="showDialogCreazioneModalita"
-    [style]="{ width: '400px' }">
+    [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
     <form [formGroup]="nuovaModalitaForm" *ngIf="nuovaModalitaForm">
         <div class="p-fluid">
             <div class="field grid">
@@ -117,8 +117,8 @@
 
 <!-- DIALOG MODIFICA MODALITA -->
 <p-dialog header="Modifica modalità di pagamento" [modal]="true" [(visible)]="showDialogModificaModalita"
-    [style]="{ width: '400px' }">
-    <form [formGroup]="modificaModalitaForm" *ngIf="modificaModalitaForm">
+    [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
+    <form [formGroup]=" modificaModalitaForm" *ngIf="modificaModalitaForm">
         <div class="p-fluid">
             <div class="field grid">
                 <label htmlFor="descrizioneModifica" class="col-12 mb-2 font-semibold w-6rem">Descrizione</label>

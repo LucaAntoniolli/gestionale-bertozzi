@@ -6,9 +6,16 @@
         <div class="mb-3">
             <div class="field">
                 <label htmlFor="commessaFiltro" class="mb-2 font-semibold">Commessa</label>
-                <p-select id="commessaFiltro" [options]="commesseList" optionLabel="descrizione" optionValue="id"
+                <p-select id="commessaFiltro" [options]="commesseList" optionValue="id"
                     placeholder="Seleziona una commessa" [(ngModel)]="commessaSelezionata" [showClear]="true"
-                    class="w-full" [filter]="true" (onChange)="onCommessaChange()" />
+                    class="w-full" [filter]="true" (onChange)="onCommessaChange()">
+                    <ng-template pTemplate="item" let-commessa>
+                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+                    </ng-template>
+                    <ng-template pTemplate="selectedItem" let-commessa>
+                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+                    </ng-template>
+                </p-select>
             </div>
         </div>
 
@@ -51,42 +58,40 @@
                             Azioni
                         </div>
                     </th>
-                    <th style="min-width: 8rem" pSortableColumn="completato">
-                        <div class="flex justify-content-between align-items-center">
-                            Stato
-                            <p-sortIcon field="completato" />
-                        </div>
-                    </th>
                     <th style="min-width: 15rem" pSortableColumn="commessa.descrizione">
                         <div class="flex justify-content-between align-items-center">
                             Commessa
                             <p-sortIcon field="commessa.descrizione" />
-                            <p-columnFilter type="text" field="commessa.descrizione" display="menu"
-                                placeholder="Cerca per commessa"></p-columnFilter>
                         </div>
                     </th>
                     <th style="min-width: 20rem" pSortableColumn="descrizioneTodo">
                         <div class="flex justify-content-between align-items-center">
                             Descrizione ToDo
                             <p-sortIcon field="descrizioneTodo" />
-                            <p-columnFilter type="text" field="descrizioneTodo" display="menu"
-                                placeholder="Cerca per descrizione"></p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="min-width: 8rem" pSortableColumn="completato">
+                        <div class="flex justify-content-between align-items-center">
+                            Stato
+                            <p-sortIcon field="completato" />
+                        </div>
+                    </th>
+                    <th style="min-width: 8rem" pSortableColumn="priorita">
+                        <div class="flex justify-content-between align-items-center">
+                            Priorità
+                            <p-sortIcon field="priorita" />
                         </div>
                     </th>
                     <th style="min-width: 12rem" pSortableColumn="assegnatarioPrimario.nominativo">
                         <div class="flex justify-content-between align-items-center">
                             Assegnatario Primario
                             <p-sortIcon field="assegnatarioPrimario.nominativo" />
-                            <p-columnFilter type="text" field="assegnatarioPrimario.nominativo" display="menu"
-                                placeholder="Cerca assegnatario"></p-columnFilter>
                         </div>
                     </th>
                     <th style="min-width: 12rem" pSortableColumn="assegnatarioSecondario.nominativo">
                         <div class="flex justify-content-between align-items-center">
                             Assegnatario Secondario
                             <p-sortIcon field="assegnatarioSecondario.nominativo" />
-                            <p-columnFilter type="text" field="assegnatarioSecondario.nominativo" display="menu"
-                                placeholder="Cerca assegnatario"></p-columnFilter>
                         </div>
                     </th>
                     <th style="min-width: 10rem" pSortableColumn="dataConsegna">
@@ -115,13 +120,16 @@
                         </div>
                     </td>
                     <td>
-                        <p-tag [value]="getTestoCompletato(todo.completato)" [severity]="'success'" />
-                    </td>
-                    <td>
                         <span class="image-text">{{ getDescrizioneCommessa(todo.commessaId) }}</span>
                     </td>
                     <td>
                         <span class="image-text">{{ todo.descrizioneTodo }}</span>
+                    </td>
+                    <td>
+                        <p-tag [value]="getTestoCompletato(todo.completato)" [severity]="'success'" />
+                    </td>
+                    <td>
+                        <span class="image-text">{{ todo.priorita }}</span>
                     </td>
                     <td>
                         <span class="image-text">{{ getNominativoUtente(todo.assegnatarioPrimarioId) }}</span>
@@ -153,7 +161,7 @@
 
 <!-- DIALOG CREAZIONE/MODIFICA TODO -->
 <p-dialog [header]="isModifying ? 'Modifica ToDo' : 'Dati nuovo ToDo'" [modal]="true"
-    [(visible)]="showDialogCreazioneTodo" [style]="{ width: '600px' }">
+    [(visible)]="showDialogCreazioneTodo" [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }">
     <form [formGroup]="nuovoTodoForm" *ngIf="nuovoTodoForm">
         <div class="p-fluid">
             <!-- Riga 1: Commessa -->
@@ -161,7 +169,7 @@
                 <label htmlFor="commessaId" class="mb-2 font-semibold">Commessa</label>
                 <p-select id="commessaId" [options]="commesseList" optionLabel="descrizione" optionValue="id"
                     placeholder="Seleziona commessa" formControlName="commessaId" [showClear]="true" class="w-full"
-                    [filter]="true" />
+                    [filter]="true" [disabled]="true" />
                 <small id="commessaId-error" class="p-error" *ngIf="nuovoTodoForm.get('commessaId')?.invalid">
                     Campo obbligatorio
                 </small>
@@ -204,10 +212,21 @@
             </div>
 
             <!-- Riga 4: Data Consegna -->
-            <div class="field">
-                <label htmlFor="dataConsegna" class="mb-2 font-semibold">Data Consegna</label>
-                <p-datepicker inputId="dataConsegna" formControlName="dataConsegna" dateFormat="dd/mm/yy"
-                    [showIcon]="true" class="w-full" appendTo="body" />
+            <div class="grid">
+                <div class="col-6">
+                    <div class="field">
+                        <label htmlFor="dataConsegna" class="mb-2 font-semibold">Data Consegna</label>
+                        <p-datepicker inputId="dataConsegna" formControlName="dataConsegna" dateFormat="dd/mm/yy"
+                            [showIcon]="true" class="w-full" appendTo="body" />
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="field">
+                        <label htmlFor="priorita" class="mb-2 font-semibold">Priorità</label>
+                        <p-select id="priorita" [options]="prioritaOptions" placeholder="Seleziona priorità"
+                            formControlName="priorita" [showClear]="true" class="w-full" />
+                    </div>
+                </div>
             </div>
 
             <!-- Riga 5: Descrizione Attività Svolta -->

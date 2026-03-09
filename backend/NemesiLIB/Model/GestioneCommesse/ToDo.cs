@@ -13,6 +13,7 @@ namespace NemesiLIB.Model.GestioneCommesse
         public int CommessaId { get; set; }
         public string DescrizioneTodo { get; set; }
         public DateTime? DataConsegna { get; set; }
+        public short Priorita { get; set; } = 0;
         public string? DescrizioneAttivitaSvolta { get; set; }
         public bool Completato { get; set; } = false;
         public DateTime DataCreazione { get; set; }

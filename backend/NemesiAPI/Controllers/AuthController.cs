@@ -12,6 +12,7 @@ using NemesiCOMMONS.Models;
 using NemesiCOMMONS.Services;
 using NemesiLIB.Context;
 using NemesiLIB.Model;
+using NemesiLIB.Model.GestioneCommesse;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Claims;
@@ -61,12 +62,29 @@ namespace NemesiAPI.Controllers
 
         [HttpGet("get-users")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers([FromQuery] bool? onlyPmEdile = false, [FromQuery] bool? onlyPmAmministrativo = false)
         {
-            var users = await db.Users
-                .AsNoTracking()
+            if(onlyPmEdile == true && onlyPmAmministrativo == true)
+            {
+                return BadRequest("I parametri onlyPmEdile e onlyPmAmministrativo non possono essere entrambi true");
+            }
+
+            IQueryable<Utente> q = db.Users.AsNoTracking();
+
+            if(onlyPmEdile == true)
+                {
+                q = q.Where(u => u.RuoloAziendale == "PM Edile");
+            }
+            else if(onlyPmAmministrativo == true)
+            {
+                q = q.Where(u => u.RuoloAziendale == "PM Amministrativo");
+            }
+
+            var users = await q 
                 .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo, u.IsEsterno, u.Societa, u.CostoOrario, u.RuoloAziendale })
                 .ToListAsync();
+
+
 
             var userRolePairs = await (from ur in db.UserRoles
                                        join r in db.Roles on ur.RoleId equals r.Id
@@ -88,6 +106,8 @@ namespace NemesiAPI.Controllers
 
             return Ok(result);
         }
+
+
 
         [HttpGet("get-user")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NemesiAPI.Authorization;
 using NemesiLIB.Context;
+using NemesiLIB.Model;
 using NemesiLIB.Model.GestioneCommesse;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +19,12 @@ namespace NemesiAPI.Controllers.GestioneCommesse
     public class ToDoController : ControllerBase
     {
         private readonly GestionaleBertozziContext dbContext;
+        private readonly UserManager<Utente> userManager;
 
-        public ToDoController(GestionaleBertozziContext db)
+        public ToDoController(GestionaleBertozziContext db, UserManager<Utente> userManager)
         {
             dbContext = db;
+            this.userManager = userManager;
         }
 
         [HttpGet]
@@ -32,6 +36,24 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             [FromQuery] bool? completato = null)
         {
             IQueryable<ToDo> q = dbContext.ToDo.AsNoTracking();
+
+            // Ottengo l'utente corrente e applica il filtro per "Utente Base"
+            var currentUserEmail = User?.Identity?.Name;
+            var currentUser = await userManager.FindByEmailAsync(currentUserEmail);
+
+            if (currentUser != null)
+            {
+                var roles = await userManager.GetRolesAsync(currentUser);
+
+                // Se l'utente ha il ruolo "Utente Base", mostra solo i ToDo assegnati a lui o creati da lui
+                if (roles.Contains("Utente Base"))
+                {
+                    q = q.Where(t => 
+                        t.AssegnatarioPrimarioId == currentUser.Id || 
+                        t.AssegnatarioSecondarioId == currentUser.Id ||
+                        t.UtenteCreazione == currentUserEmail);
+                }
+            }
 
             if (commessaId.HasValue)
             {
@@ -56,7 +78,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             var list = await q
                 .Include(t => t.AssegnatarioPrimario)
                 .Include(t => t.AssegnatarioSecondario)
-                .OrderBy(t => t.DataConsegna)
+                .OrderBy(t => t.DataCreazione)
                 .ToListAsync();
 
             return Ok(list);
@@ -140,6 +162,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             existing.DataConsegna = model.DataConsegna;
             existing.DescrizioneAttivitaSvolta = model.DescrizioneAttivitaSvolta;
             existing.Completato = model.Completato;
+            existing.Priorita = model.Priorita;
 
             try
             {

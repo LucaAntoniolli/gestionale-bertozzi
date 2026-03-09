@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NemesiAPI.Authorization;
+using NemesiAPI.Model;
 using NemesiLIB.Context;
 using NemesiLIB.Model.GestioneCommesse;
 using NemesiLIB.Model.PianiSviluppo;
@@ -52,6 +53,32 @@ namespace NemesiAPI.Controllers.GestioneCommesse
 
             return Ok(list);
         }
+
+        [HttpGet("light")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "commessa.read")]
+        public async Task<ActionResult<IEnumerable<CommessaLightDto>>> GetLight([FromQuery] bool soloChiuse = false)
+        {
+            IQueryable<Commessa> q = dbContext.Commessa.AsNoTracking();
+
+            if (soloChiuse)
+                q = q.Where(c => c.StatusCommessaId == configuration.GetValue<int>("ApplicationParameters:IdStatusCommessaChiusa"));
+            else
+                q = q.Where(c => c.StatusCommessaId != configuration.GetValue<int>("ApplicationParameters:IdStatusCommessaChiusa"));
+
+            var list = await q
+                .Select(c => new CommessaLightDto
+                {
+                    Id = c.Id,
+                    Descrizione = c.Descrizione,
+                    CommessaCodiceInterno = c.CommessaCodiceInterno
+                })
+                .OrderByDescending(c => c.Id)
+                .ToListAsync();
+
+            return Ok(list);
+        }
+
+
 
         [HttpGet("{id:int}")]
         [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "commessa.read")]

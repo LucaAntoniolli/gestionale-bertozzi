@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { first, forkJoin } from 'rxjs';
+import { first, forkJoin, map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -20,6 +20,7 @@ import { TemplateAttivitaService } from '../../../services/TemplatePianiSviluppo
 import { TipologiaCommessaService } from '../../../services/Anagrafiche/tipologia-commessa.service';
 import { TitoloPaginaComponent } from '../../shared/components/titolo-pagina/titolo-pagina.component';
 import { PermissionsService } from '../../../auth/permissions.service';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-template-piani-sviluppo',
@@ -75,6 +76,8 @@ export class TemplatePianiSviluppoComponent implements OnInit {
     'Data'
   ];
 
+  isMobile$?: Observable<boolean>;  
+
   //Getter per gestione permessi - ora centralizzati nel service
   get canDeletePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canDelete(); }
   get canCreatePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canCreate(); }
@@ -91,10 +94,15 @@ export class TemplatePianiSviluppoComponent implements OnInit {
     private conf: ConfirmationService,
     private ms: MessageService,
     private cdr: ChangeDetectorRef,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
+    private bo: BreakpointObserver,
   ) { }
 
   ngOnInit() {
+    this.isMobile$ = this.bo
+      .observe([Breakpoints.Handset, Breakpoints.Tablet])
+      .pipe(map((result) => result.matches));
+      
     this.loadTipologie();
   }
 

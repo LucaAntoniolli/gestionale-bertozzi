@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { environment } from "../../environments/environment";
@@ -21,8 +21,15 @@ export class UtenteService {
      * Recupera tutti gli utenti dal backend
      * @returns Observable array di utenti
      */
-    getAll(): Observable<Utente[]> {
-        return this.http.get<any[]>(`${this.baseApiUrl}/auth/get-users`)
+    getAll(onlyPmEdile: boolean = false, onlyPmAmministrativo: boolean = false): Observable<Utente[]> {
+        let params = new HttpParams();
+        if (onlyPmEdile) {
+            params = params.set('onlyPmEdile', onlyPmEdile.toString());
+        }
+        if (onlyPmAmministrativo) {
+            params = params.set('onlyPmAmministrativo', onlyPmAmministrativo.toString());
+        }
+        return this.http.get<any[]>(`${this.baseApiUrl}/auth/get-users`, { params })
             .pipe(map(data => Utente.mapArray(data)));
     }
 

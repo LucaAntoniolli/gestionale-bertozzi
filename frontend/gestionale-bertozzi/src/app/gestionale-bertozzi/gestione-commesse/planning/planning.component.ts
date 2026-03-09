@@ -69,6 +69,7 @@ export class PlanningComponent implements OnInit {
     // Dati per i dropdown
     commesseList: Commessa[] = [];
     utentiList: Utente[] = [];
+    prioritaOptions: number[] = [1, 2, 3, 4, 5];
     
     // Filtro per commessa
     commessaSelezionata?: number;
@@ -105,12 +106,13 @@ export class PlanningComponent implements OnInit {
     /** Carica i dati delle tabelle di riferimento (commesse e utenti) */
     private loadReferenceData() {
         forkJoin({
-            commesse: this.commessaService.getAll(),
-            utenti: this.utenteService.getAll()
+            commesse: this.commessaService.getAllLight(),
+            utenti: this.utenteService.getAll(true, false)
         }).pipe(first()).subscribe({
             next: (data) => {
                 this.commesseList = data.commesse;
                 this.utentiList = data.utenti;
+                console.log("Dati di riferimento caricati:", { commesse: this.commesseList, utenti: this.utentiList });
                 
                 // Non caricare i ToDo automaticamente - aspetta la selezione della commessa
                 this.loading = false;
@@ -178,6 +180,7 @@ export class PlanningComponent implements OnInit {
             assegnatarioSecondarioId: [''],
             descrizioneTodo: ['', [Validators.required]],
             dataConsegna: [''],
+            priorita: 0,
             descrizioneAttivitaSvolta: [''],
             completato: [false],
         });
@@ -196,6 +199,7 @@ export class PlanningComponent implements OnInit {
             assegnatarioSecondarioId: [todo.assegnatarioSecondarioId || ''],
             descrizioneTodo: [todo.descrizioneTodo, [Validators.required]],
             dataConsegna: [todo.dataConsegna ? new Date(todo.dataConsegna as any) : ''],
+            priorita: [todo.priorita || 0],
             descrizioneAttivitaSvolta: [todo.descrizioneAttivitaSvolta || ''],
             completato: [todo.completato],
         });
@@ -227,6 +231,7 @@ export class PlanningComponent implements OnInit {
         todo.descrizioneTodo = formValue.descrizioneTodo;
         todo.descrizioneAttivitaSvolta = formValue.descrizioneAttivitaSvolta || null;
         todo.completato = formValue.completato || false;
+        todo.priorita = formValue.priorita || 0;
         
         if (formValue.dataConsegna) {
             todo.dataConsegna = moment(formValue.dataConsegna).startOf('day');
@@ -364,6 +369,6 @@ export class PlanningComponent implements OnInit {
 
     /** Gestisce il cambio della commessa selezionata */
     onCommessaChange() {
-        this.loadData();
+        setTimeout(() => this.loadData(), 0);
     }
 }

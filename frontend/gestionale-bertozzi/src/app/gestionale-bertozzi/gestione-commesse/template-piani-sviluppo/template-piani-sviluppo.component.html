@@ -135,7 +135,7 @@
 
 <!-- DIALOG CREAZIONE NUOVO PIANO -->
 <p-dialog header="Dati nuovo piano di sviluppo" [modal]="true" [(visible)]="showDialogCreazionePiano"
-  [style]="{width: '50dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
+  [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false" [resizable]="false">
   <span class="p-text-secondary block mb-5">Inserisci i dati per creare il nuovo piano di sviluppo.</span>
   <form [formGroup]="nuovoPianoForm" *ngIf="nuovoPianoForm">
     <div class="grid">
@@ -167,7 +167,7 @@
 
 <!-- DIALOG MODIFICA PIANO -->
 <p-dialog header="Modifica piano di sviluppo" [modal]="true" [(visible)]="showDialogModificaPiano"
-  [style]="{width: '50dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
+  [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false" [resizable]="false">
   <span class="p-text-secondary block mb-5">Modifica i dati del piano di sviluppo.</span>
   <form [formGroup]="modificaPianoForm" *ngIf="modificaPianoForm">
     <div class="grid">
@@ -199,7 +199,7 @@
 
 <!-- DIALOG CREAZIONE NUOVA ATTIVITA -->
 <p-dialog header="Dati nuova attività" [modal]="true" [(visible)]="showDialogCreazioneAttivita"
-  [style]="{width: '50dvw'}" [closable]="true" [draggable]="false" [resizable]="false">
+  [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false" [resizable]="false">
   <span class="p-text-secondary block mb-5">Inserisci i dati per creare la nuova attività.</span>
   <form [formGroup]="nuovaAttivitaForm" *ngIf="nuovaAttivitaForm">
     <div class="grid">
@@ -239,8 +239,8 @@
 </p-dialog>
 
 <!-- DIALOG MODIFICA ATTIVITA -->
-<p-dialog header="Modifica attività" [modal]="true" [(visible)]="showDialogModificaAttivita" [style]="{width: '50dvw'}"
-  [closable]="true" [draggable]="false" [resizable]="false">
+<p-dialog header="Modifica attività" [modal]="true" [(visible)]="showDialogModificaAttivita"
+  [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false" [resizable]="false">
   <span class="p-text-secondary block mb-5">Modifica i dati dell'attività.</span>
   <form [formGroup]="modificaAttivitaForm" *ngIf="modificaAttivitaForm">
     <div class="grid">
