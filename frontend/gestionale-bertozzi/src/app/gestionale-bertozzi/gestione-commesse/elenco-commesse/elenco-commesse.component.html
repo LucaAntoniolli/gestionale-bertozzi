@@ -21,7 +21,7 @@
     @if((commesseList && commesseList.length > 0) || loading) {
     <p-table #dt1 [size]="'small'" [value]="commesseList" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
       styleClass="p-datatable-gridlines" [paginator]="true"
-      [globalFilterFields]="['cliente.ragioneSociale', 'protocollo', 'descrizione', 'tipologiaCommessa.descrizione', 'statusCommessa.descrizione', 'pmEdileId', 'referenteCliente.nome', 'pmAmministrativoId']"
+      [globalFilterFields]="['cliente.ragioneSociale', 'protocollo', 'descrizione', 'tipologiaCommessa.descrizione', 'statusCommessa.descrizione', 'referenteCliente.nome', 'commessaCodiceInterno']"
       responsiveLayout="scroll" sortMode="multiple">
       <ng-template pTemplate="caption">
         <div class="flex justify-content-between flex-column sm:flex-row">
@@ -49,65 +49,54 @@
             <div class="flex justify-content-between align-items-center">
               Cliente
               <p-sortIcon field="cliente.ragioneSociale" />
-              <p-columnFilter type="text" field="cliente.ragioneSociale" display="menu"
-                placeholder="Cerca per cliente"></p-columnFilter>
             </div>
           </th>
           <th style="min-width: 10rem" pSortableColumn="protocollo">
             <div class="flex justify-content-between align-items-center">
               Protocollo
               <p-sortIcon field="protocollo" />
-              <p-columnFilter type="text" field="protocollo" display="menu"
-                placeholder="Cerca per protocollo"></p-columnFilter>
             </div>
           </th>
-
+          <th style="min-width: 10rem" pSortableColumn="commessaCodiceInterno">
+            <div class="flex justify-content-between align-items-center">
+              Codice interno
+              <p-sortIcon field="commessaCodiceInterno" />
+            </div>
+          </th>
           <th style="min-width: 20rem" pSortableColumn="descrizione">
             <div class="flex justify-content-between align-items-center">
               Descrizione
               <p-sortIcon field="descrizione" />
-              <p-columnFilter type="text" field="descrizione" display="menu"
-                placeholder="Cerca per descrizione"></p-columnFilter>
             </div>
           </th>
           <th style="min-width: 12rem" pSortableColumn="tipologiaCommessa.descrizione">
             <div class="flex justify-content-between align-items-center">
               Tipologia
               <p-sortIcon field="tipologiaCommessa.descrizione" />
-              <p-columnFilter type="text" field="tipologiaCommessa.descrizione" display="menu"
-                placeholder="Cerca per tipologia"></p-columnFilter>
             </div>
           </th>
           <th style="min-width: 10rem" pSortableColumn="statusCommessa.descrizione">
             <div class="flex justify-content-between align-items-center">
               Stato
               <p-sortIcon field="statusCommessa.descrizione" />
-              <p-columnFilter type="text" field="statusCommessa.descrizione" display="menu"
-                placeholder="Cerca per stato"></p-columnFilter>
             </div>
           </th>
           <th style="min-width: 12rem" pSortableColumn="pmEdileId">
             <div class="flex justify-content-between align-items-center">
               PM Edile
               <p-sortIcon field="pmEdileId" />
-              <p-columnFilter type="text" field="pmEdileId" display="menu"
-                placeholder="Cerca PM Edile"></p-columnFilter>
             </div>
           </th>
           <th style="min-width: 12rem" pSortableColumn="pmAmministrativoId">
             <div class="flex justify-content-between align-items-center">
               PM Amministrativo
               <p-sortIcon field="pmAmministrativoId" />
-              <p-columnFilter type="text" field="pmAmministrativoId" display="menu"
-                placeholder="Cerca PM Amm"></p-columnFilter>
             </div>
           </th>
           <th style="min-width: 15rem" pSortableColumn="referenteCliente.nome">
             <div class="flex justify-content-between align-items-center">
               Referenti Cliente
               <p-sortIcon field="referenteCliente.nome" />
-              <p-columnFilter type="text" field="referenteCliente.nome" display="menu"
-                placeholder="Cerca referente"></p-columnFilter>
             </div>
           </th>
         </tr>
@@ -130,6 +119,9 @@
             <span class="image-text">{{ commessa.protocollo }}</span>
           </td>
           <td>
+            <span class="image-text">{{ commessa.commessaCodiceInterno }}</span>
+          </td>
+          <td>
             <span class="image-text">{{ commessa.descrizione }}</span>
           </td>
           <td>
@@ -139,10 +131,10 @@
             <span class="image-text">{{ commessa.statusCommessa?.descrizione }}</span>
           </td>
           <td>
-            <span class="image-text">{{ getNomeUtente(commessa.pmAmministrativoId) }}</span>
+            <span class="image-text">{{ getNomeUtente(commessa.pmEdileId) }}</span>
           </td>
           <td>
-            <span class="image-text">{{ getNomeUtente(commessa.pmEdileId) }}</span>
+            <span class="image-text">{{ getNomeUtente(commessa.pmAmministrativoId) }}</span>
           </td>
           <td>
             <span class="image-text">{{ commessa.referentiCliente }}</span>
