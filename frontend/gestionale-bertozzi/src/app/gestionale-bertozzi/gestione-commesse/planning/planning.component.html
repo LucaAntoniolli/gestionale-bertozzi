@@ -8,7 +8,7 @@
                 <label htmlFor="commessaFiltro" class="mb-2 font-semibold">Commessa</label>
                 <p-select id="commessaFiltro" [options]="commesseList" optionValue="id"
                     placeholder="Seleziona una commessa" [(ngModel)]="commessaSelezionata" [showClear]="true"
-                    class="w-full" [filter]="true" (onChange)="onCommessaChange()">
+                    class="w-full" [filter]="true" (onChange)="onCommessaChange()" [loading]="loading">
                     <ng-template pTemplate="item" let-commessa>
                         {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
                     </ng-template>
@@ -34,7 +34,7 @@
         @if((todoList && todoList.length > 0 && commessaSelezionata)) {
         <p-table #dt1 [size]="'small'" [value]="todoList" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
             styleClass="p-datatable-gridlines" [paginator]="true"
-            [globalFilterFields]="['descrizioneTodo', 'assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo', 'commessa.descrizione']"
+            [globalFilterFields]="['descrizioneTodo', 'assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo']"
             responsiveLayout="scroll" sortMode="multiple">
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
@@ -58,10 +58,10 @@
                             Azioni
                         </div>
                     </th>
-                    <th style="min-width: 15rem" pSortableColumn="commessa.descrizione">
+                    <th style="min-width: 15rem" pSortableColumn="dataCreazione">
                         <div class="flex justify-content-between align-items-center">
-                            Commessa
-                            <p-sortIcon field="commessa.descrizione" />
+                            Data Creazione
+                            <p-sortIcon field="dataCreazione" />
                         </div>
                     </th>
                     <th style="min-width: 20rem" pSortableColumn="descrizioneTodo">
@@ -120,13 +120,15 @@
                         </div>
                     </td>
                     <td>
-                        <span class="image-text">{{ getDescrizioneCommessa(todo.commessaId) }}</span>
+                        <span class="image-text">{{ todo.dataCreazione ? (todo.dataCreazione.format('DD/MM/YYYY')) : '-'
+                            }}</span>
                     </td>
                     <td>
                         <span class="image-text">{{ todo.descrizioneTodo }}</span>
                     </td>
                     <td>
-                        <p-tag [value]="getTestoCompletato(todo.completato)" [severity]="'success'" />
+                        <p-tag [value]="getTestoCompletato(todo.completato)"
+                            [severity]="getSeverityCompletato(todo.completato)" />
                     </td>
                     <td>
                         <span class="image-text">{{ todo.priorita }}</span>
@@ -190,9 +192,9 @@
                 <div class="col-6">
                     <div class="field">
                         <label htmlFor="assegnatarioPrimarioId" class="mb-2 font-semibold">Assegnatario Primario</label>
-                        <p-select id="assegnatarioPrimarioId" [options]="utentiList" optionLabel="nominativo"
+                        <p-select id="assegnatarioPrimarioId" [options]="utentiPmEdileList" optionLabel="nominativo"
                             optionValue="id" placeholder="Seleziona utente" formControlName="assegnatarioPrimarioId"
-                            [showClear]="true" class="w-full" [filter]="true" />
+                            [showClear]="true" class="w-full" [filter]="true" [disabled]="!canEditToDoField" />
                         <small id="assegnatarioPrimarioId-error" class="p-error"
                             *ngIf="nuovoTodoForm.get('assegnatarioPrimarioId')?.invalid">
                             Campo obbligatorio
@@ -203,10 +205,10 @@
                     <div class="field">
                         <label htmlFor="assegnatarioSecondarioId" class="mb-2 font-semibold">Assegnatario
                             Secondario</label>
-                        <p-select id="assegnatarioSecondarioId" [options]="utentiList" optionLabel="nominativo"
+                        <p-select id="assegnatarioSecondarioId" [options]="utentiPmEdileList" optionLabel="nominativo"
                             optionValue="id" placeholder="Seleziona utente (opzionale)"
-                            formControlName="assegnatarioSecondarioId" [showClear]="true" class="w-full"
-                            [filter]="true" />
+                            formControlName="assegnatarioSecondarioId" [showClear]="true" class="w-full" [filter]="true"
+                            [disabled]="!canEditToDoField" />
                     </div>
                 </div>
             </div>
@@ -217,14 +219,15 @@
                     <div class="field">
                         <label htmlFor="dataConsegna" class="mb-2 font-semibold">Data Consegna</label>
                         <p-datepicker inputId="dataConsegna" formControlName="dataConsegna" dateFormat="dd/mm/yy"
-                            [showIcon]="true" class="w-full" appendTo="body" />
+                            [showIcon]="true" class="w-full" appendTo="body" [disabled]="!canEditToDoField" />
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="field">
                         <label htmlFor="priorita" class="mb-2 font-semibold">Priorità</label>
                         <p-select id="priorita" [options]="prioritaOptions" placeholder="Seleziona priorità"
-                            formControlName="priorita" [showClear]="true" class="w-full" />
+                            formControlName="priorita" [showClear]="true" class="w-full"
+                            [disabled]="!canEditToDoField" />
                     </div>
                 </div>
             </div>
@@ -256,6 +259,3 @@
         </div>
     </form>
 </p-dialog>
-
-<!-- Confirm Dialog -->
-<p-confirmDialog />

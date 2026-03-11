@@ -17,5 +17,6 @@ namespace NemesiLIB.Model.GestioneCommesse
 
         // Navigation properties
         public virtual List<Attivita>? Attivita { get; set; }
+        public virtual List<OreSpeseCommessa>? OreSpese { get; set; }
     }
 }

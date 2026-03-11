@@ -33,5 +33,6 @@ namespace NemesiLIB.Model.GestioneCommesse
         public virtual Utente? PmAmministrativo { get; set; }
         public virtual Utente? PmEdile { get; set; }
         public virtual List<PianoSviluppo>? PianiSviluppo { get; set; }
+        public virtual List<OreSpeseCommessa>? OreSpese { get; set; }
     }
 }

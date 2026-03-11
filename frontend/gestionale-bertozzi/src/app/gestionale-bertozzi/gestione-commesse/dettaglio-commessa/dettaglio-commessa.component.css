@@ -3,3 +3,9 @@
   height: 4rem !important;
   font-size: 2rem !important;
 }
+
+::ng-deep .avatar-full {
+  width: 100%!important;
+  height: 4rem !important;
+  font-size: 2rem !important;
+}

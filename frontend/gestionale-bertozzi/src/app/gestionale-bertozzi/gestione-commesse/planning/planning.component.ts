@@ -29,6 +29,7 @@ import { CommessaService } from '../../../services/GestioneCommesse/commessa.ser
 import { Utente } from '../../../models/utente';
 import { UtenteService } from '../../../services/utente.service';
 import { PermissionsService } from '../../../auth/permissions.service';
+import { AuthService } from '../../../auth/auth.service';
 
 @Component({
     selector: 'app-planning',
@@ -68,7 +69,10 @@ export class PlanningComponent implements OnInit {
 
     // Dati per i dropdown
     commesseList: Commessa[] = [];
+    utentiPmEdileList: Utente[] = [];
     utentiList: Utente[] = [];
+    utenteLoggato: Utente | null = null;
+
     prioritaOptions: number[] = [1, 2, 3, 4, 5];
     
     // Filtro per commessa
@@ -82,8 +86,25 @@ export class PlanningComponent implements OnInit {
     get canDeleteTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canDelete(); }
     get canCreateTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canCreate(); }
     get canEditTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canUpdate(); }
+
+    get canEditToDoField(): boolean {
+        if(!this.isModifying) {
+            return true;
+        }
+
+        if(this.authService.isUserAdmin() || this.authService.isUserBackoffice()) {
+            return true;
+        }
+        else{
+            if(this.todoInModifica?.utenteCreazione === this.utenteLoggato?.email) {
+                return true;
+            }
+        }
+        return false;
+    }
     
     constructor(
+        private authService: AuthService,
         private permissionsService: PermissionsService,
         private todoService: TodoService,
         private commessaService: CommessaService,
@@ -107,15 +128,18 @@ export class PlanningComponent implements OnInit {
     private loadReferenceData() {
         forkJoin({
             commesse: this.commessaService.getAllLight(),
-            utenti: this.utenteService.getAll(true, false)
+            utentiPmEdile: this.utenteService.getAll(true, false),
+            utenti: this.utenteService.getAll(),
+            utente: this.authService.getUser(),
         }).pipe(first()).subscribe({
             next: (data) => {
                 this.commesseList = data.commesse;
+                this.utentiPmEdileList = data.utentiPmEdile;
                 this.utentiList = data.utenti;
-                console.log("Dati di riferimento caricati:", { commesse: this.commesseList, utenti: this.utentiList });
-                
+                this.utenteLoggato = data.utente;
                 // Non caricare i ToDo automaticamente - aspetta la selezione della commessa
                 this.loading = false;
+                this.cdr.detectChanges();
             },
             error: (err: any) => {
                 this.loading = false;
@@ -173,6 +197,8 @@ export class PlanningComponent implements OnInit {
     mostraFormCreazioneTodo() {
         this.todoInModifica = undefined;
         this.isModifying = false;
+
+        this.nuovoTodoForm = undefined;
         
         this.nuovoTodoForm = this.fb.group({
             commessaId: [this.commessaSelezionata || '', [Validators.required]],
@@ -204,6 +230,14 @@ export class PlanningComponent implements OnInit {
             completato: [todo.completato],
         });
 
+        if(!this.canEditToDoField) {
+            this.nuovoTodoForm.get('descrizioneTodo')?.disable();
+            this.nuovoTodoForm.get('assegnatarioPrimarioId')?.disable();
+            this.nuovoTodoForm.get('assegnatarioSecondarioId')?.disable();
+            this.nuovoTodoForm.get('dataConsegna')?.disable();
+            this.nuovoTodoForm.get('priorita')?.disable();
+        }
+
         this.showDialogCreazioneTodo = true;
     }
 
@@ -218,7 +252,19 @@ export class PlanningComponent implements OnInit {
             return;
         }
 
-        let formValue = this.nuovoTodoForm.value;
+        let formValue = this.nuovoTodoForm.getRawValue();
+
+        if (this.isModifying && !this.canEditToDoField && this.todoInModifica) {
+            formValue = {
+                ...formValue,
+                descrizioneTodo: this.todoInModifica.descrizioneTodo,
+                assegnatarioPrimarioId: this.todoInModifica.assegnatarioPrimarioId,
+                assegnatarioSecondarioId: this.todoInModifica.assegnatarioSecondarioId,
+                dataConsegna: this.todoInModifica.dataConsegna ? this.todoInModifica.dataConsegna.toDate() : null,
+                priorita: this.todoInModifica.priorita,
+            };
+        }
+
         const todo = new ToDo();
         
         if (this.isModifying && this.todoInModifica?.id) {
@@ -358,8 +404,8 @@ export class PlanningComponent implements OnInit {
     }
 
     /** Ottiene la severità del tag in base allo stato */
-    getSeverityCompletato(completato: boolean): string {
-        return completato ? 'success' : 'warn';
+    getSeverityCompletato(completato: boolean): 'success' | 'danger' {
+        return completato ? 'success' : 'danger';
     }
 
     /** Ottiene il testo del tag in base allo stato */

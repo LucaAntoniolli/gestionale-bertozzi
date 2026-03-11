@@ -119,7 +119,11 @@ namespace NemesiLIB.Context.Seeders
                     "todo.read",
                     "todo.create",
                     "todo.update",
-                    "todo.delete"
+                    "todo.delete",
+                    "orespesecommessa.read",
+                    "orespesecommessa.create",
+                    "orespesecommessa.update",
+                    "orespesecommessa.delete"
                 } },
                 { "Backoffice", new List<string> {
                     "cliente.read",
@@ -150,7 +154,11 @@ namespace NemesiLIB.Context.Seeders
                     "todo.read",
                     "todo.create",
                     "todo.update",
-                    "todo.delete"
+                    "todo.delete",
+                    "orespesecommessa.read",
+                    "orespesecommessa.create",
+                    "orespesecommessa.update",
+                    "orespesecommessa.delete"
                 } },
                 { "Utente Base", new List<string> {
                     "commessa.read",
@@ -160,7 +168,11 @@ namespace NemesiLIB.Context.Seeders
                     "todo.read",
                     "todo.create",
                     "todo.update",
-                    "todo.delete"
+                    "todo.delete",
+                    "orespesecommessa.read",
+                    "orespesecommessa.create",
+                    "orespesecommessa.update",
+                    "orespesecommessa.delete"
                 } }
             };
 

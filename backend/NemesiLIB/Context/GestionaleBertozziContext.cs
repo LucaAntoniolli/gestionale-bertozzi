@@ -35,6 +35,7 @@ namespace NemesiLIB.Context
         public virtual DbSet<PianoSviluppo> PianoSviluppo { get; set; }
         public virtual DbSet<Attivita> Attivita { get; set; }
         public virtual DbSet<ToDo> ToDo { get; set; }
+        public virtual DbSet<OreSpeseCommessa> OreSpeseCommessa { get; set; }
 
         private readonly IHttpContextAccessor httpContextAccessor;
 
@@ -191,6 +192,7 @@ namespace NemesiLIB.Context
                 e.Property(p => p.Descrizione).IsRequired().HasMaxLength(500);
                 e.Property(p => p.Ordine).IsRequired();
                 e.HasMany(p => p.Attivita).WithOne().HasForeignKey(a => a.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(p => p.OreSpese).WithOne().HasForeignKey(o => o.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
             });
 
             //Attivita
@@ -221,6 +223,24 @@ namespace NemesiLIB.Context
                 e.HasOne(t => t.AssegnatarioPrimario).WithMany().HasForeignKey(t => t.AssegnatarioPrimarioId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne(t => t.AssegnatarioSecondario).WithMany().HasForeignKey(t => t.AssegnatarioSecondarioId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne<Commessa>().WithMany().HasForeignKey(t => t.CommessaId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            //OreSpeseCommessa
+            model.Entity<OreSpeseCommessa>(e =>
+            {
+                e.HasKey(o => o.Id);
+                e.Property(o => o.Id).ValueGeneratedOnAdd();
+                e.Property(o => o.CommessaId).IsRequired();
+                e.Property(o => o.PianoSviluppoId).IsRequired();
+                e.Property(o => o.UtenteId).IsRequired();
+                e.Property(o => o.Data).IsRequired();
+                e.Property(o => o.Ore).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.Property(o => o.Spese).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.Property(o => o.Chilometri).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.Property(o => o.Note).HasMaxLength(2000).IsRequired(false);
+                e.HasOne(o => o.Utente).WithMany().HasForeignKey(o => o.UtenteId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(o => o.PianoSviluppo).WithMany(p => p.OreSpese).HasForeignKey(o => o.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne<Commessa>().WithMany(c => c.OreSpese).HasForeignKey(o => o.CommessaId).OnDelete(DeleteBehavior.NoAction);
             });
 
             base.OnModelCreating(model);

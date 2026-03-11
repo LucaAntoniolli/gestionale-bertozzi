@@ -12,8 +12,8 @@ export class ToDo {
     priorita?: number;
     descrizioneAttivitaSvolta?: string;
     completato: boolean = false;
-    dataCreazione?: Date;
-    dataModifica?: Date;
+    dataCreazione?: moment.Moment;
+    dataModifica?: moment.Moment;
     utenteCreazione?: string;
     utenteModifica?: string;
 
@@ -30,10 +30,10 @@ export class ToDo {
             t.dataConsegna = moment(todo.dataConsegna);
         }
         if (todo.dataCreazione) {
-            t.dataCreazione = new Date(todo.dataCreazione);
+            t.dataCreazione = moment(todo.dataCreazione);
         }
         if (todo.dataModifica) {
-            t.dataModifica = new Date(todo.dataModifica);
+            t.dataModifica = moment(todo.dataModifica);
         }
         
         // Mappa le proprietà di navigazione se presenti
