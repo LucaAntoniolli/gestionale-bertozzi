@@ -528,7 +528,7 @@
 
 <!-- DRAWER ORE PER DIPENDENTE -->
 <p-drawer header="Ore per dipendente" position="right" [(visible)]="showDrawerOrePerUtente"
-  [style]="{ width: '35rem' }">
+  [style]="{ width: (isMobile$ | async) ? '98vw' : '35rem' }">
   <p-table [value]="orePerUtenteList" [loading]="loadingOrePerUtente" [scrollable]="true" scrollHeight="flex"
     [size]="'small'" styleClass="p-datatable-gridlines">
     <ng-template #header>
