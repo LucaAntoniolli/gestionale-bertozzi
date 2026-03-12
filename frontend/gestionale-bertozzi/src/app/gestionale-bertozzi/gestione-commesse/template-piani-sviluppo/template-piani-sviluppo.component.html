@@ -14,10 +14,10 @@
         <div class="p-toolbar-group-center"></div>
         <div class="p-toolbar-group-end">
           <div class="flex gap-2">
-            <p-button label="Espandi tutto" icon="pi pi-chevron-down" [outlined]="true" size="small"
-              (click)="expandAll()" *ngIf="pianiSviluppo && pianiSviluppo.length > 0"></p-button>
-            <p-button label="Comprimi tutto" icon="pi pi-chevron-up" [outlined]="true" size="small"
-              (click)="collapseAll()" *ngIf="pianiSviluppo && pianiSviluppo.length > 0"></p-button>
+            <p-button label="Espandi tutto" icon="pi pi-chevron-down" [outlined]="true" (click)="expandAll()"
+              *ngIf="pianiSviluppo && pianiSviluppo.length > 0"></p-button>
+            <p-button label="Comprimi tutto" icon="pi pi-chevron-up" [outlined]="true" (click)="collapseAll()"
+              *ngIf="pianiSviluppo && pianiSviluppo.length > 0"></p-button>
             <p-button label="Crea nuovo piano di sviluppo" icon="pi pi-plus" (click)="mostraFormCreazionePiano()"
               *ngIf="canCreatePianoSviluppo"></p-button>
           </div>
@@ -133,83 +133,57 @@
 </div>
 </div>
 
-<!-- DIALOG CREAZIONE NUOVO PIANO -->
-<p-dialog header="Dati nuovo piano di sviluppo" [modal]="true" [(visible)]="showDialogCreazionePiano"
-  [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false" [resizable]="false">
-  <span class="p-text-secondary block mb-5">Inserisci i dati per creare il nuovo piano di sviluppo.</span>
-  <form [formGroup]="nuovoPianoForm" *ngIf="nuovoPianoForm">
+<!-- DIALOG PIANO DI SVILUPPO (CREAZIONE / MODIFICA) -->
+<p-dialog [header]="isModificaPiano ? 'Modifica piano di sviluppo' : 'Dati nuovo piano di sviluppo'" [modal]="true"
+  [(visible)]="showDialogPiano" [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true"
+  [draggable]="false" [resizable]="false">
+  <span class="p-text-secondary block mb-5">
+    {{ isModificaPiano ? 'Modifica i dati del piano di sviluppo.' : 'Inserisci i dati per creare il nuovo piano di
+    sviluppo.' }}
+  </span>
+  <form [formGroup]="pianoForm" *ngIf="pianoForm">
     <div class="grid">
       <div class="col-12 md:col-8">
         <label htmlFor="descrizione" class="font-semibold block mb-2">Descrizione *</label>
         <input type="text" pInputText id="descrizione" formControlName="descrizione" class="w-full" />
         <small class="p-error block mt-1"
-          *ngIf="nuovoPianoForm.get('descrizione')?.invalid && nuovoPianoForm.get('descrizione')?.touched">
-          <span *ngIf="nuovoPianoForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
-          <span *ngIf="nuovoPianoForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
+          *ngIf="pianoForm.get('descrizione')?.invalid && pianoForm.get('descrizione')?.touched">
+          <span *ngIf="pianoForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="pianoForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
         </small>
       </div>
       <div class="col-12 md:col-4">
         <label htmlFor="ordine" class="font-semibold block mb-2">Ordine *</label>
         <input type="number" pInputText id="ordine" formControlName="ordine" class="w-full" min="0" />
-        <small class="p-error block mt-1"
-          *ngIf="nuovoPianoForm.get('ordine')?.invalid && nuovoPianoForm.get('ordine')?.touched">
-          <span *ngIf="nuovoPianoForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
-          <span *ngIf="nuovoPianoForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
+        <small class="p-error block mt-1" *ngIf="pianoForm.get('ordine')?.invalid && pianoForm.get('ordine')?.touched">
+          <span *ngIf="pianoForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="pianoForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
         </small>
       </div>
     </div>
   </form>
   <div class="flex justify-content-end gap-2 mt-4">
-    <p-button label="Annulla" severity="secondary" (click)="showDialogCreazionePiano = false" />
-    <p-button label="Salva" (click)="creaPiano()" [disabled]="!nuovoPianoForm?.valid" />
+    <p-button label="Annulla" severity="secondary" (click)="showDialogPiano = false" />
+    <p-button label="Salva" (click)="salvaPiano()" [disabled]="!pianoForm?.valid" />
   </div>
 </p-dialog>
 
-<!-- DIALOG MODIFICA PIANO -->
-<p-dialog header="Modifica piano di sviluppo" [modal]="true" [(visible)]="showDialogModificaPiano"
-  [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false" [resizable]="false">
-  <span class="p-text-secondary block mb-5">Modifica i dati del piano di sviluppo.</span>
-  <form [formGroup]="modificaPianoForm" *ngIf="modificaPianoForm">
-    <div class="grid">
-      <div class="col-12 md:col-8">
-        <label htmlFor="descrizioneModifica" class="font-semibold block mb-2">Descrizione *</label>
-        <input type="text" pInputText id="descrizioneModifica" formControlName="descrizione" class="w-full" />
-        <small class="p-error block mt-1"
-          *ngIf="modificaPianoForm.get('descrizione')?.invalid && modificaPianoForm.get('descrizione')?.touched">
-          <span *ngIf="modificaPianoForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
-          <span *ngIf="modificaPianoForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
-        </small>
-      </div>
-      <div class="col-12 md:col-4">
-        <label htmlFor="ordineModifica" class="font-semibold block mb-2">Ordine *</label>
-        <input type="number" pInputText id="ordineModifica" formControlName="ordine" class="w-full" min="0" />
-        <small class="p-error block mt-1"
-          *ngIf="modificaPianoForm.get('ordine')?.invalid && modificaPianoForm.get('ordine')?.touched">
-          <span *ngIf="modificaPianoForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
-          <span *ngIf="modificaPianoForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
-        </small>
-      </div>
-    </div>
-  </form>
-  <div class="flex justify-content-end gap-2 mt-4">
-    <p-button label="Annulla" severity="secondary" (click)="showDialogModificaPiano = false" />
-    <p-button label="Salva" (click)="modificaPiano()" [disabled]="!modificaPianoForm?.valid" />
-  </div>
-</p-dialog>
-
-<!-- DIALOG CREAZIONE NUOVA ATTIVITA -->
-<p-dialog header="Dati nuova attività" [modal]="true" [(visible)]="showDialogCreazioneAttivita"
-  [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false" [resizable]="false">
-  <span class="p-text-secondary block mb-5">Inserisci i dati per creare la nuova attività.</span>
-  <form [formGroup]="nuovaAttivitaForm" *ngIf="nuovaAttivitaForm">
+<!-- DIALOG ATTIVITÀ (CREAZIONE / MODIFICA) -->
+<p-dialog [header]="isModificaAttivita ? 'Modifica attività' : 'Dati nuova attività'" [modal]="true"
+  [(visible)]="showDialogAttivita" [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true"
+  [draggable]="false" [resizable]="false">
+  <span class="p-text-secondary block mb-5">
+    {{ isModificaAttivita ? 'Modifica i dati dell\'attività.' : 'Inserisci i dati per creare la nuova attività.' }}
+  </span>
+  <form [formGroup]="attivitaForm" *ngIf="attivitaForm">
     <div class="grid">
       <div class="col-12">
         <label htmlFor="descrizioneAttivita" class="font-semibold block mb-2">Descrizione *</label>
         <input type="text" pInputText id="descrizioneAttivita" formControlName="descrizione" class="w-full" />
         <small class="p-error block mt-1"
-          *ngIf="nuovaAttivitaForm.get('descrizione')?.invalid && nuovaAttivitaForm.get('descrizione')?.touched">
-          <span *ngIf="nuovaAttivitaForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
-          <span *ngIf="nuovaAttivitaForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
+          *ngIf="attivitaForm.get('descrizione')?.invalid && attivitaForm.get('descrizione')?.touched">
+          <span *ngIf="attivitaForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="attivitaForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
         </small>
       </div>
       <div class="col-12">
@@ -217,64 +191,23 @@
         <p-select [options]="tipiInfoDaRegistrare" id="tipoInfo" formControlName="tipoInfoDaRegistrare"
           placeholder="Seleziona tipo info" [style]="{'width': '100%'}" appendTo="body" />
         <small class="p-error block mt-1"
-          *ngIf="nuovaAttivitaForm.get('tipoInfoDaRegistrare')?.invalid && nuovaAttivitaForm.get('tipoInfoDaRegistrare')?.touched">
-          <span *ngIf="nuovaAttivitaForm.get('tipoInfoDaRegistrare')?.errors?.['required']">Campo obbligatorio</span>
+          *ngIf="attivitaForm.get('tipoInfoDaRegistrare')?.invalid && attivitaForm.get('tipoInfoDaRegistrare')?.touched">
+          <span *ngIf="attivitaForm.get('tipoInfoDaRegistrare')?.errors?.['required']">Campo obbligatorio</span>
         </small>
       </div>
       <div class="col-12">
         <label htmlFor="ordineAttivita" class="font-semibold block mb-2">Ordine *</label>
         <input type="number" pInputText id="ordineAttivita" formControlName="ordine" class="w-full" min="0" />
         <small class="p-error block mt-1"
-          *ngIf="nuovaAttivitaForm.get('ordine')?.invalid && nuovaAttivitaForm.get('ordine')?.touched">
-          <span *ngIf="nuovaAttivitaForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
-          <span *ngIf="nuovaAttivitaForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
+          *ngIf="attivitaForm.get('ordine')?.invalid && attivitaForm.get('ordine')?.touched">
+          <span *ngIf="attivitaForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
+          <span *ngIf="attivitaForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
         </small>
       </div>
     </div>
   </form>
   <div class="flex justify-content-end gap-2 mt-4">
-    <p-button label="Annulla" severity="secondary" (click)="showDialogCreazioneAttivita = false" />
-    <p-button label="Salva" (click)="creaAttivita()" [disabled]="!nuovaAttivitaForm?.valid" />
-  </div>
-</p-dialog>
-
-<!-- DIALOG MODIFICA ATTIVITA -->
-<p-dialog header="Modifica attività" [modal]="true" [(visible)]="showDialogModificaAttivita"
-  [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true" [draggable]="false" [resizable]="false">
-  <span class="p-text-secondary block mb-5">Modifica i dati dell'attività.</span>
-  <form [formGroup]="modificaAttivitaForm" *ngIf="modificaAttivitaForm">
-    <div class="grid">
-      <div class="col-12">
-        <label htmlFor="descrizioneAttivitaModifica" class="font-semibold block mb-2">Descrizione *</label>
-        <input type="text" pInputText id="descrizioneAttivitaModifica" formControlName="descrizione" class="w-full" />
-        <small class="p-error block mt-1"
-          *ngIf="modificaAttivitaForm.get('descrizione')?.invalid && modificaAttivitaForm.get('descrizione')?.touched">
-          <span *ngIf="modificaAttivitaForm.get('descrizione')?.errors?.['required']">Campo obbligatorio</span>
-          <span *ngIf="modificaAttivitaForm.get('descrizione')?.errors?.['minlength']">Minimo 3 caratteri</span>
-        </small>
-      </div>
-      <div class="col-12">
-        <label htmlFor="tipoInfoModifica" class="font-semibold block mb-2">Tipo Info da Registrare *</label>
-        <p-select [options]="tipiInfoDaRegistrare" id="tipoInfoModifica" formControlName="tipoInfoDaRegistrare"
-          placeholder="Seleziona tipo info" [style]="{'width': '100%'}" appendTo="body" />
-        <small class="p-error block mt-1"
-          *ngIf="modificaAttivitaForm.get('tipoInfoDaRegistrare')?.invalid && modificaAttivitaForm.get('tipoInfoDaRegistrare')?.touched">
-          <span *ngIf="modificaAttivitaForm.get('tipoInfoDaRegistrare')?.errors?.['required']">Campo obbligatorio</span>
-        </small>
-      </div>
-      <div class="col-12">
-        <label htmlFor="ordineAttivitaModifica" class="font-semibold block mb-2">Ordine *</label>
-        <input type="number" pInputText id="ordineAttivitaModifica" formControlName="ordine" class="w-full" min="0" />
-        <small class="p-error block mt-1"
-          *ngIf="modificaAttivitaForm.get('ordine')?.invalid && modificaAttivitaForm.get('ordine')?.touched">
-          <span *ngIf="modificaAttivitaForm.get('ordine')?.errors?.['required']">Campo obbligatorio</span>
-          <span *ngIf="modificaAttivitaForm.get('ordine')?.errors?.['min']">Valore minimo 0</span>
-        </small>
-      </div>
-    </div>
-  </form>
-  <div class="flex justify-content-end gap-2 mt-4">
-    <p-button label="Annulla" severity="secondary" (click)="showDialogModificaAttivita = false" />
-    <p-button label="Salva" (click)="modificaAttivita()" [disabled]="!modificaAttivitaForm?.valid" />
+    <p-button label="Annulla" severity="secondary" (click)="showDialogAttivita = false" />
+    <p-button label="Salva" (click)="salvaAttivita()" [disabled]="!attivitaForm?.valid" />
   </div>
 </p-dialog>

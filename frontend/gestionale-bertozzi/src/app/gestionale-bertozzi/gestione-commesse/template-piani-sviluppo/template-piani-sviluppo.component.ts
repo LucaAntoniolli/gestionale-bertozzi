@@ -52,16 +52,16 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   canAddPianoSviluppo: boolean = true;
 
   // Forms
-  nuovoPianoForm?: FormGroup;
-  modificaPianoForm?: FormGroup;
-  nuovaAttivitaForm?: FormGroup;
-  modificaAttivitaForm?: FormGroup;
+  pianoForm?: FormGroup;
+  attivitaForm?: FormGroup;
 
   // Dialog visibility
-  showDialogCreazionePiano: boolean = false;
-  showDialogModificaPiano: boolean = false;
-  showDialogCreazioneAttivita: boolean = false;
-  showDialogModificaAttivita: boolean = false;
+  showDialogPiano: boolean = false;
+  showDialogAttivita: boolean = false;
+
+  // Dialog mode
+  isModificaPiano: boolean = false;
+  isModificaAttivita: boolean = false;
 
   // Selected items
   selectedPiano?: TemplatePianoSviluppo;
@@ -190,81 +190,85 @@ export class TemplatePianiSviluppoComponent implements OnInit {
       return;
     }
 
-    this.nuovoPianoForm = this.fb.group({
+    this.isModificaPiano = false;
+    this.selectedPiano = undefined;
+
+    this.pianoForm = this.fb.group({
       descrizione: ['', [Validators.required, Validators.minLength(3)]],
       ordine: [0, [Validators.required, Validators.min(0)]],
     });
 
-    this.showDialogCreazionePiano = true;
+    this.showDialogPiano = true;
   }
 
   mostraFormModificaPiano(piano: TemplatePianoSviluppo) {
+    this.isModificaPiano = true;
     this.selectedPiano = piano;
 
-    this.modificaPianoForm = this.fb.group({
+    this.pianoForm = this.fb.group({
       descrizione: [piano.descrizione, [Validators.required, Validators.minLength(3)]],
       ordine: [piano.ordine, [Validators.required, Validators.min(0)]],
     });
 
-    this.showDialogModificaPiano = true;
+    this.showDialogPiano = true;
   }
 
-  creaPiano() {
-    let formValue = this.nuovoPianoForm?.value;
-    const nuovoPiano = new TemplatePianoSviluppo();
-    nuovoPiano.descrizione = formValue.descrizione;
-    nuovoPiano.ordine = formValue.ordine;
-    nuovoPiano.tipologiaCommessaId = this.selectedTipologiaCommessa!.id!;
+  salvaPiano() {
+    if (!this.pianoForm?.valid) return;
+    const formValue = this.pianoForm.value;
 
-    this.pianoService.create(nuovoPiano)
-      .subscribe({
-        next: () => {
-          this.showDialogCreazionePiano = false;
-          this.ms.add({
-            severity: 'success',
-            summary: 'Conferma',
-            detail: 'Piano di sviluppo creato con successo',
-          });
-          this.loadPianiSviluppo();
-        },
-        error: (err: any) => {
-          console.debug(err);
-          this.ms.add({
-            severity: 'error',
-            summary: 'Errore',
-            detail: 'Impossibile creare il piano di sviluppo',
-          });
-        },
-      });
-  }
+    if (this.isModificaPiano && this.selectedPiano?.id) {
+      const pianoAggiornato = { ...this.selectedPiano } as TemplatePianoSviluppo;
+      pianoAggiornato.descrizione = formValue.descrizione;
+      pianoAggiornato.ordine = formValue.ordine;
 
-  modificaPiano() {
-    let formValue = this.modificaPianoForm?.value;
-    const pianoAggiornato = { ...this.selectedPiano! } as TemplatePianoSviluppo;
-    pianoAggiornato.descrizione = formValue.descrizione;
-    pianoAggiornato.ordine = formValue.ordine;
+      this.pianoService.update(this.selectedPiano.id, pianoAggiornato)
+        .subscribe({
+          next: () => {
+            this.showDialogPiano = false;
+            this.ms.add({
+              severity: 'success',
+              summary: 'Conferma',
+              detail: 'Piano di sviluppo modificato con successo',
+            });
+            this.loadPianiSviluppo();
+          },
+          error: (err: any) => {
+            console.debug(err);
+            this.ms.add({
+              severity: 'error',
+              summary: 'Errore',
+              detail: 'Impossibile modificare il piano di sviluppo',
+            });
+          },
+        });
+    } else {
+      const nuovoPiano = new TemplatePianoSviluppo();
+      nuovoPiano.descrizione = formValue.descrizione;
+      nuovoPiano.ordine = formValue.ordine;
+      nuovoPiano.tipologiaCommessaId = this.selectedTipologiaCommessa!.id!;
 
-    this.pianoService.update(this.selectedPiano!.id!, pianoAggiornato)
-      .subscribe({
-        next: () => {
-          this.showDialogModificaPiano = false;
-          this.ms.add({
-            severity: 'success',
-            summary: 'Conferma',
-            detail: 'Piano di sviluppo modificato con successo',
-          });
-          this.loadPianiSviluppo();
-        },
-        error: (err: any) => {
-          console.log("Error updating piano:", err);  
-          console.debug(err);
-          this.ms.add({
-            severity: 'error',
-            summary: 'Errore',
-            detail: 'Impossibile modificare il piano di sviluppo',
-          });
-        },
-      });
+      this.pianoService.create(nuovoPiano)
+        .subscribe({
+          next: () => {
+            this.showDialogPiano = false;
+            this.ms.add({
+              severity: 'success',
+              summary: 'Conferma',
+              detail: 'Piano di sviluppo creato con successo',
+            });
+            this.loadPianiSviluppo();
+          },
+          error: (err: any) => {
+            console.debug(err);
+            this.ms.add({
+              severity: 'error',
+              summary: 'Errore',
+              detail: 'Impossibile creare il piano di sviluppo',
+            });
+          },
+        });
+    }
   }
 
   eliminaPiano(event: Event, piano: TemplatePianoSviluppo) {
@@ -306,82 +310,86 @@ export class TemplatePianiSviluppoComponent implements OnInit {
   // ==================== ATTIVITA CRUD ====================
 
   mostraFormCreazioneAttivita(piano: TemplatePianoSviluppo) {
+    this.isModificaAttivita = false;
+    this.selectedAttivita = undefined;
     this.pianoForAttivita = piano;
 
-    this.nuovaAttivitaForm = this.fb.group({
+    this.attivitaForm = this.fb.group({
       descrizione: ['', [Validators.required, Validators.minLength(3)]],
       tipoInfoDaRegistrare: ['', [Validators.required]],
       ordine: [0, [Validators.required, Validators.min(0)]],
     });
 
-    this.showDialogCreazioneAttivita = true;
+    this.showDialogAttivita = true;
   }
 
   mostraFormModificaAttivita(attivita: TemplateAttivita) {
+    this.isModificaAttivita = true;
     this.selectedAttivita = attivita;
 
-    this.modificaAttivitaForm = this.fb.group({
+    this.attivitaForm = this.fb.group({
       descrizione: [attivita.descrizione, [Validators.required, Validators.minLength(3)]],
       tipoInfoDaRegistrare: [attivita.tipoInfoDaRegistrare, [Validators.required]],
       ordine: [attivita.ordine, [Validators.required, Validators.min(0)]],
     });
 
-    this.showDialogModificaAttivita = true;
+    this.showDialogAttivita = true;
   }
 
-  creaAttivita() {
-    let formValue = this.nuovaAttivitaForm?.value;
-    const nuovaAttivita = new TemplateAttivita();
-    Object.assign(nuovaAttivita, formValue);
-    nuovaAttivita.pianoSviluppoId = this.pianoForAttivita!.id!;
+  salvaAttivita() {
+    if (!this.attivitaForm?.valid) return;
+    const formValue = this.attivitaForm.value;
 
-    this.attivitaService.create(nuovaAttivita)
-      .subscribe({
-        next: () => {
-          this.showDialogCreazioneAttivita = false;
-          this.ms.add({
-            severity: 'success',
-            summary: 'Conferma',
-            detail: 'Attività creata con successo',
-          });
-          this.loadPianiSviluppo();
-        },
-        error: (err: any) => {
-          console.debug(err);
-          this.ms.add({
-            severity: 'error',
-            summary: 'Errore',
-            detail: 'Impossibile creare l\'attività',
-          });
-        },
-      });
-  }
+    if (this.isModificaAttivita && this.selectedAttivita?.id) {
+      const attivitaAggiornata = { ...this.selectedAttivita } as TemplateAttivita;
+      Object.assign(attivitaAggiornata, formValue);
 
-  modificaAttivita() {
-    let formValue = this.modificaAttivitaForm?.value;
-    const attivitaAggiornata = { ...this.selectedAttivita! } as TemplateAttivita;
-    Object.assign(attivitaAggiornata, formValue);
+      this.attivitaService.update(this.selectedAttivita.id, attivitaAggiornata)
+        .subscribe({
+          next: () => {
+            this.showDialogAttivita = false;
+            this.ms.add({
+              severity: 'success',
+              summary: 'Conferma',
+              detail: 'Attività modificata con successo',
+            });
+            this.loadPianiSviluppo();
+          },
+          error: (err: any) => {
+            console.debug(err);
+            this.ms.add({
+              severity: 'error',
+              summary: 'Errore',
+              detail: 'Impossibile modificare l\'attività',
+            });
+          },
+        });
+    } else {
+      const nuovaAttivita = new TemplateAttivita();
+      Object.assign(nuovaAttivita, formValue);
+      nuovaAttivita.pianoSviluppoId = this.pianoForAttivita!.id!;
 
-    this.attivitaService.update(this.selectedAttivita!.id!, attivitaAggiornata)
-      .subscribe({
-        next: () => {
-          this.showDialogModificaAttivita = false;
-          this.ms.add({
-            severity: 'success',
-            summary: 'Conferma',
-            detail: 'Attività modificata con successo',
-          });
-          this.loadPianiSviluppo();
-        },
-        error: (err: any) => {
-          console.debug(err);
-          this.ms.add({
-            severity: 'error',
-            summary: 'Errore',
-            detail: 'Impossibile modificare l\'attività',
-          });
-        },
-      });
+      this.attivitaService.create(nuovaAttivita)
+        .subscribe({
+          next: () => {
+            this.showDialogAttivita = false;
+            this.ms.add({
+              severity: 'success',
+              summary: 'Conferma',
+              detail: 'Attività creata con successo',
+            });
+            this.loadPianiSviluppo();
+          },
+          error: (err: any) => {
+            console.debug(err);
+            this.ms.add({
+              severity: 'error',
+              summary: 'Errore',
+              detail: 'Impossibile creare l\'attività',
+            });
+          },
+        });
+    }
   }
 
   eliminaAttivita(event: Event, attivita: TemplateAttivita) {
