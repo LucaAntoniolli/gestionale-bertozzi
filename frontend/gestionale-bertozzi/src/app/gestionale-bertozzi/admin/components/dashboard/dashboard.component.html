@@ -1,0 +1,257 @@
+<div class="grid">
+  <div class="col-12">
+    <app-titolo-pagina [titoloPagina]="'Dashboard'"></app-titolo-pagina>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- SEZIONE: DATI SINTETICI                                -->
+  <!-- ======================================================= -->
+  <div class="col-12">
+    <p-divider align="left" type="solid">
+      <b>Dati sintetici</b>
+    </p-divider>
+  </div>
+
+  @if (loadingCommesse || loadingOre) {
+  @for (i of [1,2,3,4,5,6,7]; track i) {
+  <div class="col-12 md:col-3">
+    <p-skeleton height="110px" borderRadius="8px"></p-skeleton>
+  </div>
+  }
+  } @else {
+  <!-- Commesse aperte -->
+  <div class="col-12 md:col-3">
+    <p-card styleClass="h-full dashboard-kpi-card">
+      <div class="flex align-items-center gap-4">
+        <div class="dashboard-kpi-icon dashboard-kpi-icon--blue">
+          <i class="pi pi-folder-open"></i>
+        </div>
+        <div>
+          <p class="text-color-secondary text-sm mb-1 mt-0">Commesse aperte</p>
+          <p class="font-bold mt-0 mb-0 dashboard-kpi-value text-blue-500">
+            {{ commesseSummary?.totaleAperte }}
+          </p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Commesse chiuse -->
+  <div class="col-12 md:col-3">
+    <p-card styleClass="h-full dashboard-kpi-card">
+      <div class="flex align-items-center gap-4">
+        <div class="dashboard-kpi-icon dashboard-kpi-icon--green">
+          <i class="pi pi-folder"></i>
+        </div>
+        <div>
+          <p class="text-color-secondary text-sm mb-1 mt-0">Commesse chiuse</p>
+          <p class="font-bold mt-0 mb-0 dashboard-kpi-value text-green-500">
+            {{ commesseSummary?.totaleChiuse }}
+          </p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Ore su commesse aperte -->
+  <div class="col-12 md:col-3">
+    <p-card styleClass="h-full dashboard-kpi-card">
+      <div class="flex align-items-center gap-4">
+        <div class="dashboard-kpi-icon dashboard-kpi-icon--orange">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div>
+          <p class="text-color-secondary text-sm mb-1 mt-0">Ore su commesse aperte</p>
+          <p class="font-bold mt-0 mb-0 dashboard-kpi-value text-orange-500">
+            {{ oreSummary?.totaleOreCommesseAperte | number: '1.0-1' }}
+            <span class="dashboard-kpi-unit">h</span>
+          </p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Ore su commesse chiuse -->
+  <div class="col-12 md:col-3">
+    <p-card styleClass="h-full dashboard-kpi-card">
+      <div class="flex align-items-center gap-4">
+        <div class="dashboard-kpi-icon dashboard-kpi-icon--teal">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div>
+          <p class="text-color-secondary text-sm mb-1 mt-0">Ore su commesse chiuse</p>
+          <p class="font-bold mt-0 mb-0 dashboard-kpi-value text-teal-500">
+            {{ oreSummary?.totaleOreCommesseChiuse | number: '1.0-1' }}
+            <span class="dashboard-kpi-unit">h</span>
+          </p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Media ore / commessa chiusa -->
+  <div class="col-12 md:col-3">
+    <p-card styleClass="h-full dashboard-kpi-card">
+      <div class="flex align-items-center gap-4">
+        <div class="dashboard-kpi-icon dashboard-kpi-icon--purple">
+          <i class="pi pi-chart-bar"></i>
+        </div>
+        <div>
+          <p class="text-color-secondary text-sm mb-1 mt-0">Media ore / commessa chiusa</p>
+          <p class="font-bold mt-0 mb-0 dashboard-kpi-value text-purple-500">
+            {{ oreSummary?.mediaOreCommesseChiuse | number: '1.0-1' }}
+            <span class="dashboard-kpi-unit">h</span>
+          </p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Media km / commessa chiusa -->
+  <div class="col-12 md:col-3">
+    <p-card styleClass="h-full dashboard-kpi-card">
+      <div class="flex align-items-center gap-4">
+        <div class="dashboard-kpi-icon dashboard-kpi-icon--red">
+          <i class="pi pi-car"></i>
+        </div>
+        <div>
+          <p class="text-color-secondary text-sm mb-1 mt-0">Media km / commessa chiusa</p>
+          <p class="font-bold mt-0 mb-0 dashboard-kpi-value text-red-500">
+            {{ oreSummary?.mediaChilometriCommesseChiuse | number: '1.0-0' }}
+            <span class="dashboard-kpi-unit">km</span>
+          </p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Media spese / commessa chiusa -->
+  <div class="col-12 md:col-3">
+    <p-card styleClass="h-full dashboard-kpi-card">
+      <div class="flex align-items-center gap-4">
+        <div class="dashboard-kpi-icon dashboard-kpi-icon--yellow">
+          <i class="pi pi-euro"></i>
+        </div>
+        <div>
+          <p class="text-color-secondary text-sm mb-1 mt-0">Media spese / commessa chiusa</p>
+          <p class="font-bold mt-0 mb-0 dashboard-kpi-value text-yellow-600">
+            {{ oreSummary?.mediaSpeseCommesseChiuse | number: '1.2-2' }}
+            <span class="dashboard-kpi-unit">€</span>
+          </p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+  }
+
+  <!-- ======================================================= -->
+  <!-- SEZIONE: ANDAMENTO ORE GIORNALIERO                     -->
+  <!-- ======================================================= -->
+  <div class="col-12">
+    <p-divider align="left" type="solid">
+      <b>Andamento ore giornaliero</b>
+    </p-divider>
+  </div>
+
+  <div class="col-12">
+    <p-card>
+      <div class="flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <span class="text-color-secondary text-sm">Ore caricate su tutte le commesse, giorno per giorno</span>
+        <p-select [options]="giorniOptions" [(ngModel)]="giorniSelezionati" optionLabel="label" optionValue="value"
+          (onChange)="loadOrePerGiorno()" [style]="{ 'min-width': '200px' }"></p-select>
+      </div>
+
+      @if (loadingChart) {
+      <p-skeleton height="300px" borderRadius="8px"></p-skeleton>
+      } @else if (chartData) {
+      <div style="height: 300px">
+        <p-chart type="line" [data]="chartData" [options]="chartOptions" height="300"></p-chart>
+      </div>
+      } @else {
+      <div class="flex align-items-center justify-content-center" style="height: 300px">
+        <p class="text-color-secondary">Nessun dato disponibile per il periodo selezionato.</p>
+      </div>
+      }
+    </p-card>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- SEZIONE: ORE PER COMMESSA / DIPENDENTE                 -->
+  <!-- ======================================================= -->
+  <div class="col-12">
+    <p-divider align="left" type="solid">
+      <b>Ore, chilometri e spese per commessa</b>
+    </p-divider>
+  </div>
+
+  <div class="col-12">
+    <p-card>
+      <div class="flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <span class="text-color-secondary text-sm">Seleziona una commessa per visualizzare i dati per dipendente</span>
+        <p-select [options]="commesseList" [(ngModel)]="commessaSelezionata" optionLabel="descrizione"
+          placeholder="Seleziona commessa..." [filter]="true" filterBy="descrizione,commessaCodiceInterno"
+          (onChange)="onCommessaSelezionata()" [style]="{ 'min-width': '320px' }">
+          <ng-template #selectedItem let-item>
+            <span>{{ item.commessaCodiceInterno ? '[' + item.commessaCodiceInterno + '] ' : '' }}{{ item.descrizione
+              }}</span>
+          </ng-template>
+          <ng-template #item let-item>
+            <span>{{ item.commessaCodiceInterno ? '[' + item.commessaCodiceInterno + '] ' : '' }}{{ item.descrizione
+              }}</span>
+          </ng-template>
+        </p-select>
+      </div>
+
+      @if (!commessaSelezionata) {
+      <div class="flex align-items-center justify-content-center" style="height: 200px">
+        <div class="text-center">
+          <i class="pi pi-chart-bar text-4xl text-color-secondary mb-3"></i>
+          <p class="text-color-secondary text-lg">Seleziona una commessa per visualizzare i grafici</p>
+        </div>
+      </div>
+      } @else if (loadingOrePerUtente) {
+      <div class="grid">
+        <div class="col-12 md:col-4"><p-skeleton height="250px" borderRadius="8px"></p-skeleton></div>
+        <div class="col-12 md:col-4"><p-skeleton height="250px" borderRadius="8px"></p-skeleton></div>
+        <div class="col-12 md:col-4"><p-skeleton height="250px" borderRadius="8px"></p-skeleton></div>
+      </div>
+      } @else {
+      <div class="grid">
+        <!-- Ore -->
+        <div class="col-12 md:col-4">
+          <p class="font-semibold text-center mb-3"><i class="pi pi-clock mr-2"></i>Ore per dipendente</p>
+          @if (chartOreUtente) {
+          <div style="height: 250px">
+            <p-chart type="bar" [data]="chartOreUtente" [options]="chartBarOptions" height="250"></p-chart>
+          </div>
+          } @else {
+          <p class="text-color-secondary text-center">Nessun dato disponibile</p>
+          }
+        </div>
+        <!-- Chilometri -->
+        <div class="col-12 md:col-4">
+          <p class="font-semibold text-center mb-3"><i class="pi pi-gauge mr-2"></i>Chilometri per dipendente</p>
+          @if (chartKmUtente) {
+          <div style="height: 250px">
+            <p-chart type="bar" [data]="chartKmUtente" [options]="chartKmOptions" height="250"></p-chart>
+          </div>
+          } @else {
+          <p class="text-color-secondary text-center">Nessun dato disponibile</p>
+          }
+        </div>
+        <!-- Spese -->
+        <div class="col-12 md:col-4">
+          <p class="font-semibold text-center mb-3"><i class="pi pi-euro mr-2"></i>Spese per dipendente</p>
+          @if (chartSpeseUtente) {
+          <div style="height: 250px">
+            <p-chart type="bar" [data]="chartSpeseUtente" [options]="chartSpeseOptions" height="250"></p-chart>
+          </div>
+          } @else {
+          <p class="text-color-secondary text-center">Nessun dato disponibile</p>
+          }
+        </div>
+      </div>
+      }
+    </p-card>
+  </div>
+</div>

@@ -41,6 +41,7 @@ export class AppMenu {
                 {
                     label: 'AMMINISTRAZIONE',
                     items: [
+                        { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/admin/dashboard'] },
                         { label: 'Gestione utenti', icon: 'pi pi-fw pi-user', routerLink: ['/admin/gestione-utenti'] },
                         {
                             label: 'Gestione anagrafiche',

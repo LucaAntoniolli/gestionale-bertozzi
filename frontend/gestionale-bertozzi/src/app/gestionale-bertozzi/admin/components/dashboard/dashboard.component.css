@@ -1,0 +1,64 @@
+.dashboard-kpi-card :deep(.p-card-body) {
+    padding: 1.25rem;
+}
+
+.dashboard-kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.dashboard-kpi-icon i {
+    font-size: 1.6rem;
+}
+
+.dashboard-kpi-icon--blue {
+    background: var(--p-blue-100, #dbeafe);
+    color: var(--p-blue-500, #3b82f6);
+}
+
+.dashboard-kpi-icon--green {
+    background: var(--p-green-100, #dcfce7);
+    color: var(--p-green-500, #22c55e);
+}
+
+.dashboard-kpi-icon--orange {
+    background: var(--p-orange-100, #ffedd5);
+    color: var(--p-orange-500, #f97316);
+}
+
+.dashboard-kpi-icon--teal {
+    background: var(--p-teal-100, #ccfbf1);
+    color: var(--p-teal-500, #14b8a6);
+}
+
+.dashboard-kpi-icon--purple {
+    background: var(--p-purple-100, #f3e8ff);
+    color: var(--p-purple-500, #a855f7);
+}
+
+.dashboard-kpi-icon--red {
+    background: var(--p-red-100, #fee2e2);
+    color: var(--p-red-500, #ef4444);
+}
+
+.dashboard-kpi-icon--yellow {
+    background: var(--p-yellow-100, #fef9c3);
+    color: var(--p-yellow-600, #ca8a04);
+}
+
+.dashboard-kpi-value {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.dashboard-kpi-unit {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--p-text-muted-color);
+    margin-left: 2px;
+}

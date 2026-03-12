@@ -82,26 +82,46 @@ export class PlanningComponent implements OnInit {
 
     @ViewChild('dt1') table!: Table;
 
-    // Getter per gestione permessi
-    get canDeleteTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canDelete(); }
+    // Getter per gestione permessi       
+    get canDeleteTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canDelete(); }  
     get canCreateTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canCreate(); }
     get canEditTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canUpdate(); }
-
-    get canEditToDoField(): boolean {
-        if(!this.isModifying) {
+    //L'utente admin o backoffice può modificare sempre i todo, l'utente base può modificare solo se è il creatore del todo
+    get canEditToDoFields(): boolean {
+        if (!this.isModifying) {
             return true;
         }
 
-        if(this.authService.isUserAdmin() || this.authService.isUserBackoffice()) {
+        if (this.authService.isUserAdmin() || this.authService.isUserBackoffice()) {
             return true;
         }
-        else{
-            if(this.todoInModifica?.utenteCreazione === this.utenteLoggato?.email) {
+        else {
+            if (this.todoInModifica?.utenteCreazione === this.utenteLoggato?.email) {
                 return true;
             }
         }
         return false;
     }
+    //L'utente admin o backoffice può eliminare sempre i todo, l'utente base può eliminare solo se è il creatore del todo
+    canDeleteTodoRow(todo: ToDo): boolean {
+        if (!this.canDeleteTodo) {
+            return false;
+        }
+
+        if (this.authService.isUserAdmin() || this.authService.isUserBackoffice()) {
+            return true;
+        }
+
+        if (this.authService.isUserUtenteBase()) {
+            const creator = todo.utenteCreazione?.trim().toLowerCase();
+            const loggedUserEmail = this.utenteLoggato?.email?.trim().toLowerCase();
+            return !!creator && !!loggedUserEmail && creator === loggedUserEmail;
+        }
+
+        return false;
+    }
+
+    
     
     constructor(
         private authService: AuthService,
@@ -230,7 +250,7 @@ export class PlanningComponent implements OnInit {
             completato: [todo.completato],
         });
 
-        if(!this.canEditToDoField) {
+        if(!this.canEditToDoFields) {
             this.nuovoTodoForm.get('descrizioneTodo')?.disable();
             this.nuovoTodoForm.get('assegnatarioPrimarioId')?.disable();
             this.nuovoTodoForm.get('assegnatarioSecondarioId')?.disable();
@@ -254,7 +274,7 @@ export class PlanningComponent implements OnInit {
 
         let formValue = this.nuovoTodoForm.getRawValue();
 
-        if (this.isModifying && !this.canEditToDoField && this.todoInModifica) {
+        if (this.isModifying && !this.canEditToDoFields && this.todoInModifica) {
             formValue = {
                 ...formValue,
                 descrizioneTodo: this.todoInModifica.descrizioneTodo,
@@ -310,6 +330,10 @@ export class PlanningComponent implements OnInit {
 
     /** Elimina un ToDo */
     eliminaTodo(todo: ToDo) {
+        if (!this.canDeleteTodoRow(todo)) {
+            return;
+        }
+
         this.cs.confirm({
             message: `Sei sicuro di voler eliminare questo ToDo?`,
             header: 'Conferma eliminazione',

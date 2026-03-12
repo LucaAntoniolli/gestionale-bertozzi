@@ -25,7 +25,7 @@
         <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadTipologiaCommessa">
             <p-card class="h-full">
                 <div class="text-center p-2">
-                    <i class="pi pi-calendar text-6xl text-primary mb-3"></i>
+                    <i class="pi pi-list text-6xl text-primary mb-3"></i>
                     <h3 class="text-xl font-semibold mb-3 text-900">Tipologie commessa</h3>
                     <p class="text-600 mb-2 line-height-3">
                         Gestisci l'anagrafica delle tipologie di commessa
@@ -40,7 +40,7 @@
         <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadStatusCommessa">
             <p-card class="h-full">
                 <div class="text-center p-2">
-                    <i class="pi pi-chart-line text-6xl text-primary mb-3"></i>
+                    <i class="pi pi-list text-6xl text-primary mb-3"></i>
                     <h3 class="text-xl font-semibold mb-3 text-900">Status commessa</h3>
                     <p class="text-600 mb-2 line-height-3">
                         Gestisci l'anagrafica degli status delle commesse
@@ -74,7 +74,7 @@
         <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadCliente">
             <p-card class="h-full">
                 <div class="text-center p-2">
-                    <i class="pi pi-users text-6xl text-600 mb-3"></i>
+                    <i class="pi pi-users text-6xl text-primary text-600 mb-3"></i>
                     <h3 class="text-xl font-semibold mb-3 text-4600">Gestione clienti</h3>
                     <p class="text-600 mb-2 line-height-3">
                         Gestisci i clienti e il mansionario del personale associato
@@ -88,7 +88,7 @@
         <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadTempleatePianoSviluppo">
             <p-card class="h-full">
                 <div class="text-center p-2">
-                    <i class="pi pi-users text-6xl text-600 mb-3"></i>
+                    <i class="pi pi-file-check text-6xl text-primary text-600 mb-3"></i>
                     <h3 class="text-xl font-semibold mb-3 text-4600">Piani di sviluppo e attività</h3>
                     <p class="text-600 mb-2 line-height-3">
                         Gestisci i template dei piani di sviluppo e delle attività
@@ -102,13 +102,27 @@
         <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadCommessa">
             <p-card class="h-full">
                 <div class="text-center p-2">
-                    <i class="pi pi-users text-6xl text-600 mb-3"></i>
+                    <i class="pi pi-file text-6xl text-primary text-600 mb-3"></i>
                     <h3 class="text-xl font-semibold mb-3 text-4600">Gestione commesse</h3>
                     <p class="text-600 mb-2 line-height-3">
                         Gestisci le commesse e le attività ad esse associate
                     </p>
                     <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
                         (onClick)="navigateToGestioneCommesse()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadCommessa">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-calendar-clock text-6xl text-primary text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Planning</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci il planning
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToPlanning()">
                     </p-button>
                 </div>
             </p-card>

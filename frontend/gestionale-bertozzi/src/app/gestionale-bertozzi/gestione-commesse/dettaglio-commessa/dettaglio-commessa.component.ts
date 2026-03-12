@@ -34,6 +34,9 @@ import { AvatarModule } from 'primeng/avatar';
 import { OreSpeseCommessa } from '../../../models/GestioneCommesse/ore-spese-commessa.model';
 import { OreSpeseCommessaService } from '../../../services/GestioneCommesse/ore-spese-commessa.service';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { DrawerModule } from 'primeng/drawer';
+import { DashboardService } from '../../../services/dashboard.service';
+import { OrePerUtenteItem } from '../../../models/dashboard.model';
 
 @Component({
   selector: 'app-dettaglio-commessa',
@@ -54,7 +57,8 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
     ProgressBarModule,
     PanelModule,
     KnobModule,
-    AvatarModule
+    AvatarModule,
+    DrawerModule
   ],
   templateUrl: './dettaglio-commessa.component.html',
   styleUrl: './dettaglio-commessa.component.css'
@@ -68,6 +72,7 @@ export class DettaglioCommessaComponent implements OnInit {
   private utenteService = inject(UtenteService);
   private personaleService = inject(PersonaleClienteService);
   private oreSpeseCommessaService = inject(OreSpeseCommessaService);
+  private dashboardService = inject(DashboardService);
   private fb = inject(FormBuilder);
   private conf = inject(ConfirmationService);
   private ms = inject(MessageService);
@@ -96,6 +101,11 @@ export class DettaglioCommessaComponent implements OnInit {
   attivitaForm?: FormGroup;
   aggiornamentoValoreForm?: FormGroup;
   oreSpeseForm?: FormGroup;
+
+  // Drawer ore per utente
+  showDrawerOrePerUtente: boolean = false;
+  orePerUtenteList: OrePerUtenteItem[] = [];
+  loadingOrePerUtente: boolean = false;
 
   // Dialog visibility
   showDialogPiano: boolean = false;
@@ -549,6 +559,23 @@ export class DettaglioCommessaComponent implements OnInit {
   }
 
   // ORE E SPESE //
+
+  apriDrawerOrePerUtente() {
+    if (!this.commessaId) return;
+    this.showDrawerOrePerUtente = true;
+    this.loadingOrePerUtente = true;
+    this.dashboardService.getOrePerUtente(this.commessaId).pipe(first()).subscribe({
+      next: (data) => {
+        this.orePerUtenteList = data;
+        this.loadingOrePerUtente = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loadingOrePerUtente = false;
+        this.ms.add({ severity: 'error', summary: 'Errore', detail: 'Errore nel caricamento delle ore per dipendente', life: 3000 });
+      }
+    });
+  }
 
   caricaOreSuCommessa() {
     this.isModificaOreSpese = false;

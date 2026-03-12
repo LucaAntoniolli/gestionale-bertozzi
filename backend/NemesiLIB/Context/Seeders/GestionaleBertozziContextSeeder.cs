@@ -123,7 +123,8 @@ namespace NemesiLIB.Context.Seeders
                     "orespesecommessa.read",
                     "orespesecommessa.create",
                     "orespesecommessa.update",
-                    "orespesecommessa.delete"
+                    "orespesecommessa.delete",
+                    "dashboard.read"
                 } },
                 { "Backoffice", new List<string> {
                     "cliente.read",
@@ -158,7 +159,8 @@ namespace NemesiLIB.Context.Seeders
                     "orespesecommessa.read",
                     "orespesecommessa.create",
                     "orespesecommessa.update",
-                    "orespesecommessa.delete"
+                    "orespesecommessa.delete",
+                    "dashboard.read"
                 } },
                 { "Utente Base", new List<string> {
                     "commessa.read",

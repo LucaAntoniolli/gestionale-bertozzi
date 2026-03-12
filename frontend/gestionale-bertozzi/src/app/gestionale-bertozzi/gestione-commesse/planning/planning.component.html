@@ -116,7 +116,8 @@
                             <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
                                 tooltipPosition="top" (click)="modificaTodo(todo)" *ngIf="canEditTodo"></button>
                             <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
-                                tooltipPosition="top" (click)="eliminaTodo(todo)" *ngIf="canDeleteTodo"></button>
+                                tooltipPosition="top" (click)="eliminaTodo(todo)"
+                                *ngIf="canDeleteTodoRow(todo)"></button>
                         </div>
                     </td>
                     <td>
@@ -194,7 +195,7 @@
                         <label htmlFor="assegnatarioPrimarioId" class="mb-2 font-semibold">Assegnatario Primario</label>
                         <p-select id="assegnatarioPrimarioId" [options]="utentiPmEdileList" optionLabel="nominativo"
                             optionValue="id" placeholder="Seleziona utente" formControlName="assegnatarioPrimarioId"
-                            [showClear]="true" class="w-full" [filter]="true" [disabled]="!canEditToDoField" />
+                            [showClear]="true" class="w-full" [filter]="true" [disabled]="!canEditToDoFields" />
                         <small id="assegnatarioPrimarioId-error" class="p-error"
                             *ngIf="nuovoTodoForm.get('assegnatarioPrimarioId')?.invalid">
                             Campo obbligatorio
@@ -208,7 +209,7 @@
                         <p-select id="assegnatarioSecondarioId" [options]="utentiPmEdileList" optionLabel="nominativo"
                             optionValue="id" placeholder="Seleziona utente (opzionale)"
                             formControlName="assegnatarioSecondarioId" [showClear]="true" class="w-full" [filter]="true"
-                            [disabled]="!canEditToDoField" />
+                            [disabled]="!canEditToDoFields" />
                     </div>
                 </div>
             </div>
@@ -219,7 +220,7 @@
                     <div class="field">
                         <label htmlFor="dataConsegna" class="mb-2 font-semibold">Data Consegna</label>
                         <p-datepicker inputId="dataConsegna" formControlName="dataConsegna" dateFormat="dd/mm/yy"
-                            [showIcon]="true" class="w-full" appendTo="body" [disabled]="!canEditToDoField" />
+                            [showIcon]="true" class="w-full" appendTo="body" [disabled]="!canEditToDoFields" />
                     </div>
                 </div>
                 <div class="col-6">
@@ -227,7 +228,7 @@
                         <label htmlFor="priorita" class="mb-2 font-semibold">Priorità</label>
                         <p-select id="priorita" [options]="prioritaOptions" placeholder="Seleziona priorità"
                             formControlName="priorita" [showClear]="true" class="w-full"
-                            [disabled]="!canEditToDoField" />
+                            [disabled]="!canEditToDoFields" />
                     </div>
                 </div>
             </div>

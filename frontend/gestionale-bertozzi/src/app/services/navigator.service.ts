@@ -49,4 +49,14 @@ export class NavigatorService {
   dettaglioCommessa(id: number) {
     this.router.navigate(['/gestione-commesse/dettaglio-commessa', id]);
   }
+
+  dashboard(){
+    this.router.navigate(['/admin/dashboard']);
+  }
+
+  planning(){
+    this.router.navigate(['/gestione-commesse/planning']);
+  }
+
+
 }

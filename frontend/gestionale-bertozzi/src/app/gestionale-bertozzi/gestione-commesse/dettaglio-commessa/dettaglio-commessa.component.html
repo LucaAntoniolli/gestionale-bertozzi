@@ -281,6 +281,8 @@
       <div class="flex gap-2">
         <p-button label="Carica ore e spese" icon="pi pi-plus" (click)="caricaOreSuCommessa()"
           *ngIf="canCreateOreSpeseCommessa"></p-button>
+        <p-button label="Ore per dipendente" icon="pi pi-users" severity="secondary" [outlined]="true"
+          (click)="apriDrawerOrePerUtente()"></p-button>
       </div>
     </div>
   </p-toolbar>
@@ -363,7 +365,7 @@
   </div>
 </p-dialog>
 
-<!-- DIALOG ATTIVITA (CREAZIONE / MODIFICA) -->
+<!-- DIALOG ATTIVITA (CREAZIONE e MODIFICA) -->
 <p-dialog [header]="isModificaAttivita ? 'Modifica attività' : 'Dati nuova attività'" [modal]="true"
   [(visible)]="showDialogAttivita" [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true"
   [draggable]="false" [resizable]="false">
@@ -523,3 +525,32 @@
     <p-button label="Salva" (click)="salvaOreSpese()" [disabled]="!oreSpeseForm?.valid" />
   </div>
 </p-dialog>
+
+<!-- DRAWER ORE PER DIPENDENTE -->
+<p-drawer header="Ore per dipendente" position="right" [(visible)]="showDrawerOrePerUtente"
+  [style]="{ width: '35rem' }">
+  <p-table [value]="orePerUtenteList" [loading]="loadingOrePerUtente" [scrollable]="true" scrollHeight="flex"
+    [size]="'small'" styleClass="p-datatable-gridlines">
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="nominativo">Dipendente <p-sortIcon field="nominativo" /></th>
+        <th pSortableColumn="totaleOre" style="text-align:right">Ore <p-sortIcon field="totaleOre" /></th>
+        <th pSortableColumn="totaleSpese" style="text-align:right">Spese (€) <p-sortIcon field="totaleSpese" /></th>
+        <th pSortableColumn="totaleChilometri" style="text-align:right">Km <p-sortIcon field="totaleChilometri" /></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-item>
+      <tr>
+        <td>{{ item.nominativo }}</td>
+        <td style="text-align:right">{{ item.totaleOre | number: '1.0-2' }}</td>
+        <td style="text-align:right">{{ item.totaleSpese | number: '1.2-2' }}</td>
+        <td style="text-align:right">{{ item.totaleChilometri | number: '1.2-2' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4">Nessun dato disponibile.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-drawer>

@@ -71,4 +71,12 @@ export class HomeComponent {
     navigateToGestioneCommesse() {
         this.navigator.elencoCommesse();
     }
+
+    navigateToDashboard() {
+        this.navigator.dashboard();
+    }
+
+    navigateToPlanning() {
+        this.navigator.planning();
+    }
 }
