@@ -41,7 +41,8 @@ namespace NemesiAPI
                                 .WithOrigins("http://localhost:4200", "http://localhost:3000")
                                 .AllowAnyHeader()
                                 .AllowAnyMethod()
-                                .AllowCredentials();
+                                .AllowCredentials()
+                                .SetPreflightMaxAge(TimeSpan.FromHours(24));
                         }
                         else
                         {
@@ -49,7 +50,8 @@ namespace NemesiAPI
                                 .WithOrigins(frontendUrl)
                                 .AllowAnyHeader()
                                 .AllowAnyMethod()
-                                .AllowCredentials();
+                                .AllowCredentials()
+                                .SetPreflightMaxAge(TimeSpan.FromHours(24));
                         }
                     });
             });
