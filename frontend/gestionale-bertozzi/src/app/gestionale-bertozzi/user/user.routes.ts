@@ -7,7 +7,7 @@ export default [
     {
         path: '', component: UserComponent,
         children: [
-            { path: 'user-profile', component: UserProfileComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])]},
+            { path: 'user-profile', component: UserProfileComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice', 'Utente Base'])]},
         ]
     },
 ]
