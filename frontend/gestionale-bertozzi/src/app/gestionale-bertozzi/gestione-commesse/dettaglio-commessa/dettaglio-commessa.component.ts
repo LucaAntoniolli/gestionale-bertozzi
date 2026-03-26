@@ -33,6 +33,7 @@ import { KnobModule } from 'primeng/knob';
 import { AvatarModule } from 'primeng/avatar';
 import { OreSpeseCommessa } from '../../../models/GestioneCommesse/ore-spese-commessa.model';
 import { OreSpeseCommessaService } from '../../../services/GestioneCommesse/ore-spese-commessa.service';
+import { OreSpeseDialogComponent, OreSpeseDialogEditData } from '../../shared/components/ore-spese-dialog/ore-spese-dialog.component';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { DrawerModule } from 'primeng/drawer';
 import { DashboardService } from '../../../services/dashboard.service';
@@ -58,7 +59,8 @@ import { OrePerUtenteItem } from '../../../models/dashboard.model';
     PanelModule,
     KnobModule,
     AvatarModule,
-    DrawerModule
+    DrawerModule,
+    OreSpeseDialogComponent
   ],
   templateUrl: './dettaglio-commessa.component.html',
   styleUrl: './dettaglio-commessa.component.css'
@@ -100,7 +102,9 @@ export class DettaglioCommessaComponent implements OnInit {
   pianoForm?: FormGroup;
   attivitaForm?: FormGroup;
   aggiornamentoValoreForm?: FormGroup;
-  oreSpeseForm?: FormGroup;
+
+  // Dialog ore e spese
+  editDataOreSpese?: OreSpeseDialogEditData;
 
   // Drawer ore per utente
   showDrawerOrePerUtente: boolean = false;
@@ -121,7 +125,6 @@ export class DettaglioCommessaComponent implements OnInit {
   // Selected items
   selectedPiano?: PianoSviluppo;
   selectedAttivita?: Attivita;
-  selectedOreSpese?: OreSpeseCommessa;
   pianoForAttivita?: PianoSviluppo;
 
   // Tipo info da registrare
@@ -579,93 +582,31 @@ export class DettaglioCommessaComponent implements OnInit {
 
   caricaOreSuCommessa() {
     this.isModificaOreSpese = false;
-    this.selectedOreSpese = undefined;
-
-    this.oreSpeseForm = this.fb.group({
-      pianoSviluppoId: [null, [Validators.required]],
-      utenteId: [null, [Validators.required]],
-      data: [null, [Validators.required]],
-      ore: [0, [Validators.required, Validators.min(0)]],
-      spese: [null, [Validators.min(0)]],
-      chilometri: [null, [Validators.min(0)]],
-      note: ['']
-    });
-
+    this.editDataOreSpese = undefined;
     this.showDialogOreSpese = true;
   }
 
   mostraFormModificaOreSpese(oreSpese: OreSpeseCommessa) {
     this.isModificaOreSpese = true;
-    this.selectedOreSpese = oreSpese;
-
-    this.oreSpeseForm = this.fb.group({
-      pianoSviluppoId: [oreSpese.pianoSviluppoId, [Validators.required]],
-      utenteId: [oreSpese.utenteId, [Validators.required]],
-      data: [oreSpese.data ? oreSpese.data.toDate() : null, [Validators.required]],
-      ore: [oreSpese.ore ?? 0, [Validators.required, Validators.min(0)]],
-      spese: [oreSpese.spese, [Validators.min(0)]],
-      chilometri: [oreSpese.chilometri, [Validators.min(0)]],
-      note: [oreSpese.note || '']
-    });
-
+    this.editDataOreSpese = {
+      id: oreSpese.id,
+      commessaId: oreSpese.commessaId,
+      pianoSviluppoId: oreSpese.pianoSviluppoId,
+      utenteId: oreSpese.utenteId,
+      data: oreSpese.data ? oreSpese.data.toDate() : null,
+      ore: oreSpese.ore,
+      spese: oreSpese.spese,
+      chilometri: oreSpese.chilometri,
+      note: oreSpese.note,
+    };
     this.showDialogOreSpese = true;
   }
 
-  salvaOreSpese() {
-    if (!this.oreSpeseForm?.valid || !this.commessaId) return;
-
-    const formValue = this.oreSpeseForm.value;
-    const operation$ = this.isModificaOreSpese && this.selectedOreSpese?.id
-      ? (() => {
-          const oreSpeseAggiornata = { ...this.selectedOreSpese } as OreSpeseCommessa;
-          oreSpeseAggiornata.commessaId = this.commessaId!;
-          oreSpeseAggiornata.pianoSviluppoId = formValue.pianoSviluppoId;
-          oreSpeseAggiornata.utenteId = formValue.utenteId;
-          oreSpeseAggiornata.data = formValue.data ? moment(formValue.data).startOf('day') : undefined;
-          oreSpeseAggiornata.ore = formValue.ore;
-          oreSpeseAggiornata.spese = formValue.spese;
-          oreSpeseAggiornata.chilometri = formValue.chilometri;
-          oreSpeseAggiornata.note = formValue.note;
-          return this.oreSpeseCommessaService.update(this.selectedOreSpese!.id!, oreSpeseAggiornata);
-        })()
-      : (() => {
-          const nuovaOreSpese = new OreSpeseCommessa();
-          nuovaOreSpese.commessaId = this.commessaId!;
-          nuovaOreSpese.pianoSviluppoId = formValue.pianoSviluppoId;
-          nuovaOreSpese.utenteId = formValue.utenteId;
-          nuovaOreSpese.data = formValue.data ? moment(formValue.data).startOf('day') : undefined;
-          nuovaOreSpese.ore = formValue.ore;
-          nuovaOreSpese.spese = formValue.spese;
-          nuovaOreSpese.chilometri = formValue.chilometri;
-          nuovaOreSpese.note = formValue.note;
-          return this.oreSpeseCommessaService.create(nuovaOreSpese);
-        })();
-
-    operation$
-      .subscribe({
-        next: () => {
-          this.showDialogOreSpese = false;
-          this.ms.add({
-            severity: 'success',
-            summary: 'Conferma',
-            detail: this.isModificaOreSpese
-              ? 'Ore e spese modificate con successo'
-              : 'Ore e spese caricate con successo',
-          });
-          this.loadOreSpeseCommessa();
-        },
-        error: (err: any) => {
-          console.debug(err);
-          this.ms.add({
-            severity: 'error',
-            summary: 'Errore',
-            detail: this.isModificaOreSpese
-              ? 'Impossibile modificare ore e spese'
-              : 'Impossibile caricare ore e spese',
-          });
-        },
-      });
+  onOreSpeseDialogSalvato() {
+    this.loadOreSpeseCommessa();
   }
+
+
 
   eliminaOreSpese(event: Event, oreSpese: OreSpeseCommessa) {
     this.conf.confirm({

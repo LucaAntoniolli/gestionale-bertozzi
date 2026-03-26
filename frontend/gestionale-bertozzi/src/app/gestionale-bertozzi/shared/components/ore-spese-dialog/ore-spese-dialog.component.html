@@ -1,0 +1,110 @@
+<p-dialog [header]="isModifying ? 'Modifica ore e spese' : 'Carica ore e spese'" [modal]="true" [visible]="visible"
+    (visibleChange)="visibleChange.emit($event)" [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }"
+    [closable]="true" [draggable]="false" [resizable]="false">
+
+    <form [formGroup]="form!" *ngIf="form">
+        <div class="p-fluid">
+
+            <!-- Commessa (visibile solo se non fissa) -->
+            <div class="field" *ngIf="showCommessaSelector">
+                <label class="mb-2 font-semibold">Commessa *</label>
+                <p-select [options]="commesseList" optionValue="id" placeholder="Seleziona commessa"
+                    formControlName="commessaId" [showClear]="true" class="w-full" [filter]="true"
+                    (onChange)="onCommessaChange($event.value)">
+                    <ng-template pTemplate="item" let-commessa>
+                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+                    </ng-template>
+                    <ng-template pTemplate="selectedItem" let-commessa>
+                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+                    </ng-template>
+                </p-select>
+                <small class="p-error" *ngIf="form.get('commessaId')?.invalid">
+                    Campo obbligatorio
+                </small>
+            </div>
+
+            <!-- Piano di Sviluppo -->
+            <div class="field">
+                <label class="mb-2 font-semibold">Piano di Sviluppo *</label>
+                <p-select [options]="pianiSviluppoList" optionLabel="descrizione" optionValue="id"
+                    placeholder="Seleziona piano di sviluppo" formControlName="pianoSviluppoId" [showClear]="true"
+                    class="w-full" [filter]="true" [loading]="loadingPiani"
+                    [disabled]="(!form.get('commessaId')?.value && !fixedCommessaId) || loadingPiani" />
+                <small class="p-error" *ngIf="form.get('pianoSviluppoId')?.invalid">
+                    Campo obbligatorio
+                </small>
+            </div>
+
+            <div class="grid">
+                <!-- Utente -->
+                <div class="col-12 md:col-6">
+                    <div class="field">
+                        <label class="mb-2 font-semibold">Utente *</label>
+                        <p-select [options]="utentiList" optionLabel="nominativo" optionValue="id"
+                            placeholder="Seleziona utente" formControlName="utenteId" [showClear]="!isUtenteBase"
+                            class="w-full" [filter]="true" [disabled]="isUtenteBase" />
+                        <small class="p-error" *ngIf="form.get('utenteId')?.invalid">
+                            Campo obbligatorio
+                        </small>
+                    </div>
+                </div>
+                <!-- Data -->
+                <div class="col-12 md:col-6">
+                    <div class="field">
+                        <label class="mb-2 font-semibold">Data *</label>
+                        <p-datepicker formControlName="data" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"
+                            appendTo="body" />
+                        <small class="p-error" *ngIf="form.get('data')?.invalid">
+                            Campo obbligatorio
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <!-- Ore -->
+                <div class="col-12 md:col-4">
+                    <div class="field">
+                        <label class="mb-2 font-semibold">Ore *</label>
+                        <p-inputnumber formControlName="ore" class="w-full" [min]="0" [max]="12" [minFractionDigits]="0"
+                            [maxFractionDigits]="1" mode="decimal" />
+                        <small class="p-error" *ngIf="form.get('ore')?.invalid">
+                            Campo obbligatorio
+                        </small>
+                    </div>
+                </div>
+                <!-- Spese -->
+                <div class="col-12 md:col-4">
+                    <div class="field">
+                        <label class="mb-2 font-semibold">Spese (€)</label>
+                        <p-inputnumber formControlName="spese" class="w-full" [min]="0" [minFractionDigits]="2"
+                            [maxFractionDigits]="2" mode="decimal" />
+                    </div>
+                </div>
+                <!-- Chilometri -->
+                <div class="col-12 md:col-4">
+                    <div class="field">
+                        <label class="mb-2 font-semibold">Chilometri</label>
+                        <p-inputnumber formControlName="chilometri" class="w-full" [min]="0" [minFractionDigits]="0"
+                            [maxFractionDigits]="2" mode="decimal" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note -->
+            <div class="field">
+                <label class="mb-2 font-semibold">Note</label>
+                <input type="text" pInputText formControlName="note" class="w-full" maxlength="2000" />
+            </div>
+        </div>
+
+        <div class="field mt-5">
+            <div class="flex justify-content-end gap-2">
+                <p-button label="Annulla" severity="secondary" icon="pi pi-times" (click)="chiudi()" />
+                <p-button *ngIf="showSalvaEContinua && !isModifying" label="Salva e continua" severity="secondary"
+                    icon="pi pi-arrow-right" (click)="salvaEContinua()" [disabled]="!form.valid" />
+                <p-button label="Salva" icon="pi pi-check" (click)="salva()" [disabled]="!form.valid" />
+            </div>
+        </div>
+    </form>
+</p-dialog>

@@ -1,7 +1,11 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, provideZonelessChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, provideZonelessChangeDetection, isDevMode } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeIt from '@angular/common/locales/it';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
+
+registerLocaleData(localeIt);
 import Aura from '@primeuix/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 
@@ -61,6 +65,7 @@ const myAura = definePreset(Aura, {
 
     provideHttpClient(withFetch(), withInterceptors([tokenInterceptor])),
     provideAnimations(),
+    { provide: LOCALE_ID, useValue: 'it' },
     providePrimeNG({ theme: { preset: myAura, options: { darkModeSelector: '.app-dark' } } }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),

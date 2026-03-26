@@ -461,70 +461,10 @@
   </div>
 </p-dialog>
 
-<!-- DIALOG ORE E SPESE (CREAZIONE / MODIFICA) -->
-<p-dialog [header]="isModificaOreSpese ? 'Modifica ore e spese' : 'Carica ore e spese'" [modal]="true"
-  [(visible)]="showDialogOreSpese" [style]="{ width: (isMobile$ | async) ? '95vw' : '50vw' }" [closable]="true"
-  [draggable]="false" [resizable]="false">
-  <span class="p-text-secondary block mb-5">
-    {{ isModificaOreSpese ? 'Modifica i dati della riga ore/spese.' : 'Inserisci i dati da registrare sulla commessa
-    corrente.' }}
-  </span>
-  <form [formGroup]="oreSpeseForm" *ngIf="oreSpeseForm">
-    <div class="grid">
-      <div class="col-12 md:col-6">
-        <label htmlFor="pianoSviluppoIdDialog" class="font-semibold block mb-2">Piano di sviluppo *</label>
-        <p-select id="pianoSviluppoIdDialog" [options]="pianiSviluppo" optionLabel="descrizione" optionValue="id"
-          placeholder="Seleziona piano" formControlName="pianoSviluppoId" [style]="{'width': '100%'}" appendTo="body" />
-        <small class="p-error block mt-1"
-          *ngIf="oreSpeseForm.get('pianoSviluppoId')?.invalid && oreSpeseForm.get('pianoSviluppoId')?.touched">
-          Campo obbligatorio
-        </small>
-      </div>
-      <div class="col-12 md:col-6">
-        <label htmlFor="utenteIdDialog" class="font-semibold block mb-2">Utente *</label>
-        <p-select id="utenteIdDialog" [options]="utentiOreSpeseList" optionLabel="nominativo" optionValue="id"
-          placeholder="Seleziona utente" formControlName="utenteId" [style]="{'width': '100%'}" appendTo="body" />
-        <small class="p-error block mt-1"
-          *ngIf="oreSpeseForm.get('utenteId')?.invalid && oreSpeseForm.get('utenteId')?.touched">
-          Campo obbligatorio
-        </small>
-      </div>
-      <div class="col-12 md:col-6">
-        <label htmlFor="dataOreSpeseDialog" class="font-semibold block mb-2">Data *</label>
-        <p-datepicker inputId="dataOreSpeseDialog" formControlName="data" dateFormat="dd/mm/yy" [showIcon]="true"
-          class="w-full" appendTo="body" />
-        <small class="p-error block mt-1" *ngIf="oreSpeseForm.get('data')?.invalid">
-          Campo obbligatorio
-        </small>
-      </div>
-      <div class="col-12 md:col-6">
-        <label htmlFor="oreDialog" class="font-semibold block mb-2">Ore *</label>
-        <p-inputnumber inputId="oreDialog" formControlName="ore" class="w-full" [min]="0" [maxFractionDigits]="2" />
-        <small class="p-error block mt-1" *ngIf="oreSpeseForm.get('ore')?.invalid">
-          Campo obbligatorio (min 0)
-        </small>
-      </div>
-      <div class="col-12 md:col-6">
-        <label htmlFor="speseDialog" class="font-semibold block mb-2">Spese (€)</label>
-        <p-inputnumber inputId="speseDialog" formControlName="spese" class="w-full" [min]="0" [minFractionDigits]="2"
-          [maxFractionDigits]="2" mode="decimal" />
-      </div>
-      <div class="col-12 md:col-6">
-        <label htmlFor="chilometriDialog" class="font-semibold block mb-2">Chilometri</label>
-        <p-inputnumber inputId="chilometriDialog" formControlName="chilometri" class="w-full" [min]="0"
-          [minFractionDigits]="2" [maxFractionDigits]="2" mode="decimal" />
-      </div>
-      <div class="col-12">
-        <label htmlFor="noteDialog" class="font-semibold block mb-2">Note</label>
-        <input type="text" pInputText id="noteDialog" formControlName="note" class="w-full" maxlength="2000" />
-      </div>
-    </div>
-  </form>
-  <div class="flex justify-content-end gap-2 mt-4">
-    <p-button label="Annulla" severity="secondary" (click)="showDialogOreSpese = false" />
-    <p-button label="Salva" (click)="salvaOreSpese()" [disabled]="!oreSpeseForm?.valid" />
-  </div>
-</p-dialog>
+<!-- DIALOG ORE E SPESE (componente condiviso) -->
+<app-ore-spese-dialog [(visible)]="showDialogOreSpese" [isModifying]="isModificaOreSpese" [commesseList]="[]"
+  [fixedCommessaId]="commessaId" [utentiList]="utentiOreSpeseList" [isUtenteBase]="false" [editData]="editDataOreSpese"
+  [showSalvaEContinua]="false" (salvato)="onOreSpeseDialogSalvato()" />
 
 <!-- DRAWER ORE PER DIPENDENTE -->
 <p-drawer header="Ore per dipendente" position="right" [(visible)]="showDrawerOrePerUtente"
