@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { OreSpeseCommessa } from '../../models/GestioneCommesse/ore-spese-commessa.model';
+import { OreSpesePagedResponseDto } from '../../models/GestioneCommesse/ore-spese-paged.model';
 
 @Injectable({
   providedIn: 'root'
@@ -42,8 +43,12 @@ export class OreSpeseCommessaService {
    * @param id - ID della voce ore/spese commessa
    * @returns Observable della voce ore/spese commessa
    */
-  getById(id: number): Observable<OreSpeseCommessa> {
-    return this.httpClient.get<any>(`${this.baseUrl}/${id}`)
+  getById(id: number, utenteId?: string): Observable<OreSpeseCommessa> {
+    let params = new HttpParams();
+    if (utenteId) {
+      params = params.set('utenteId', utenteId);
+    }
+    return this.httpClient.get<any>(`${this.baseUrl}/${id}`, { params })
       .pipe(map(data => OreSpeseCommessa.map(data)));
   }
 
@@ -82,6 +87,29 @@ export class OreSpeseCommessaService {
    * Prepara i dati per l'invio al backend
    * Converte i moment in stringhe ISO
    */
+  /**
+   * Recupera le ore/spese in modalità paginata con filtri avanzati
+   */
+  getPaged(
+    pageNumber: number = 1,
+    pageSize: number = 20,
+    commessaId?: number,
+    utenteId?: string,
+    dataFrom?: Date,
+    dataTo?: Date
+  ): Observable<OreSpesePagedResponseDto> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+    if (commessaId) params = params.set('commessaId', commessaId.toString());
+    if (utenteId) params = params.set('utenteId', utenteId);
+    if (dataFrom) params = params.set('dataFrom', dataFrom.toISOString().split('T')[0]);
+    if (dataTo) params = params.set('dataTo', dataTo.toISOString().split('T')[0]);
+
+    return this.httpClient.get<any>(`${this.baseUrl}/paged`, { params })
+      .pipe(map(data => OreSpesePagedResponseDto.map(data)));
+  }
+
   private preparePayload(oreSpeseCommessa: OreSpeseCommessa): any {
     const payload: any = { ...oreSpeseCommessa };
 

@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NemesiAPI.Authorization;
+using NemesiAPI.Model;
 using NemesiLIB.Context;
 using NemesiLIB.Model.GestioneCommesse;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -58,10 +60,16 @@ namespace NemesiAPI.Controllers.GestioneCommesse
 
         [HttpGet("{id:int}")]
         [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "orespesecommessa.read")]
-        public async Task<ActionResult<OreSpeseCommessa>> Get(int id)
+        public async Task<ActionResult<OreSpeseCommessa>> Get(int id, [FromQuery] string? utenteId = null)
         {
-            var item = await dbContext.OreSpeseCommessa
-                .AsNoTracking()
+            IQueryable<OreSpeseCommessa> q = dbContext.OreSpeseCommessa.AsNoTracking();
+
+            if (!string.IsNullOrEmpty(utenteId))
+            {
+                q = q.Where(o => o.UtenteId == utenteId);
+            }
+
+            var item = await q
                 .Include(o => o.PianoSviluppo)
                 .Include(o => o.Utente)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -166,6 +174,76 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             await dbContext.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpGet("paged")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "orespesecommessa.read")]
+        public async Task<ActionResult<OreSpesePagedResponseDto>> GetPaged(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] int? commessaId = null,
+            [FromQuery] string? utenteId = null,
+            [FromQuery] DateTime? dataFrom = null,
+            [FromQuery] DateTime? dataTo = null)
+        {
+            var baseQuery = dbContext.OreSpeseCommessa
+                .AsNoTracking()
+                .Where(o =>
+                    (!commessaId.HasValue || o.CommessaId == commessaId.Value) &&
+                    (string.IsNullOrEmpty(utenteId) || o.UtenteId == utenteId) &&
+                    (!dataFrom.HasValue || o.Data >= dataFrom.Value) &&
+                    (!dataTo.HasValue || o.Data <= dataTo.Value));
+
+            var totalCount = await baseQuery.CountAsync();
+
+            var totali = await baseQuery
+                .Select(o => new { o.Ore, o.Spese, o.Chilometri })
+                .ToListAsync();
+
+            var items = await baseQuery
+                .Include(o => o.Utente)
+                .Include(o => o.PianoSviluppo)
+                .OrderByDescending(o => o.Data)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var commessaIds = items.Select(o => o.CommessaId).Distinct().ToList();
+            var commesseDict = await dbContext.Commessa
+                .AsNoTracking()
+                .Where(c => commessaIds.Contains(c.Id))
+                .ToDictionaryAsync(c => c.Id, c => new { c.Descrizione, c.CommessaCodiceInterno });
+
+            var dtos = items.Select(o =>
+            {
+                commesseDict.TryGetValue(o.CommessaId, out var commessa);
+                return new OreSpesePagedItemDto
+                {
+                    Id = o.Id,
+                    CommessaId = o.CommessaId,
+                    CommessaDescrizione = commessa?.Descrizione,
+                    CommessaCodiceInterno = commessa?.CommessaCodiceInterno,
+                    PianoSviluppoId = o.PianoSviluppoId,
+                    PianoSviluppoDescrizione = o.PianoSviluppo?.Descrizione,
+                    UtenteId = o.UtenteId,
+                    UtenteNominativo = o.Utente?.Nominativo,
+                    Data = o.Data,
+                    Ore = o.Ore,
+                    Spese = o.Spese,
+                    Chilometri = o.Chilometri,
+                    Note = o.Note,
+                    DataCreazione = o.DataCreazione,
+                };
+            }).ToList();
+
+            return Ok(new OreSpesePagedResponseDto
+            {
+                TotalCount = totalCount,
+                Items = dtos,
+                TotaleOre = totali.Sum(o => o.Ore ?? 0),
+                TotaleSpese = totali.Sum(o => o.Spese ?? 0),
+                TotaleChilometri = totali.Sum(o => o.Chilometri ?? 0),
+            });
         }
     }
 }
