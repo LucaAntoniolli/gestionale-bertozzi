@@ -2,10 +2,21 @@
     <div class="col-12">
         <app-titolo-pagina [titoloPagina]="'Planning'"></app-titolo-pagina>
 
+        <div class="mb-5">
+            <p-toolbar>
+                <div class="p-toolbar-group-start">
+                    <p-button label="Crea nuovo ToDo" icon="pi pi-plus" (click)="mostraFormCreazioneTodo()"
+                        [disabled]="loading" *ngIf="canCreateTodo" />
+                </div>
+                <div class="p-toolbar-group-center"></div>
+                <div class="p-toolbar-group-end"></div>
+            </p-toolbar>
+        </div>
+
         <!-- Selezione Commessa -->
         <div class="mb-3">
             <div class="field">
-                <label htmlFor="commessaFiltro" class="mb-2 font-semibold">Commessa</label>
+                <label htmlFor="commessaFiltro" class="mb-2 font-semibold">Filtro Commessa</label>
                 <p-select id="commessaFiltro" [options]="commesseList" optionValue="id"
                     placeholder="Seleziona una commessa" [(ngModel)]="commessaSelezionata" [showClear]="true"
                     class="w-full" [filter]="true" (onChange)="onCommessaChange()" [loading]="loading">
@@ -19,22 +30,11 @@
             </div>
         </div>
 
-        <div class="mb-5">
-            <p-toolbar>
-                <div class="p-toolbar-group-start">
-                    <p-button label="Crea nuovo ToDo" icon="pi pi-plus" (click)="mostraFormCreazioneTodo()"
-                        [disabled]="loading || !commessaSelezionata" *ngIf="canCreateTodo" />
-                </div>
-                <div class="p-toolbar-group-center"></div>
-                <div class="p-toolbar-group-end"></div>
-            </p-toolbar>
-        </div>
-
         <!-- TABELLA TODO -->
-        @if((todoList && todoList.length > 0 && commessaSelezionata)) {
+        @if(todoList && todoList.length > 0) {
         <p-table #dt1 [size]="'small'" [value]="todoList" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
             styleClass="p-datatable-gridlines" [paginator]="true"
-            [globalFilterFields]="['descrizioneTodo', 'assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo']"
+            [globalFilterFields]="['descrizioneTodo', 'assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo', 'commessaId']"
             responsiveLayout="scroll" sortMode="multiple">
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
@@ -56,6 +56,12 @@
                     <th style="width: 3rem">
                         <div class="flex justify-content-between align-items-center">
                             Azioni
+                        </div>
+                    </th>
+                    <th style="min-width: 15rem" pSortableColumn="commessaId">
+                        <div class="flex justify-content-between align-items-center">
+                            Commessa
+                            <p-sortIcon field="commessaId" />
                         </div>
                     </th>
                     <th style="min-width: 15rem" pSortableColumn="dataCreazione">
@@ -121,6 +127,9 @@
                         </div>
                     </td>
                     <td>
+                        <span class="image-text">{{ getDescrizioneCommessa(todo.commessaId) }}</span>
+                    </td>
+                    <td>
                         <span class="image-text">{{ todo.dataCreazione ? (todo.dataCreazione.format('DD/MM/YYYY')) : '-'
                             }}</span>
                     </td>
@@ -153,11 +162,9 @@
                 </tr>
             </ng-template>
         </p-table>
-        } @else if(!loading && !commessaSelezionata) {
-        <p-message severity="info" text="Seleziona una commessa per visualizzare i ToDo." />
-        } @else if(!loading && commessaSelezionata) {
+        } @else if(!loading) {
         <p-message severity="info"
-            text="Nessun ToDo presente per questa commessa. Clicca su 'Crea nuovo ToDo' per iniziare." />
+            text="Nessun ToDo presente. Seleziona una commessa e clicca su 'Crea nuovo ToDo' per iniziare." />
         }
     </div>
 </div>
@@ -172,7 +179,7 @@
                 <label htmlFor="commessaId" class="mb-2 font-semibold">Commessa</label>
                 <p-select id="commessaId" [options]="commesseList" optionLabel="descrizione" optionValue="id"
                     placeholder="Seleziona commessa" formControlName="commessaId" [showClear]="true" class="w-full"
-                    [filter]="true" [disabled]="true" />
+                    [filter]="true" />
                 <small id="commessaId-error" class="p-error" *ngIf="nuovoTodoForm.get('commessaId')?.invalid">
                     Campo obbligatorio
                 </small>
@@ -182,7 +189,7 @@
             <div class="field">
                 <label htmlFor="descrizioneTodo" class="mb-2 font-semibold">Descrizione ToDo</label>
                 <textarea pTextarea id="descrizioneTodo" class="w-full" autocomplete="off" rows="3"
-                    formControlName="descrizioneTodo"></textarea>
+                    formControlName="descrizioneTodo" #descrizioneTodoInput></textarea>
                 <small id="descrizioneTodo-error" class="p-error" *ngIf="nuovoTodoForm.get('descrizioneTodo')?.invalid">
                     Campo obbligatorio
                 </small>
@@ -195,7 +202,8 @@
                         <label htmlFor="assegnatarioPrimarioId" class="mb-2 font-semibold">Assegnatario Primario</label>
                         <p-select id="assegnatarioPrimarioId" [options]="utentiPmEdileList" optionLabel="nominativo"
                             optionValue="id" placeholder="Seleziona utente" formControlName="assegnatarioPrimarioId"
-                            [showClear]="true" class="w-full" [filter]="true" [disabled]="!canEditToDoFields" />
+                            [showClear]="canEditAssegnatarioPrimario" class="w-full" [filter]="true"
+                            [disabled]="!canEditAssegnatarioPrimario" />
                         <small id="assegnatarioPrimarioId-error" class="p-error"
                             *ngIf="nuovoTodoForm.get('assegnatarioPrimarioId')?.invalid">
                             Campo obbligatorio
@@ -208,8 +216,8 @@
                             Secondario</label>
                         <p-select id="assegnatarioSecondarioId" [options]="utentiPmEdileList" optionLabel="nominativo"
                             optionValue="id" placeholder="Seleziona utente (opzionale)"
-                            formControlName="assegnatarioSecondarioId" [showClear]="true" class="w-full" [filter]="true"
-                            [disabled]="!canEditToDoFields" />
+                            formControlName="assegnatarioSecondarioId" [showClear]="canEditAssegnatarioPrimario"
+                            class="w-full" [filter]="true" [disabled]="!canEditAssegnatarioPrimario" />
                     </div>
                 </div>
             </div>
@@ -254,7 +262,9 @@
             <div class="col-12 flex justify-content-end gap-2">
                 <p-button label="Annulla" severity="secondary" icon="pi pi-times"
                     (click)="showDialogCreazioneTodo = false" />
-                <p-button [label]="isModifying ? 'Salva ToDo' : 'Crea ToDo'" icon="pi pi-check" (click)="salvaTodo()"
+                <p-button *ngIf="!isModifying" label="Salva e successivo" severity="secondary" icon="pi pi-arrow-right"
+                    (click)="salvaTodoESuccessivo()" [disabled]="!nuovoTodoForm.valid" />
+                <p-button [label]="isModifying ? 'Salva ToDo' : 'Salva'" icon="pi pi-check" (click)="salvaTodo()"
                     [disabled]="!nuovoTodoForm.valid" />
             </div>
         </div>

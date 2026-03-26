@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -81,11 +81,20 @@ export class PlanningComponent implements OnInit {
     isMobile$?: Observable<boolean>;
 
     @ViewChild('dt1') table!: Table;
+    @ViewChild('descrizioneTodoInput') descrizioneTodoInput?: ElementRef;
 
     // Getter per gestione permessi       
     get canDeleteTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canDelete(); }  
     get canCreateTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canCreate(); }
     get canEditTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canUpdate(); }
+    // L'utente base non può cambiare l'assegnatario primario in creazione (può solo inserire per sè stesso)
+    get canEditAssegnatarioPrimario(): boolean {
+        if (!this.isModifying && this.authService.isUserUtenteBase()) {
+            return false;
+        }
+        return this.canEditToDoFields;
+    }
+
     //L'utente admin o backoffice può modificare sempre i todo, l'utente base può modificare solo se è il creatore del todo
     get canEditToDoFields(): boolean {
         if (!this.isModifying) {
@@ -157,8 +166,7 @@ export class PlanningComponent implements OnInit {
                 this.utentiPmEdileList = data.utentiPmEdile;
                 this.utentiList = data.utenti;
                 this.utenteLoggato = data.utente;
-                // Non caricare i ToDo automaticamente - aspetta la selezione della commessa
-                this.loading = false;
+                this.loadData();
                 this.cdr.detectChanges();
             },
             error: (err: any) => {
@@ -174,14 +182,8 @@ export class PlanningComponent implements OnInit {
         });
     }
 
-    /** Carica i ToDo dal server filtrati per commessa */
+    /** Carica i ToDo dal server, opzionalmente filtrati per commessa */
     loadData() {
-        if (!this.commessaSelezionata) {
-            this.todoList = [];
-            this.loading = false;
-            return;
-        }
-        
         this.loading = true;
         this.todoService.getAll(this.commessaSelezionata).pipe(first())
             .subscribe({
@@ -222,7 +224,7 @@ export class PlanningComponent implements OnInit {
         
         this.nuovoTodoForm = this.fb.group({
             commessaId: [this.commessaSelezionata || '', [Validators.required]],
-            assegnatarioPrimarioId: ['', [Validators.required]],
+            assegnatarioPrimarioId: [this.authService.isUserUtenteBase() ? (this.utenteLoggato?.id || '') : '', [Validators.required]],
             assegnatarioSecondarioId: [''],
             descrizioneTodo: ['', [Validators.required]],
             dataConsegna: [''],
@@ -259,6 +261,61 @@ export class PlanningComponent implements OnInit {
         }
 
         this.showDialogCreazioneTodo = true;
+    }
+
+    /** Salva il nuovo ToDo e riapre il form precompilato per l'inserimento seriale */
+    salvaTodoESuccessivo() {
+        if (!this.nuovoTodoForm?.valid) {
+            this.ms.add({
+                severity: 'warn',
+                summary: 'Validazione',
+                detail: 'Compila tutti i campi obbligatori',
+            });
+            return;
+        }
+
+        const formValue = this.nuovoTodoForm.getRawValue();
+
+        const todo = new ToDo();
+        todo.commessaId = formValue.commessaId;
+        todo.assegnatarioPrimarioId = formValue.assegnatarioPrimarioId;
+        todo.assegnatarioSecondarioId = formValue.assegnatarioSecondarioId || null;
+        todo.descrizioneTodo = formValue.descrizioneTodo;
+        todo.descrizioneAttivitaSvolta = formValue.descrizioneAttivitaSvolta || null;
+        todo.completato = formValue.completato || false;
+        todo.priorita = formValue.priorita || 0;
+
+        if (formValue.dataConsegna) {
+            todo.dataConsegna = moment(formValue.dataConsegna).startOf('day');
+        }
+
+        this.todoService.create(todo).subscribe({
+            next: () => {
+                this.ms.add({
+                    severity: 'success',
+                    summary: 'Conferma',
+                    detail: 'ToDo creato con successo',
+                });
+                this.loadData();
+
+                // Pulisce solo la descrizione mantenendo tutti gli altri valori precompilati
+                this.nuovoTodoForm?.patchValue({ descrizioneTodo: '' });
+                this.nuovoTodoForm?.get('descrizioneTodo')?.markAsUntouched();
+                this.nuovoTodoForm?.get('descrizioneTodo')?.markAsPristine();
+
+                setTimeout(() => {
+                    this.descrizioneTodoInput?.nativeElement?.focus();
+                }, 0);
+            },
+            error: (err: any) => {
+                console.debug(err);
+                this.ms.add({
+                    severity: 'error',
+                    summary: 'Errore',
+                    detail: err.error || 'Errore durante il salvataggio',
+                });
+            },
+        });
     }
 
     /** Crea o modifica un ToDo a seconda se è in modalità creazione o modifica */
