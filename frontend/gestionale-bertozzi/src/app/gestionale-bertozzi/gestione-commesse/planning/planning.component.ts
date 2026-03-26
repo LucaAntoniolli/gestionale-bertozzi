@@ -16,6 +16,7 @@ import { InputText } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
@@ -51,6 +52,7 @@ import { AuthService } from '../../../auth/auth.service';
         MessageModule,
         ReactiveFormsModule,
         SelectModule,
+        SelectButtonModule,
         TableModule,
         TagModule,
         TextareaModule,
@@ -74,6 +76,12 @@ export class PlanningComponent implements OnInit {
     utenteLoggato: Utente | null = null;
 
     prioritaOptions: number[] = [1, 2, 3, 4, 5];
+
+    vistaOptions = [
+        { label: 'Non completati e recenti', value: 'nonCompletati' },
+        { label: 'Tutti', value: 'tutti' },
+    ];
+    vistaSelezionata: string = 'nonCompletati';
     
     // Filtro per commessa
     commessaSelezionata?: number;
@@ -185,7 +193,8 @@ export class PlanningComponent implements OnInit {
     /** Carica i ToDo dal server, opzionalmente filtrati per commessa */
     loadData() {
         this.loading = true;
-        this.todoService.getAll(this.commessaSelezionata).pipe(first())
+        const completato = this.vistaSelezionata === 'nonCompletati' ? false : true;
+        this.todoService.getAll(this.commessaSelezionata, undefined, undefined, completato).pipe(first())
             .subscribe({
                 next: (todoList: ToDo[]) => {
                     this.loading = false;
