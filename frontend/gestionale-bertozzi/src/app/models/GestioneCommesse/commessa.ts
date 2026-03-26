@@ -18,6 +18,7 @@ export class Commessa {
     descrizione?: string;
     commessaCodiceInterno?: string;
     costoAtteso?: number;
+    orePreviste?: number;
     statusCommessaId?: number;
     dataInizioPrevista?: moment.Moment;
     dataConclusionePrevista?: moment.Moment;
