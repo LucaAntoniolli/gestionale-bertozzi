@@ -229,7 +229,7 @@
 
       <!-- Riga 4: Status e Costo Atteso -->
       <div class="grid">
-        <div class="col-6">
+        <div class="col-4">
           <div class="field">
             <label htmlFor="statusCommessaId" class="mb-2 font-semibold">Status Commessa</label>
             <p-select id="statusCommessaId" [options]="statusList" optionLabel="descrizione" optionValue="id"
@@ -240,7 +240,7 @@
             </small>
           </div>
         </div>
-        <div class="col-6">
+        <div class="col-4">
           <div class="field">
             <label htmlFor="costoAtteso" class="mb-2 font-semibold">Costo Atteso</label>
             <p-inputnumber inputId="costoAtteso" formControlName="costoAtteso" class="w-full" [minFractionDigits]="2"
@@ -250,7 +250,19 @@
             </small>
           </div>
         </div>
+        <div class="col-4">
+          <div class="field">
+            <label htmlFor="orePreviste" class="mb-2 font-semibold">Ore Previste</label>
+            <p-inputnumber inputId="orePreviste" formControlName="orePreviste" class="w-full" [minFractionDigits]="0"
+              [maxFractionDigits]="0" />
+            <small id="orePreviste-error" class="p-error" *ngIf="nuovaCommessaForm.get('orePreviste')?.invalid">
+              Campo obbligatorio
+            </small>
+          </div>
+        </div>
       </div>
+
+
 
       <!-- Riga 5: PM Edile e PM Amministrativo -->
       <div class="grid">

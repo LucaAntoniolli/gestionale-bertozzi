@@ -204,6 +204,7 @@ export class ElencoCommesseComponent implements OnInit {
             descrizione: ['', [Validators.required]],
             commessaCodiceInterno: ['', [Validators.required, Validators.maxLength(50)]],
             costoAtteso: [0, [Validators.required, Validators.min(0)]],
+            orePreviste: [0, [Validators.required, Validators.min(0)]],
             statusCommessaId: ['', [Validators.required]],
             dataInizioPrevista: [''],
             dataConclusionePrevista: [''],
@@ -235,6 +236,7 @@ export class ElencoCommesseComponent implements OnInit {
             descrizione: [commessa.descrizione, [Validators.required]],
             commessaCodiceInterno: [commessa.commessaCodiceInterno, [Validators.required, Validators.maxLength(50)]],
             costoAtteso: [commessa.costoAtteso, [Validators.required, Validators.min(0)]],
+            orePreviste: [commessa.orePreviste, [Validators.required, Validators.min(0)]],
             statusCommessaId: [commessa.statusCommessaId, [Validators.required]],
             dataInizioPrevista: [commessa.dataInizioPrevista ? new Date(commessa.dataInizioPrevista as any) : ''],
             dataConclusionePrevista: [commessa.dataConclusionePrevista ? new Date(commessa.dataConclusionePrevista as any) : ''],
@@ -271,6 +273,7 @@ export class ElencoCommesseComponent implements OnInit {
         commessa.descrizione = formValue.descrizione;
         commessa.commessaCodiceInterno = formValue.commessaCodiceInterno;
         commessa.costoAtteso = formValue.costoAtteso;
+        commessa.orePreviste = formValue.orePreviste;
         commessa.statusCommessaId = formValue.statusCommessaId;
         
         if (formValue.dataInizioPrevista) {

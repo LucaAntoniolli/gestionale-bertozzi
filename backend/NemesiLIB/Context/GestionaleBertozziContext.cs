@@ -172,6 +172,7 @@ namespace NemesiLIB.Context
                 e.Property(c => c.Descrizione).HasMaxLength(2000);
                 e.Property(c => c.CommessaCodiceInterno).IsRequired().HasMaxLength(50);
                 e.Property(c => c.CostoAtteso).HasColumnType("decimal(18,2)").IsRequired();
+                e.Property(c  => c.OrePreviste).IsRequired(false);
                 e.Property(c => c.StatusCommessaId).IsRequired();
                 e.Property(c => c.DataInizioPrevista).IsRequired(false);
                 e.Property(c => c.DataConclusionePrevista).IsRequired(false);

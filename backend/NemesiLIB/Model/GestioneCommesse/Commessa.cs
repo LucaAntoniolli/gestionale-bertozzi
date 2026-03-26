@@ -18,6 +18,7 @@ namespace NemesiLIB.Model.GestioneCommesse
         public string Descrizione { get; set; }
         public string CommessaCodiceInterno { get; set; }
         public decimal CostoAtteso { get; set; }
+        public int? OrePreviste { get; set; }
         public int StatusCommessaId { get; set; }
         public DateTime? DataInizioPrevista { get; set; }
         public DateTime? DataConclusionePrevista { get; set; }

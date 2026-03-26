@@ -156,6 +156,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             existing.Descrizione = model.Descrizione;
             existing.CommessaCodiceInterno = model.CommessaCodiceInterno;
             existing.CostoAtteso = model.CostoAtteso;
+            existing.OrePreviste = model.OrePreviste;
             existing.StatusCommessaId = model.StatusCommessaId;
             existing.DataInizioPrevista = model.DataInizioPrevista;
             existing.DataConclusionePrevista = model.DataConclusionePrevista;
