@@ -13,7 +13,7 @@
             </p-toolbar>
         </div>
 
-        <!-- Selezione Commessa -->
+        <!-- Filtro Commessa -->
         <div class="mb-3">
             <div class="field">
                 <label htmlFor="commessaFiltro" class="mb-2 font-semibold">Filtro Commessa</label>
@@ -32,13 +32,15 @@
 
         <!-- TABELLA TODO -->
         @if(todoList && todoList.length > 0) {
-        <p-table #dt1 [size]="'small'" [value]="todoList" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
+        <p-table #dt1 [size]="'small'" [value]="todoList" dataKey="id" [rows]="15" [loading]="loading" [rowHover]="true"
             styleClass="p-datatable-gridlines" [paginator]="true"
-            [globalFilterFields]="['descrizioneTodo', 'assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo', 'commessaId']"
+            [globalFilterFields]="['assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo']"
             responsiveLayout="scroll" sortMode="multiple">
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
                     <div class="flex">
+                        <p-selectbutton [options]="vistaOptions" [(ngModel)]="vistaSelezionata" optionLabel="label"
+                            optionValue="value" (onChange)="loadData()" />
                     </div>
                     <div class="flex">
                         <p-iconfield iconPosition="left" class="ml-auto">
@@ -94,16 +96,10 @@
                             <p-sortIcon field="assegnatarioPrimario.nominativo" />
                         </div>
                     </th>
-                    <th style="min-width: 12rem" pSortableColumn="assegnatarioSecondario.nominativo">
+                    <th style="min-width: 10rem" pSortableColumn="descrizioneAttivitaSvolta">
                         <div class="flex justify-content-between align-items-center">
-                            Assegnatario Secondario
-                            <p-sortIcon field="assegnatarioSecondario.nominativo" />
-                        </div>
-                    </th>
-                    <th style="min-width: 10rem" pSortableColumn="dataConsegna">
-                        <div class="flex justify-content-between align-items-center">
-                            Data Consegna
-                            <p-sortIcon field="dataConsegna" />
+                            Descrizione Attività Svolta
+                            <p-sortIcon field="descrizioneAttivitaSvolta" />
                         </div>
                     </th>
                 </tr>
@@ -147,11 +143,7 @@
                         <span class="image-text">{{ getNominativoUtente(todo.assegnatarioPrimarioId) }}</span>
                     </td>
                     <td>
-                        <span class="image-text">{{ getNominativoUtente(todo.assegnatarioSecondarioId) }}</span>
-                    </td>
-                    <td>
-                        <span class="image-text">{{ todo.dataConsegna ? (todo.dataConsegna.format('DD/MM/YYYY')) : '-'
-                            }}</span>
+                        <span class="image-text">{{ todo.descrizioneAttivitaSvolta }}</span>
                     </td>
                 </tr>
             </ng-template>

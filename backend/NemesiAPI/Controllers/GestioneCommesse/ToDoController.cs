@@ -56,23 +56,21 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             }
 
             if (commessaId.HasValue)
-            {
                 q = q.Where(t => t.CommessaId == commessaId.Value);
-            }
 
             if (!string.IsNullOrEmpty(assegnatarioPrimarioId))
-            {
                 q = q.Where(t => t.AssegnatarioPrimarioId == assegnatarioPrimarioId);
-            }
 
             if (!string.IsNullOrEmpty(assegnatarioSecondarioId))
-            {
                 q = q.Where(t => t.AssegnatarioSecondarioId == assegnatarioSecondarioId);
-            }
 
-            if (completato.HasValue)
+            // Se completato è null o false: restituisce i non completati + i completati
+            // creati negli ultimi 7 giorni.
+            // Se completato è true: restituisce tutto senza filtri aggiuntivi.
+            if (!completato.HasValue || !completato.Value)
             {
-                q = q.Where(t => t.Completato == completato.Value);
+                var cutoff = DateTime.Today.AddDays(-7);
+                q = q.Where(t => !t.Completato || t.DataCreazione >= cutoff);
             }
 
             var list = await q
