@@ -40,9 +40,13 @@ export class DashboardService {
     /**
      * Recupera le ore caricate giorno per giorno negli ultimi N giorni
      * @param giorni - Numero di giorni da considerare (1-365, default 30)
+     * @param commessaId - Filtra per commessa (opzionale)
+     * @param utenteId - Filtra per utente (opzionale)
      */
-    getOrePerGiorno(giorni: number = 30): Observable<OrePerGiornoItem[]> {
-        const params = new HttpParams().set('giorni', giorni.toString());
+    getOrePerGiorno(giorni: number = 30, commessaId?: number | null, utenteId?: string | null): Observable<OrePerGiornoItem[]> {
+        let params = new HttpParams().set('giorni', giorni.toString());
+        if (commessaId != null) params = params.set('commessaId', commessaId.toString());
+        if (utenteId != null) params = params.set('utenteId', utenteId);
         return this.http
             .get<any[]>(`${this.baseUrl}/ore-per-giorno`, { params })
             .pipe(map((data) => OrePerGiornoItem.mapArray(data)));

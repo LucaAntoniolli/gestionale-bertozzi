@@ -104,6 +104,20 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (pianoSviluppo != null && pianoSviluppo.CommessaId != model.CommessaId)
                 return BadRequest("Il piano di sviluppo non appartiene alla commessa specificata");
 
+            // Valida che le ore totali per utente/giorno non superino 12
+            if (model.Ore.HasValue && model.Ore.Value > 0)
+            {
+                var dataInizio = model.Data.Date;
+                var dataFine = dataInizio.AddDays(1);
+                var orePrecedenti = await dbContext.OreSpeseCommessa
+                    .AsNoTracking()
+                    .Where(o => o.UtenteId == model.UtenteId && o.Data >= dataInizio && o.Data < dataFine)
+                    .SumAsync(o => o.Ore ?? 0);
+
+                if (orePrecedenti + model.Ore.Value > 12)
+                    return BadRequest($"Il totale delle ore per questa giornata supererebbe le 12 ore (già caricate: {orePrecedenti} h).");
+            }
+
             dbContext.OreSpeseCommessa.Add(model);
             await dbContext.SaveChangesAsync();
 
@@ -137,6 +151,20 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             var pianoSviluppo = await dbContext.PianoSviluppo.FirstOrDefaultAsync(p => p.Id == model.PianoSviluppoId);
             if (pianoSviluppo != null && pianoSviluppo.CommessaId != model.CommessaId)
                 return BadRequest("Il piano di sviluppo non appartiene alla commessa specificata");
+
+            // Valida che le ore totali per utente/giorno non superino 12 (escludendo la riga corrente)
+            if (model.Ore.HasValue && model.Ore.Value > 0)
+            {
+                var dataInizio = model.Data.Date;
+                var dataFine = dataInizio.AddDays(1);
+                var orePrecedenti = await dbContext.OreSpeseCommessa
+                    .AsNoTracking()
+                    .Where(o => o.UtenteId == model.UtenteId && o.Data >= dataInizio && o.Data < dataFine && o.Id != id)
+                    .SumAsync(o => o.Ore ?? 0);
+
+                if (orePrecedenti + model.Ore.Value > 12)
+                    return BadRequest($"Il totale delle ore per questa giornata supererebbe le 12 ore (già caricate: {orePrecedenti} h).");
+            }
 
             // Aggiorna i campi
             existing.CommessaId = model.CommessaId;

@@ -58,5 +58,9 @@ export class NavigatorService {
     this.router.navigate(['/gestione-commesse/planning']);
   }
 
+  oreESpese(){
+    this.router.navigate(['/gestione-commesse/ore-e-spese']);
+  }
+
 
 }

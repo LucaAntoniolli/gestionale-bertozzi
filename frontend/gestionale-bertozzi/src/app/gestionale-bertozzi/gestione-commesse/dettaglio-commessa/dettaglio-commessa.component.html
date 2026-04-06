@@ -144,20 +144,17 @@
             <p-knob [(ngModel)]="percentualeAttivitaCompletate" [readonly]="true" valueTemplate="{value}%"
               [size]="70"></p-knob>
           </div>
-          <div class="flex flex-column align-items-center">
+          <div class="flex flex-column align-items-center" *ngIf="canEditCommessa">
             <p>Totale ore</p>
             <p-avatar label="{{ totaleOreSpese }}" styleClass="avatar-full"><i class="pi pi-clock"
                 style="font-size: 1.5rem"></i></p-avatar>
           </div>
-          <div class="flex flex-column align-items-center">
-
+          <div class="flex flex-column align-items-center" *ngIf="canEditCommessa">
             <p>Totale spese</p>
             <p-avatar label=" {{ totaleSpese | number: '1.2-2' }}" styleClass="avatar-full"><i class="pi pi-euro"
                 style="font-size: 1.5rem"></i></p-avatar>
           </div>
-          <div class="flex flex-column align-items-center">
-
-
+          <div class="flex flex-column align-items-center" *ngIf="canEditCommessa">
             <p>Totale chilometri</p>
             <p-avatar label="{{ totaleChilometri | number: '1.2-2' }}" styleClass="avatar-full"><i class="pi pi-gauge"
                 style="font-size: 1.5rem"></i></p-avatar>
@@ -271,64 +268,69 @@
 </div>
 
 <!-- TOOLBAR ORE E COSTI -->
-<div class="mt-4 mb-4">
-  <p-toolbar>
-    <div class="p-toolbar-group-start flex items-center align-items-center justify-content-center gap-2">
-      <i class="pi pi-list text-2xl"></i>
-      <h3 class="m-0">Ore e Costi</h3>
-    </div>
-    <div class="p-toolbar-group-end">
-      <div class="flex gap-2">
-        <p-button label="Carica ore e spese" icon="pi pi-plus" (click)="caricaOreSuCommessa()"
-          *ngIf="canCreateOreSpeseCommessa"></p-button>
-        <p-button label="Ore per dipendente" icon="pi pi-users" severity="secondary" [outlined]="true"
-          (click)="apriDrawerOrePerUtente()"></p-button>
+<div *ngIf="canEditCommessa">
+  <div class="mt-4 mb-4">
+    <p-toolbar>
+      <div class="p-toolbar-group-start flex items-center align-items-center justify-content-center gap-2">
+        <i class="pi pi-list text-2xl"></i>
+        <h3 class="m-0">Ore e Costi</h3>
       </div>
-    </div>
-  </p-toolbar>
-</div>
-
-@if(oreSpeseList && oreSpeseList.length > 0) {
-<p-table stripedRows [rowHover]="true" [value]="oreSpeseList" [loading]="loading" dataKey="id" [scrollable]="true"
-  scrollHeight="400px" [size]="'small'" styleClass="p-datatable-gridlines mb-4">
-  <ng-template #header>
-    <tr>
-      <th style="width: 3rem">Azioni</th>
-      <th pSortableColumn="data">Data <p-sortIcon field="data" /></th>
-      <th>Piano di Sviluppo</th>
-      <th>Utente</th>
-      <th pSortableColumn="ore">Ore <p-sortIcon field="ore" /></th>
-      <th>Spese (€)</th>
-      <th>Chilometri</th>
-      <th>Note</th>
-    </tr>
-  </ng-template>
-  <ng-template #body let-oreSpese>
-    <tr>
-      <td>
+      <div class="p-toolbar-group-end">
         <div class="flex gap-2">
-          <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
-            tooltipPosition="top" (click)="mostraFormModificaOreSpese(oreSpese)"
-            *ngIf="canEditOreSpeseCommessa"></button>
-          <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
-            tooltipPosition="top" (click)="eliminaOreSpese($event, oreSpese)"
-            *ngIf="canDeleteOreSpeseCommessa"></button>
+          <p-button label="Carica ore e spese" icon="pi pi-plus" (click)="caricaOreSuCommessa()"
+            *ngIf="canCreateOreSpeseCommessa"></p-button>
+          <p-button label="Ore per dipendente" icon="pi pi-users" severity="secondary" [outlined]="true"
+            (click)="apriDrawerOrePerUtente()"></p-button>
         </div>
-      </td>
-      <td>{{ oreSpese.data ? (oreSpese.data.toDate() | date: 'dd/MM/yyyy') : '-' }}</td>
-      <td>{{ oreSpese.pianoSviluppo?.descrizione || getNomePianoSviluppo(oreSpese.pianoSviluppoId) || '-' }}</td>
-      <td>{{ oreSpese.utente?.nominativo || getNomeUtente(oreSpese.utenteId) || '-' }}</td>
-      <td>{{ oreSpese.ore !== null && oreSpese.ore !== undefined ? (oreSpese.ore | number: '1.2-2') : '-'}}</td>
-      <td>{{ oreSpese.spese !== null && oreSpese.spese !== undefined ? (oreSpese.spese | number: '1.2-2') : '-' }}</td>
-      <td>{{ oreSpese.chilometri !== null && oreSpese.chilometri !== undefined ? (oreSpese.chilometri | number: '1.2-2')
-        : '-' }}</td>
-      <td>{{ oreSpese.note || '-' }}</td>
-    </tr>
-  </ng-template>
-</p-table>
-} @else if(!loading) {
-<p-message severity="info" text="Nessuna informazione presente. Clicca su 'Carica ore e spese' per iniziare." />
-}
+      </div>
+    </p-toolbar>
+  </div>
+
+  @if(oreSpeseList && oreSpeseList.length > 0) {
+  <p-table stripedRows [rowHover]="true" [value]="oreSpeseList" [loading]="loading" dataKey="id" [scrollable]="true"
+    scrollHeight="400px" [size]="'small'" styleClass="p-datatable-gridlines mb-4">
+    <ng-template #header>
+      <tr>
+        <th style="width: 3rem">Azioni</th>
+        <th pSortableColumn="data">Data <p-sortIcon field="data" /></th>
+        <th pSortableColumn="pianoSviluppo.descrizione">Piano di Sviluppo <p-sortIcon
+            field="pianoSviluppo.descrizione" /></th>
+        <th pSortableColumn="utente.nominativo">Utente <p-sortIcon field="utente.nominativo" /></th>
+        <th pSortableColumn="ore">Ore <p-sortIcon field="ore" /></th>
+        <th pSortableColumn="spese">Spese (€) <p-sortIcon field="spese" /></th>
+        <th pSortableColumn="chilometri">Chilometri <p-sortIcon field="chilometri" /></th>
+        <th pSortableColumn="note">Note <p-sortIcon field="note" /></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-oreSpese>
+      <tr>
+        <td>
+          <div class="flex gap-2">
+            <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
+              tooltipPosition="top" (click)="mostraFormModificaOreSpese(oreSpese)"
+              *ngIf="canEditOreSpeseCommessa"></button>
+            <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
+              tooltipPosition="top" (click)="eliminaOreSpese($event, oreSpese)"
+              *ngIf="canDeleteOreSpeseCommessa"></button>
+          </div>
+        </td>
+        <td>{{ oreSpese.data ? (oreSpese.data.toDate() | date: 'dd/MM/yyyy') : '-' }}</td>
+        <td>{{ oreSpese.pianoSviluppo?.descrizione || getNomePianoSviluppo(oreSpese.pianoSviluppoId) || '-' }}</td>
+        <td>{{ oreSpese.utente?.nominativo || getNomeUtente(oreSpese.utenteId) || '-' }}</td>
+        <td>{{ oreSpese.ore !== null && oreSpese.ore !== undefined ? (oreSpese.ore | number: '1.2-2') : '-'}}</td>
+        <td>{{ oreSpese.spese !== null && oreSpese.spese !== undefined ? (oreSpese.spese | number: '1.2-2') : '-' }}
+        </td>
+        <td>{{ oreSpese.chilometri !== null && oreSpese.chilometri !== undefined ? (oreSpese.chilometri | number:
+          '1.2-2')
+          : '-' }}</td>
+        <td>{{ oreSpese.note || '-' }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+  } @else if(!loading) {
+  <p-message severity="info" text="Nessuna informazione presente. Clicca su 'Carica ore e spese' per iniziare." />
+  }
+</div>
 
 
 <!-- DIALOG PIANO (CREAZIONE / MODIFICA) -->

@@ -12,8 +12,8 @@ export default [
         path: '', component: GestioneCommesseComponent, canActivate: [accessoGuard],
         children: [
             { path: 'template-piani-sviluppo', component: TemplatePianiSviluppoComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
-            { path: 'elenco-commesse', component: ElencoCommesseComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
-            { path: 'dettaglio-commessa/:id', component: DettaglioCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
+            { path: 'elenco-commesse', component: ElencoCommesseComponent, canActivate: [accessoGuard] },
+            { path: 'dettaglio-commessa/:id', component: DettaglioCommessaComponent, canActivate: [accessoGuard] },
             { path: 'planning', component: PlanningComponent, canActivate: [accessoGuard] },
             { path: 'ore-e-spese', component: OreESpeseComponent, canActivate: [accessoGuard] },
         ]

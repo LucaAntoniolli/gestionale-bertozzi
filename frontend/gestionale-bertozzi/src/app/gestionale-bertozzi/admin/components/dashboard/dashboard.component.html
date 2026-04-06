@@ -157,8 +157,26 @@
     <p-card>
       <div class="flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <span class="text-color-secondary text-sm">Ore caricate su tutte le commesse, giorno per giorno</span>
-        <p-select [options]="giorniOptions" [(ngModel)]="giorniSelezionati" optionLabel="label" optionValue="value"
-          (onChange)="loadOrePerGiorno()" [style]="{ 'min-width': '200px' }"></p-select>
+        <div class="flex flex-wrap gap-2 align-items-center">
+          <p-select [options]="commesseList" [(ngModel)]="commessaFiltroGrafico" optionLabel="descrizione"
+            placeholder="Tutte le commesse" [filter]="true" filterBy="descrizione,commessaCodiceInterno"
+            [showClear]="true" (onChange)="loadOrePerGiorno()" [style]="{ 'min-width': '220px' }">
+            <ng-template #selectedItem let-item>
+              <span>{{ item.commessaCodiceInterno ? '[' + item.commessaCodiceInterno + '] ' : '' }}{{ item.descrizione
+                }}</span>
+            </ng-template>
+            <ng-template #item let-item>
+              <span>{{ item.commessaCodiceInterno ? '[' + item.commessaCodiceInterno + '] ' : '' }}{{ item.descrizione
+                }}</span>
+            </ng-template>
+          </p-select>
+          <p-select [options]="utentiList" [(ngModel)]="utenteFiltroGrafico" optionLabel="nominativo"
+            placeholder="Tutti gli utenti" [filter]="true" filterBy="nominativo" [showClear]="true"
+            (onChange)="loadOrePerGiorno()" [style]="{ 'min-width': '200px' }">
+          </p-select>
+          <p-select [options]="giorniOptions" [(ngModel)]="giorniSelezionati" optionLabel="label" optionValue="value"
+            (onChange)="loadOrePerGiorno()" [style]="{ 'min-width': '180px' }"></p-select>
+        </div>
       </div>
 
       @if (loadingChart) {

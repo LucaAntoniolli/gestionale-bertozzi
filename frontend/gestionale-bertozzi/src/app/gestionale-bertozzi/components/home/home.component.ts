@@ -79,4 +79,8 @@ export class HomeComponent {
     navigateToPlanning() {
         this.navigator.planning();
     }
+
+    navigateToOreESpese() {
+        this.navigator.oreESpese();
+    }
 }

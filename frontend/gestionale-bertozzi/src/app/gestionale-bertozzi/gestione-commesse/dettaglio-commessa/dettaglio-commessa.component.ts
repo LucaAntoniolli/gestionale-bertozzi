@@ -136,6 +136,7 @@ export class DettaglioCommessaComponent implements OnInit {
   ];
 
   //Getter per gestione permessi - ora centralizzati nel service
+  get canEditCommessa(): boolean { return this.permissionsService.createEntityHelper('commessa').canUpdate(); }
   get canDeletePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canDelete(); }
   get canCreatePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canCreate(); }
   get canEditPianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('pianosviluppo').canUpdate(); }

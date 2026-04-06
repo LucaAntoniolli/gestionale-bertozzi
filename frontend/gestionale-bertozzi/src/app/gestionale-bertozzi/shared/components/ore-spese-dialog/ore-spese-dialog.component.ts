@@ -152,7 +152,7 @@ export class OreSpeseDialogComponent implements OnChanges {
         o.commessaId = this.fixedCommessaId ?? v.commessaId;
         o.pianoSviluppoId = v.pianoSviluppoId;
         o.utenteId = v.utenteId;
-        o.data = v.data ? moment(v.data).startOf('day') : undefined;
+        o.data = v.data ? moment.utc(moment(v.data).format('YYYY-MM-DD')) : undefined;
         o.ore = v.ore ?? undefined;
         o.spese = v.spese ?? undefined;
         o.chilometri = v.chilometri ?? undefined;

@@ -21,10 +21,10 @@
                     placeholder="Seleziona una commessa" [(ngModel)]="commessaSelezionata" [showClear]="true"
                     class="w-full" [filter]="true" (onChange)="onCommessaChange()" [loading]="loading">
                     <ng-template pTemplate="item" let-commessa>
-                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+                        {{ commessa.commessaCodiceInterno }}
                     </ng-template>
                     <ng-template pTemplate="selectedItem" let-commessa>
-                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+                        {{ commessa.commessaCodiceInterno }}
                     </ng-template>
                 </p-select>
             </div>
@@ -70,6 +70,12 @@
                         <div class="flex justify-content-between align-items-center">
                             Data Creazione
                             <p-sortIcon field="dataCreazione" />
+                        </div>
+                    </th>
+                    <th style="min-width: 15rem" pSortableColumn="dataConsegna">
+                        <div class="flex justify-content-between align-items-center">
+                            Data Consegna
+                            <p-sortIcon field="dataConsegna" />
                         </div>
                     </th>
                     <th style="min-width: 20rem" pSortableColumn="descrizioneTodo">
@@ -127,6 +133,10 @@
                     </td>
                     <td>
                         <span class="image-text">{{ todo.dataCreazione ? (todo.dataCreazione.format('DD/MM/YYYY')) : '-'
+                            }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ todo.dataConsegna ? (todo.dataConsegna.format('DD/MM/YYYY')) : '-'
                             }}</span>
                     </td>
                     <td>

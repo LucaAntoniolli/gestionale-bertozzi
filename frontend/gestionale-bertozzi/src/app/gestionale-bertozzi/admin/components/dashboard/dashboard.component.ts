@@ -12,7 +12,9 @@ import { MessageModule } from 'primeng/message';
 import { TitoloPaginaComponent } from '../../../shared/components/titolo-pagina/titolo-pagina.component';
 import { DashboardService } from '../../../../services/dashboard.service';
 import { CommessaService } from '../../../../services/GestioneCommesse/commessa.service';
+import { UtenteService } from '../../../../services/utente.service';
 import { CommessaLight } from '../../../../models/GestioneCommesse/commessa-light';
+import { Utente } from '../../../../models/utente';
 import { CommesseSummary, OreSummary, OrePerGiornoItem, OrePerUtenteItem } from '../../../../models/dashboard.model';
 
 @Component({
@@ -49,6 +51,11 @@ export class DashboardComponent implements OnInit {
     ];
     giorniSelezionati: number = 30;
 
+    // Filtri grafico ore per giorno
+    commessaFiltroGrafico?: CommessaLight;
+    utenteFiltroGrafico?: Utente;
+    utentiList: Utente[] = [];
+
     // Sezione ore per commessa
     commesseList: CommessaLight[] = [];
     commessaSelezionata?: CommessaLight;
@@ -63,6 +70,7 @@ export class DashboardComponent implements OnInit {
     constructor(
         private dashboardService: DashboardService,
         private commessaService: CommessaService,
+        private utenteService: UtenteService,
         private cdr: ChangeDetectorRef,
     ) {}
 
@@ -76,12 +84,14 @@ export class DashboardComponent implements OnInit {
             ore: this.dashboardService.getOreSummary(),
             orePerGiorno: this.dashboardService.getOrePerGiorno(this.giorniSelezionati),
             commesseList: this.commessaService.getAllLight(),
+            utentiList: this.utenteService.getAll(),
         }).subscribe({
-            next: ({ commesse, ore, orePerGiorno, commesseList }) => {
+            next: ({ commesse, ore, orePerGiorno, commesseList, utentiList }) => {
                 this.commesseSummary = commesse;
                 this.oreSummary = ore;
                 this.buildChartData(orePerGiorno);
                 this.commesseList = commesseList;
+                this.utentiList = utentiList;
                 this.loadingCommesse = false;
                 this.loadingOre = false;
                 this.loadingChart = false;
@@ -99,7 +109,11 @@ export class DashboardComponent implements OnInit {
     loadOrePerGiorno() {
         this.loadingChart = true;
         this.dashboardService
-            .getOrePerGiorno(this.giorniSelezionati)
+            .getOrePerGiorno(
+                this.giorniSelezionati,
+                this.commessaFiltroGrafico?.id,
+                this.utenteFiltroGrafico?.id,
+            )
             .pipe(first())
             .subscribe({
                 next: (data) => {

@@ -90,22 +90,32 @@ namespace NemesiAPI.Controllers
             });
         }
 
-        // GET api/dashboard/ore-per-giorno?giorni=30
+        // GET api/dashboard/ore-per-giorno?giorni=30&commessaId=5&utenteId=abc
         [HttpGet("ore-per-giorno")]
         [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "dashboard.read")]
         public async Task<ActionResult<IEnumerable<OrePerGiornoItemDto>>> GetOrePerGiorno(
-            [FromQuery] int giorni = 30)
+            [FromQuery] int giorni = 30,
+            [FromQuery] int? commessaId = null,
+            [FromQuery] string? utenteId = null)
         {
             if (giorni <= 0 || giorni > 365)
                 return BadRequest("Il parametro 'giorni' deve essere compreso tra 1 e 365.");
 
             var cutoff = DateTime.Today.AddDays(-giorni);
 
+            var query = dbContext.OreSpeseCommessa
+                .AsNoTracking()
+                .Where(o => o.Data >= cutoff);
+
+            if (commessaId.HasValue)
+                query = query.Where(o => o.CommessaId == commessaId.Value);
+
+            if (!string.IsNullOrEmpty(utenteId))
+                query = query.Where(o => o.UtenteId == utenteId);
+
             // Proiezione lato DB, raggruppamento lato memoria per evitare
             // problemi di traduzione di DateTime.Date su alcuni provider
-            var rawData = await dbContext.OreSpeseCommessa
-                .AsNoTracking()
-                .Where(o => o.Data >= cutoff)
+            var rawData = await query
                 .Select(o => new { Data = o.Data.Date, Ore = o.Ore ?? 0 })
                 .ToListAsync();
 

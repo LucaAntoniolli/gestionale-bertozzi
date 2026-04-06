@@ -127,5 +127,19 @@
                 </div>
             </p-card>
         </div>
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadCommessa">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-stopwatch text-6xl text-primary text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Ore e spese</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Carica ore e spese
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToOreESpese()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
     </div>
 </div>
