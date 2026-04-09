@@ -8,8 +8,8 @@ export default [
     {
         path: '', component: AdminComponent,
         children: [
-            { path: 'dashboard', component: DashboardComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
-            { path: 'gestione-utenti', component: GestioneUtentiComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
+            { path: 'dashboard', component: DashboardComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore','Backoffice'])] },
+            { path: 'gestione-utenti', component: GestioneUtentiComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore','Backoffice'])] },
         ]
     },
 ]

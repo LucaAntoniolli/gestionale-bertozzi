@@ -10,10 +10,10 @@ export default [
     {
         path: '', component: AnagraficheComponent,
         children: [
-            { path: 'tipologie-commessa', component: TipologieCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
-            { path: 'status-commessa', component: StatusCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
-            { path: 'modalita-pagamento', component: ModalitaPagamentoComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
-            { path: 'gestione-clienti', component: GestioneClientiComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore'])] },
+            { path: 'tipologie-commessa', component: TipologieCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
+            { path: 'status-commessa', component: StatusCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
+            { path: 'modalita-pagamento', component: ModalitaPagamentoComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
+            { path: 'gestione-clienti', component: GestioneClientiComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
         ]
     },
 ]

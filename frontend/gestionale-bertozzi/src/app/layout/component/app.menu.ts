@@ -36,7 +36,7 @@ export class AppMenu {
     createMenuForUser() {
         this.model = [];
 
-        if (this.ruoloUtente == "Amministratore") {
+        if (this.ruoloUtente == "Amministratore" || this.ruoloUtente == "Backoffice") {
             this.model.push(
                 {
                     label: 'AMMINISTRAZIONE',
@@ -63,20 +63,6 @@ export class AppMenu {
                             { label: 'Planning', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
                             { label: 'Ore e Spese', icon: 'pi pi-fw pi-stopwatch', routerLink: ['/gestione-commesse/ore-e-spese'] },
 
-                    ]
-                },
-            );
-        }
-
-        if (this.ruoloUtente == "Backoffice") {
-            this.model.push(
-                {
-                    label: 'GESTIONE COMMESSE',
-                    items: [
-                        { label: 'Gestione template piani di sviluppo', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/template-piani-sviluppo'] },
-                        { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
-                        { label: 'Planning', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
-                        { label: 'Ore e Spese', icon: 'pi pi-fw pi-stopwatch', routerLink: ['/gestione-commesse/ore-e-spese'] },
                     ]
                 },
             );
