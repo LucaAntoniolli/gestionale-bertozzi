@@ -1,11 +1,9 @@
 import moment from 'moment';
 import { Utente } from '../utente';
-import { PianoSviluppo } from './piano-sviluppo';
 
 export class OreSpeseCommessa {
     id?: number;
     commessaId?: number;
-    pianoSviluppoId?: number;
     utenteId?: string;
     data?: moment.Moment;
     ore?: number;
@@ -19,7 +17,6 @@ export class OreSpeseCommessa {
 
     // Navigation properties
     utente?: Utente;
-    pianoSviluppo?: PianoSviluppo;
 
     static map(oreSpeseCommessa: any): OreSpeseCommessa {
         let o = Object.assign(new OreSpeseCommessa(), oreSpeseCommessa) as OreSpeseCommessa;
@@ -38,9 +35,6 @@ export class OreSpeseCommessa {
         // Mappa le proprietà di navigazione se presenti
         if (oreSpeseCommessa.utente) {
             o.utente = Utente.map(oreSpeseCommessa.utente);
-        }
-        if (oreSpeseCommessa.pianoSviluppo) {
-            o.pianoSviluppo = PianoSviluppo.map(oreSpeseCommessa.pianoSviluppo);
         }
 
         return o;

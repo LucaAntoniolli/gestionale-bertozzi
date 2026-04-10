@@ -592,7 +592,6 @@ export class DettaglioCommessaComponent implements OnInit {
     this.editDataOreSpese = {
       id: oreSpese.id,
       commessaId: oreSpese.commessaId,
-      pianoSviluppoId: oreSpese.pianoSviluppoId,
       utenteId: oreSpese.utenteId,
       data: oreSpese.data ? oreSpese.data.toDate() : null,
       ore: oreSpese.ore,
@@ -655,12 +654,6 @@ export class DettaglioCommessaComponent implements OnInit {
     if (!personaleId) return '';
     const personale = this.personaleClienteList.find(p => p.id === personaleId);
     return personale ? `${personale.nome} ${personale.cognome}` : '';
-  }
-
-  getNomePianoSviluppo(pianoSviluppoId?: number): string {
-    if (!pianoSviluppoId) return '';
-    const piano = this.pianiSviluppo.find(p => p.id === pianoSviluppoId);
-    return piano?.descrizione || '';
   }
 
   calcolaNumeroAttivitaCompletate(): void {

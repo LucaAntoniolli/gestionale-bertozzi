@@ -201,7 +201,6 @@ export class OreESpeseComponent implements OnInit {
         this.editDataDialog = {
             id: item.id,
             commessaId: item.commessaId,
-            pianoSviluppoId: item.pianoSviluppoId,
             utenteId: item.utenteId,
             data: item.data ? item.data.toDate() : null,
             ore: item.ore,

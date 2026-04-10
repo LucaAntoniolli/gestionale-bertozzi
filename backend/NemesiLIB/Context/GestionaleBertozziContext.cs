@@ -193,7 +193,6 @@ namespace NemesiLIB.Context
                 e.Property(p => p.Descrizione).IsRequired().HasMaxLength(500);
                 e.Property(p => p.Ordine).IsRequired();
                 e.HasMany(p => p.Attivita).WithOne().HasForeignKey(a => a.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
-                e.HasMany(p => p.OreSpese).WithOne().HasForeignKey(o => o.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
             });
 
             //Attivita
@@ -232,7 +231,6 @@ namespace NemesiLIB.Context
                 e.HasKey(o => o.Id);
                 e.Property(o => o.Id).ValueGeneratedOnAdd();
                 e.Property(o => o.CommessaId).IsRequired();
-                e.Property(o => o.PianoSviluppoId).IsRequired();
                 e.Property(o => o.UtenteId).IsRequired();
                 e.Property(o => o.Data).IsRequired();
                 e.Property(o => o.Ore).HasColumnType("decimal(18,2)").IsRequired(false);
@@ -240,7 +238,6 @@ namespace NemesiLIB.Context
                 e.Property(o => o.Chilometri).HasColumnType("decimal(18,2)").IsRequired(false);
                 e.Property(o => o.Note).HasMaxLength(2000).IsRequired(false);
                 e.HasOne(o => o.Utente).WithMany().HasForeignKey(o => o.UtenteId).OnDelete(DeleteBehavior.NoAction);
-                e.HasOne(o => o.PianoSviluppo).WithMany(p => p.OreSpese).HasForeignKey(o => o.PianoSviluppoId).OnDelete(DeleteBehavior.Cascade);
                 e.HasOne<Commessa>().WithMany(c => c.OreSpese).HasForeignKey(o => o.CommessaId).OnDelete(DeleteBehavior.NoAction);
             });
 

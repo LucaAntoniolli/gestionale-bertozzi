@@ -9,8 +9,6 @@ namespace NemesiAPI.Model
         public int CommessaId { get; set; }
         public string? CommessaDescrizione { get; set; }
         public string? CommessaCodiceInterno { get; set; }
-        public int PianoSviluppoId { get; set; }
-        public string? PianoSviluppoDescrizione { get; set; }
         public string UtenteId { get; set; } = string.Empty;
         public string? UtenteNominativo { get; set; }
         public DateTime Data { get; set; }

@@ -29,7 +29,6 @@ namespace NemesiAPI.Controllers.GestioneCommesse
         [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "orespesecommessa.read")]
         public async Task<ActionResult<IEnumerable<OreSpeseCommessa>>> GetAll(
             [FromQuery] int? commessaId = null,
-            [FromQuery] int? pianoSviluppoId = null,
             [FromQuery] string? utenteId = null)
         {
             IQueryable<OreSpeseCommessa> q = dbContext.OreSpeseCommessa.AsNoTracking();
@@ -39,18 +38,12 @@ namespace NemesiAPI.Controllers.GestioneCommesse
                 q = q.Where(o => o.CommessaId == commessaId.Value);
             }
 
-            if (pianoSviluppoId.HasValue)
-            {
-                q = q.Where(o => o.PianoSviluppoId == pianoSviluppoId.Value);
-            }
-
             if (!string.IsNullOrEmpty(utenteId))
             {
                 q = q.Where(o => o.UtenteId == utenteId);
             }
 
             var list = await q
-                .Include(o => o.PianoSviluppo)
                 .Include(o => o.Utente)
                 .OrderByDescending(o => o.Data)
                 .ToListAsync();
@@ -70,7 +63,6 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             }
 
             var item = await q
-                .Include(o => o.PianoSviluppo)
                 .Include(o => o.Utente)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -91,18 +83,9 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (!await dbContext.Commessa.AnyAsync(c => c.Id == model.CommessaId))
                 return BadRequest("Commessa non trovata");
 
-            // Valida che il piano di sviluppo esista
-            if (!await dbContext.PianoSviluppo.AnyAsync(p => p.Id == model.PianoSviluppoId))
-                return BadRequest("Piano di sviluppo non trovato");
-
             // Valida che l'utente esista
             if (!await dbContext.Users.AnyAsync(u => u.Id == model.UtenteId))
                 return BadRequest("Utente non trovato");
-
-            // Valida che il piano di sviluppo appartenga alla commessa
-            var pianoSviluppo = await dbContext.PianoSviluppo.FirstOrDefaultAsync(p => p.Id == model.PianoSviluppoId);
-            if (pianoSviluppo != null && pianoSviluppo.CommessaId != model.CommessaId)
-                return BadRequest("Il piano di sviluppo non appartiene alla commessa specificata");
 
             // Valida che le ore totali per utente/giorno non superino 12
             if (model.Ore.HasValue && model.Ore.Value > 0)
@@ -139,18 +122,9 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (!await dbContext.Commessa.AnyAsync(c => c.Id == model.CommessaId))
                 return BadRequest("Commessa non trovata");
 
-            // Valida che il piano di sviluppo esista
-            if (!await dbContext.PianoSviluppo.AnyAsync(p => p.Id == model.PianoSviluppoId))
-                return BadRequest("Piano di sviluppo non trovato");
-
             // Valida che l'utente esista
             if (!await dbContext.Users.AnyAsync(u => u.Id == model.UtenteId))
                 return BadRequest("Utente non trovato");
-
-            // Valida che il piano di sviluppo appartenga alla commessa
-            var pianoSviluppo = await dbContext.PianoSviluppo.FirstOrDefaultAsync(p => p.Id == model.PianoSviluppoId);
-            if (pianoSviluppo != null && pianoSviluppo.CommessaId != model.CommessaId)
-                return BadRequest("Il piano di sviluppo non appartiene alla commessa specificata");
 
             // Valida che le ore totali per utente/giorno non superino 12 (escludendo la riga corrente)
             if (model.Ore.HasValue && model.Ore.Value > 0)
@@ -168,7 +142,6 @@ namespace NemesiAPI.Controllers.GestioneCommesse
 
             // Aggiorna i campi
             existing.CommessaId = model.CommessaId;
-            existing.PianoSviluppoId = model.PianoSviluppoId;
             existing.UtenteId = model.UtenteId;
             existing.Data = model.Data;
             existing.Ore = model.Ore;
@@ -230,7 +203,6 @@ namespace NemesiAPI.Controllers.GestioneCommesse
 
             var items = await baseQuery
                 .Include(o => o.Utente)
-                .Include(o => o.PianoSviluppo)
                 .OrderByDescending(o => o.Data)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -251,8 +223,6 @@ namespace NemesiAPI.Controllers.GestioneCommesse
                     CommessaId = o.CommessaId,
                     CommessaDescrizione = commessa?.Descrizione,
                     CommessaCodiceInterno = commessa?.CommessaCodiceInterno,
-                    PianoSviluppoId = o.PianoSviluppoId,
-                    PianoSviluppoDescrizione = o.PianoSviluppo?.Descrizione,
                     UtenteId = o.UtenteId,
                     UtenteNominativo = o.Utente?.Nominativo,
                     Data = o.Data,

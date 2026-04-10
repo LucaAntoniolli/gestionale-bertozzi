@@ -9,7 +9,6 @@ namespace NemesiLIB.Model.GestioneCommesse
     {
         public int Id { get; set; }
         public int CommessaId { get; set; }
-        public int PianoSviluppoId { get; set; }
         public string UtenteId { get; set; }
         public DateTime Data { get; set; }
         public decimal? Ore { get; set; }
@@ -22,6 +21,5 @@ namespace NemesiLIB.Model.GestioneCommesse
         public string? UtenteModifica { get; set; }
 
         public virtual Utente? Utente { get; set; }
-        public virtual PianoSviluppo? PianoSviluppo { get; set; }
     }
 }

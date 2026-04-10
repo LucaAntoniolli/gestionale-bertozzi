@@ -5,8 +5,6 @@ export class OreSpesePagedItemDto {
     commessaId!: number;
     commessaDescrizione?: string;
     commessaCodiceInterno?: string;
-    pianoSviluppoId!: number;
-    pianoSviluppoDescrizione?: string;
     utenteId!: string;
     utenteNominativo?: string;
     data!: moment.Moment;

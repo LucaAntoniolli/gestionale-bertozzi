@@ -80,7 +80,6 @@
                     <th style="width: 5rem">Azioni</th>
                     <th style="min-width: 10rem">Data</th>
                     <th style="min-width: 18rem">Commessa</th>
-                    <th style="min-width: 15rem">Piano di Sviluppo</th>
                     <th style="min-width: 12rem">Utente</th>
                     <th style="min-width: 8rem">Ore</th>
                     <th style="min-width: 8rem">Spese (€)</th>
@@ -105,7 +104,6 @@
                         </span>
                         <span *ngIf="!item.commessaCodiceInterno && !item.commessaDescrizione">-</span>
                     </td>
-                    <td>{{ item.pianoSviluppoDescrizione || '-' }}</td>
                     <td>{{ item.utenteNominativo || '-' }}</td>
                     <td>{{ item.ore !== null && item.ore !== undefined ? (item.ore | number: '1.0-2') : '-' }}</td>
                     <td>{{ item.spese !== null && item.spese !== undefined ? (item.spese | number: '1.2-2') : '-' }}
@@ -117,7 +115,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="9">Nessuna riga trovata.</td>
+                    <td colspan="8">Nessuna riga trovata.</td>
                 </tr>
             </ng-template>
         </p-table>

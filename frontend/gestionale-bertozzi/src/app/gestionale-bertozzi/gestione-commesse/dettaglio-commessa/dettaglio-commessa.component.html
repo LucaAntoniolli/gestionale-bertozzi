@@ -293,8 +293,6 @@
       <tr>
         <th style="width: 3rem">Azioni</th>
         <th pSortableColumn="data">Data <p-sortIcon field="data" /></th>
-        <th pSortableColumn="pianoSviluppo.descrizione">Piano di Sviluppo <p-sortIcon
-            field="pianoSviluppo.descrizione" /></th>
         <th pSortableColumn="utente.nominativo">Utente <p-sortIcon field="utente.nominativo" /></th>
         <th pSortableColumn="ore">Ore <p-sortIcon field="ore" /></th>
         <th pSortableColumn="spese">Spese (€) <p-sortIcon field="spese" /></th>
@@ -315,7 +313,6 @@
           </div>
         </td>
         <td>{{ oreSpese.data ? (oreSpese.data.toDate() | date: 'dd/MM/yyyy') : '-' }}</td>
-        <td>{{ oreSpese.pianoSviluppo?.descrizione || getNomePianoSviluppo(oreSpese.pianoSviluppoId) || '-' }}</td>
         <td>{{ oreSpese.utente?.nominativo || getNomeUtente(oreSpese.utenteId) || '-' }}</td>
         <td>{{ oreSpese.ore !== null && oreSpese.ore !== undefined ? (oreSpese.ore | number: '1.2-2') : '-'}}</td>
         <td>{{ oreSpese.spese !== null && oreSpese.spese !== undefined ? (oreSpese.spese | number: '1.2-2') : '-' }}

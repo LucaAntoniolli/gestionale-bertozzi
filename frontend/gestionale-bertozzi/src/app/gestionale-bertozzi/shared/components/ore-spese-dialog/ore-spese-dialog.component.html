@@ -9,8 +9,7 @@
             <div class="field" *ngIf="showCommessaSelector">
                 <label class="mb-2 font-semibold">Commessa *</label>
                 <p-select [options]="commesseList" optionValue="id" placeholder="Seleziona commessa"
-                    formControlName="commessaId" [showClear]="true" class="w-full" [filter]="true"
-                    (onChange)="onCommessaChange($event.value)">
+                    formControlName="commessaId" [showClear]="true" class="w-full" [filter]="true">
                     <ng-template pTemplate="item" let-commessa>
                         {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
                     </ng-template>
@@ -23,17 +22,7 @@
                 </small>
             </div>
 
-            <!-- Piano di Sviluppo -->
-            <div class="field">
-                <label class="mb-2 font-semibold">Piano di Sviluppo *</label>
-                <p-select [options]="pianiSviluppoList" optionLabel="descrizione" optionValue="id"
-                    placeholder="Seleziona piano di sviluppo" formControlName="pianoSviluppoId" [showClear]="true"
-                    class="w-full" [filter]="true" [loading]="loadingPiani"
-                    [disabled]="(!form.get('commessaId')?.value && !fixedCommessaId) || loadingPiani" />
-                <small class="p-error" *ngIf="form.get('pianoSviluppoId')?.invalid">
-                    Campo obbligatorio
-                </small>
-            </div>
+            <!-- Piano di Sviluppo rimosso -->
 
             <div class="grid">
                 <!-- Utente -->

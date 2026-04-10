@@ -13,16 +13,13 @@ import { first, map, Observable } from 'rxjs';
 import moment from 'moment';
 
 import { Commessa } from '../../../../models/GestioneCommesse/commessa';
-import { PianoSviluppo } from '../../../../models/GestioneCommesse/piano-sviluppo';
 import { Utente } from '../../../../models/utente';
 import { OreSpeseCommessa } from '../../../../models/GestioneCommesse/ore-spese-commessa.model';
 import { OreSpeseCommessaService } from '../../../../services/GestioneCommesse/ore-spese-commessa.service';
-import { PianoSviluppoService } from '../../../../services/GestioneCommesse/piano-sviluppo.service';
 
 export interface OreSpeseDialogEditData {
     id?: number;
     commessaId?: number;
-    pianoSviluppoId?: number;
     utenteId?: string;
     data?: Date | null;
     ore?: number | null;
@@ -70,8 +67,6 @@ export class OreSpeseDialogComponent implements OnChanges {
     @Output() salvataEContinua = new EventEmitter<void>();
 
     form?: FormGroup;
-    pianiSviluppoList: PianoSviluppo[] = [];
-    loadingPiani: boolean = false;
     isMobile$?: Observable<boolean>;
 
     get showCommessaSelector(): boolean {
@@ -80,7 +75,6 @@ export class OreSpeseDialogComponent implements OnChanges {
 
     constructor(
         private oreSpeseService: OreSpeseCommessaService,
-        private pianoService: PianoSviluppoService,
         private fb: FormBuilder,
         private ms: MessageService,
         private bo: BreakpointObserver,
@@ -98,8 +92,6 @@ export class OreSpeseDialogComponent implements OnChanges {
     }
 
     private initForm(): void {
-        this.pianiSviluppoList = [];
-
         const commessaId = this.fixedCommessaId ?? this.editData?.commessaId ?? null;
         const utenteId = (this.isUtenteBase && !this.isModifying)
             ? (this.utenteLoggatoId ?? null)
@@ -107,7 +99,6 @@ export class OreSpeseDialogComponent implements OnChanges {
 
         this.form = this.fb.group({
             commessaId: [commessaId, this.fixedCommessaId ? [] : [Validators.required]],
-            pianoSviluppoId: [this.editData?.pianoSviluppoId ?? null, [Validators.required]],
             utenteId: [utenteId, [Validators.required]],
             data: [this.editData?.data ?? null, [Validators.required]],
             ore: [this.editData?.ore ?? null, [Validators.required, Validators.min(0), Validators.max(12)]],
@@ -115,31 +106,6 @@ export class OreSpeseDialogComponent implements OnChanges {
             chilometri: [this.editData?.chilometri ?? null, [Validators.min(0)]],
             note: [this.editData?.note ?? ''],
         });
-
-        if (commessaId) {
-            this.loadPiani(commessaId);
-        }
-    }
-
-    private loadPiani(commessaId: number): void {
-        this.loadingPiani = true;
-        this.pianoService.getAll(commessaId).pipe(first()).subscribe({
-            next: (piani) => {
-                this.pianiSviluppoList = piani;
-                this.loadingPiani = false;
-                this.cdr.detectChanges();
-            },
-            error: () => {
-                this.loadingPiani = false;
-            },
-        });
-    }
-
-    onCommessaChange(commessaId: number | null): void {
-        this.form?.patchValue({ pianoSviluppoId: null });
-        this.pianiSviluppoList = [];
-        if (!commessaId) return;
-        this.loadPiani(commessaId);
     }
 
     chiudi(): void {
@@ -150,7 +116,6 @@ export class OreSpeseDialogComponent implements OnChanges {
         const v = this.form!.getRawValue();
         const o = new OreSpeseCommessa();
         o.commessaId = this.fixedCommessaId ?? v.commessaId;
-        o.pianoSviluppoId = v.pianoSviluppoId;
         o.utenteId = v.utenteId;
         o.data = v.data ? moment.utc(moment(v.data).format('YYYY-MM-DD')) : undefined;
         o.ore = v.ore ?? undefined;

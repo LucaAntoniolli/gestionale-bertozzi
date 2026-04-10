@@ -22,13 +22,10 @@ export class OreSpeseCommessaService {
    * @param utenteId - ID dell'utente per filtrare (opzionale)
    * @returns Observable array di ore/spese commessa
    */
-  getAll(commessaId?: number, pianoSviluppoId?: number, utenteId?: string): Observable<OreSpeseCommessa[]> {
+  getAll(commessaId?: number, utenteId?: string): Observable<OreSpeseCommessa[]> {
     let params = new HttpParams();
     if (commessaId) {
       params = params.set('commessaId', commessaId.toString());
-    }
-    if (pianoSviluppoId) {
-      params = params.set('pianoSviluppoId', pianoSviluppoId.toString());
     }
     if (utenteId) {
       params = params.set('utenteId', utenteId);
@@ -120,7 +117,6 @@ export class OreSpeseCommessaService {
 
     // Rimuovi le proprietà di navigazione prima dell'invio
     delete payload.utente;
-    delete payload.pianoSviluppo;
     delete payload.dataCreazione;
     delete payload.dataModifica;
     delete payload.utenteCreazione;
