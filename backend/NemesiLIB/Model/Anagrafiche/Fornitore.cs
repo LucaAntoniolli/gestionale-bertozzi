@@ -1,0 +1,34 @@
+﻿using NemesiCOMMONS.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NemesiLIB.Model.Anagrafiche
+{
+    public class Fornitore : IAuditable
+    {
+        public int Id { get; set; }
+        public string RagioneSociale { get; set; }
+        public string? PartitaIva { get; set; }
+        public string? CodiceFiscale { get; set; }
+        public string? Indirizzo { get; set; }
+        public string? Comune { get; set; }
+        public string? CAP { get; set; }
+        public string? Provincia { get; set; }
+        public string? Nazione { get; set; }
+        public string? Telefono { get; set; }
+        public string? Email { get; set; }
+        public int? ModalitaPagamentoId { get; set; }
+        public string? Sdi { get; set; }
+        public string Tipo { get; set; }
+        public string? Sigla { get; set; }
+        public DateTime DataCreazione { get; set; }
+        public DateTime? DataModifica { get; set; }
+        public string? UtenteCreazione { get; set; }
+        public string? UtenteModifica { get; set; }
+
+        public virtual ModalitaPagamento? ModalitaPagamento { get; set; }
+    }
+}

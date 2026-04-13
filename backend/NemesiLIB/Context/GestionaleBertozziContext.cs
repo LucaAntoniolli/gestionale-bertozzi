@@ -5,6 +5,7 @@ using NemesiLIB.Model;
 using NemesiLIB.Model.Anagrafiche;
 using NemesiLIB.Model.PianiSviluppo;
 using NemesiLIB.Model.GestioneCommesse;
+using NemesiLIB.Model.Amministrazione;
 using System.Reflection;
 using NemesiCOMMONS.Models;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +26,8 @@ namespace NemesiLIB.Context
         public virtual DbSet<PersonaleCliente> PersonaleCliente { get; set; }
         public virtual DbSet<StatusCommessa> StatusCommessa { get; set; }
         public virtual DbSet<TipologiaCommessa> TipologiaCommessa { get; set; }
+        public virtual DbSet<Fornitore> Fornitore { get; set; }
+        public virtual DbSet<ScopoLavoro> ScopoLavoro { get; set; }
         
         //PIANI DI SVILUPPO
         public virtual DbSet<TemplatePianoSviluppo> TemplatePianoSviluppo { get; set; }
@@ -36,6 +39,11 @@ namespace NemesiLIB.Context
         public virtual DbSet<Attivita> Attivita { get; set; }
         public virtual DbSet<ToDo> ToDo { get; set; }
         public virtual DbSet<OreSpeseCommessa> OreSpeseCommessa { get; set; }
+
+        //AMMINISTRAZIONE
+        public virtual DbSet<Collaudo> Collaudo { get; set; }
+        public virtual DbSet<CostoTrasferta> CostoTrasferta { get; set; }
+        public virtual DbSet<Onere> Onere { get; set; }
 
         private readonly IHttpContextAccessor httpContextAccessor;
 
@@ -239,6 +247,82 @@ namespace NemesiLIB.Context
                 e.Property(o => o.Note).HasMaxLength(2000).IsRequired(false);
                 e.HasOne(o => o.Utente).WithMany().HasForeignKey(o => o.UtenteId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne<Commessa>().WithMany(c => c.OreSpese).HasForeignKey(o => o.CommessaId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            //Fornitore
+            model.Entity<Fornitore>(e =>
+            {
+                e.HasKey(f => f.Id);
+                e.Property(f => f.Id).ValueGeneratedOnAdd();
+                e.Property(f => f.RagioneSociale).IsRequired().HasMaxLength(255);
+                e.Property(f => f.PartitaIva).HasMaxLength(20);
+                e.Property(f => f.CodiceFiscale).HasMaxLength(20);
+                e.Property(f => f.Indirizzo).HasMaxLength(255);
+                e.Property(f => f.Comune).HasMaxLength(100);
+                e.Property(f => f.CAP).HasMaxLength(10);
+                e.Property(f => f.Provincia).HasMaxLength(10);
+                e.Property(f => f.Nazione).HasMaxLength(100);
+                e.Property(f => f.Telefono).HasMaxLength(20);
+                e.Property(f => f.Email).HasMaxLength(100);
+                e.Property(f => f.Sdi).HasMaxLength(7);
+                e.Property(f => f.Tipo).IsRequired().HasMaxLength(50);
+                e.Property(f => f.Sigla).HasMaxLength(20);
+                e.HasOne(f => f.ModalitaPagamento).WithMany().HasForeignKey(f => f.ModalitaPagamentoId).IsRequired(false);
+            });
+
+            //ScopoLavoro
+            model.Entity<ScopoLavoro>(e =>
+            {
+                e.HasKey(sl => sl.Id);
+                e.Property(sl => sl.Id).ValueGeneratedOnAdd();
+                e.Property(sl => sl.Descrizione).IsRequired().HasMaxLength(255);
+            });
+
+            //Collaudo
+            model.Entity<Collaudo>(e =>
+            {
+                e.HasKey(c => c.Id);
+                e.Property(c => c.Id).ValueGeneratedOnAdd();
+                e.Property(c => c.FornitoreId).IsRequired();
+                e.Property(c => c.ScopoLavoroId).IsRequired();
+                e.Property(c => c.CommessaId).IsRequired();
+                e.Property(c => c.Contratto).HasMaxLength(255).IsRequired(false);
+                e.Property(c => c.Importo).HasColumnType("decimal(18,2)").IsRequired();
+                e.Property(c => c.Pagato).IsRequired().HasDefaultValue(false);
+                e.HasOne(c => c.Fornitore).WithMany().HasForeignKey(c => c.FornitoreId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(c => c.ScopoLavoro).WithMany().HasForeignKey(c => c.ScopoLavoroId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(c => c.Commessa).WithMany().HasForeignKey(c => c.CommessaId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            //CostoTrasferta
+            model.Entity<CostoTrasferta>(e =>
+            {
+                e.HasKey(ct => ct.Id);
+                e.Property(ct => ct.Id).ValueGeneratedOnAdd();
+                e.Property(ct => ct.ClienteId).IsRequired();
+                e.Property(ct => ct.CommessaId).IsRequired();
+                e.Property(ct => ct.UtenteId).IsRequired();
+                e.Property(ct => ct.LocalitaPartenza).HasMaxLength(255).IsRequired(false);
+                e.Property(ct => ct.LocalitaArrivo).HasMaxLength(255).IsRequired(false);
+                e.Property(ct => ct.Chilometri).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.Property(ct => ct.CostoChilometri).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.Property(ct => ct.CostoTelepass).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.Property(ct => ct.CostoHotel).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.Property(ct => ct.CostoTreno).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.HasOne(ct => ct.Utente).WithMany().HasForeignKey(ct => ct.UtenteId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(ct => ct.Commessa).WithMany().HasForeignKey(ct => ct.CommessaId).OnDelete(DeleteBehavior.NoAction);
+                e.HasOne(ct => ct.Cliente).WithMany().HasForeignKey(ct => ct.ClienteId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            //Onere
+            model.Entity<Onere>(e =>
+            {
+                e.HasKey(o => o.Id);
+                e.Property(o => o.Id).ValueGeneratedOnAdd();
+                e.Property(o => o.CommessaId).IsRequired();
+                e.Property(o => o.Pratica).IsRequired().HasMaxLength(500);
+                e.Property(o => o.ImportoOneri).HasColumnType("decimal(18,2)").IsRequired();
+                e.HasOne(o => o.Commessa).WithMany().HasForeignKey(o => o.CommessaId).OnDelete(DeleteBehavior.NoAction);
             });
 
             base.OnModelCreating(model);

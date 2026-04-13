@@ -9,6 +9,6 @@ namespace NemesiLIB.Model.Anagrafiche
     public class TipologiaCommessa
     {
         public int Id { get; set; }
-        public string Descrizione { get; set; }
+        public required string Descrizione { get; set; }
     }
 }

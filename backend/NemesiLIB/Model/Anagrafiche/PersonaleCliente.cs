@@ -11,8 +11,8 @@ namespace NemesiLIB.Model.Anagrafiche
     {
         public int Id { get; set; }
         public int ClienteId { get; set; }
-        public string Nome { get; set; }
-        public string Cognome { get; set; }
+        public required string Nome { get; set; }
+        public required string Cognome { get; set; }
         public string? Mansione { get; set; }
         public string? Email { get; set; }
         public string? Telefono { get; set; }
