@@ -1,0 +1,230 @@
+<div class="grid">
+  <div class="col-12">
+    <app-titolo-pagina [titoloPagina]="'Costi Trasferta'"></app-titolo-pagina>
+
+    <!-- FILTRI -->
+    <div class="mb-3">
+      <div class="grid">
+        <div class="col-12 md:col-2">
+          <div class="field">
+            <label class="mb-2 font-semibold">Cliente</label>
+            <p-select [options]="clientiList" optionLabel="ragioneSociale" optionValue="id"
+              placeholder="Tutti i clienti" [(ngModel)]="filtroClienteId" [showClear]="true" class="w-full"
+              [filter]="true" [disabled]="referenceDataLoading" (onChange)="onFiltroChange()" />
+          </div>
+        </div>
+        <div class="col-12 md:col-2">
+          <div class="field">
+            <label class="mb-2 font-semibold">Commessa</label>
+            <p-select [options]="commesseList" optionValue="id" placeholder="Tutte le commesse"
+              [(ngModel)]="filtroCommessaId" [showClear]="true" class="w-full" [filter]="true"
+              [disabled]="referenceDataLoading" (onChange)="onFiltroChange()">
+              <ng-template pTemplate="item" let-commessa>
+                {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+              </ng-template>
+              <ng-template pTemplate="selectedItem" let-commessa>
+                {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+              </ng-template>
+            </p-select>
+          </div>
+        </div>
+        <div class="col-12 md:col-2">
+          <div class="field">
+            <label class="mb-2 font-semibold">Utente</label>
+            <p-select [options]="utentiList" optionLabel="nominativo" optionValue="id" placeholder="Tutti gli utenti"
+              [(ngModel)]="filtroUtenteId" [showClear]="true" class="w-full" [filter]="true"
+              [disabled]="referenceDataLoading" (onChange)="onFiltroChange()" />
+          </div>
+        </div>
+        <div class="col-12 md:col-2">
+          <div class="field">
+            <label class="mb-2 font-semibold">Data Da (da)</label>
+            <p-datepicker [(ngModel)]="filtroDataDaFrom" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"
+              [showClear]="true" appendTo="body" (onSelect)="onFiltroChange()" (onClear)="onFiltroChange()" />
+          </div>
+        </div>
+        <div class="col-12 md:col-2">
+          <div class="field">
+            <label class="mb-2 font-semibold">Data Da (a)</label>
+            <p-datepicker [(ngModel)]="filtroDataDaTo" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"
+              [showClear]="true" appendTo="body" (onSelect)="onFiltroChange()" (onClear)="onFiltroChange()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="mb-3">
+      <p-toolbar>
+        <div class="p-toolbar-group-start">
+          <p-button label="Aggiungi costo trasferta" icon="pi pi-plus" (click)="apriDialogCrea()"
+            [disabled]="referenceDataLoading" />
+        </div>
+        <div class="p-toolbar-group-end">
+          @if(totalRecords > 0) {
+          <div class="flex gap-4 align-items-center text-sm">
+            <span><strong>Costo totale:</strong> {{ totaleCostoTotale | number: '1.2-2' }} €</span>
+          </div>
+          }
+        </div>
+      </p-toolbar>
+    </div>
+
+    <!-- TABELLA COSTI TRASFERTA (lazy) -->
+    <p-table #dt1 [value]="costiTrasfertaList" [lazy]="true" (onLazyLoad)="loadData($event)"
+      [totalRecords]="totalRecords" [paginator]="true" [rows]="20" [rowsPerPageOptions]="[10, 20, 50]"
+      [loading]="loading" [size]="'small'" styleClass="p-datatable-gridlines" [rowHover]="true" dataKey="id"
+      responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem">Azioni</th>
+          <th style="min-width: 12rem">Cliente</th>
+          <th style="min-width: 16rem">Commessa</th>
+          <th style="min-width: 10rem">Utente</th>
+          <th style="min-width: 10rem">Partenza</th>
+          <th style="min-width: 10rem">Arrivo</th>
+          <th style="min-width: 8rem">Data Da</th>
+          <th style="min-width: 8rem">Data A</th>
+          <th style="min-width: 6rem">Km</th>
+          <th style="min-width: 8rem">Costo Km (€)</th>
+          <th style="min-width: 8rem">Telepass (€)</th>
+          <th style="min-width: 8rem">Hotel (€)</th>
+          <th style="min-width: 8rem">Treno (€)</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>
+            <div class="flex gap-1">
+              <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
+                tooltipPosition="top" (click)="apriDialogModifica(item)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
+                tooltipPosition="top" (click)="elimina(item)"></button>
+            </div>
+          </td>
+          <td>{{ item.clienteRagioneSociale || '-' }}</td>
+          <td>
+            <span *ngIf="item.commessaCodiceInterno || item.commessaDescrizione">
+              {{ item.commessaCodiceInterno }} - {{ item.commessaDescrizione }}
+            </span>
+            <span *ngIf="!item.commessaCodiceInterno && !item.commessaDescrizione">-</span>
+          </td>
+          <td>{{ item.utenteNominativo || '-' }}</td>
+          <td>{{ item.localitaPartenza || '-' }}</td>
+          <td>{{ item.localitaArrivo || '-' }}</td>
+          <td>{{ item.dataDa ? item.dataDa.format('DD/MM/YYYY') : '-' }}</td>
+          <td>{{ item.dataA ? item.dataA.format('DD/MM/YYYY') : '-' }}</td>
+          <td>{{ item.chilometri !== null && item.chilometri !== undefined ? (item.chilometri | number: '1.0-2') : '-'
+            }}</td>
+          <td>{{ item.costoChilometri !== null && item.costoChilometri !== undefined ? (item.costoChilometri | number:
+            '1.2-2') : '-' }}</td>
+          <td>{{ item.costoTelepass !== null && item.costoTelepass !== undefined ? (item.costoTelepass | number:
+            '1.2-2') : '-' }}</td>
+          <td>{{ item.costoHotel !== null && item.costoHotel !== undefined ? (item.costoHotel | number: '1.2-2') : '-'
+            }}</td>
+          <td>{{ item.costoTreno !== null && item.costoTreno !== undefined ? (item.costoTreno | number: '1.2-2') : '-'
+            }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="13">Nessun costo trasferta trovato.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- DIALOG CREAZIONE / MODIFICA COSTO TRASFERTA -->
+<p-dialog [header]="isModifying ? 'Modifica costo trasferta' : 'Aggiungi costo trasferta'" [modal]="true"
+  [(visible)]="showDialog" [style]="{ width: (isMobile$ | async) ? '95vw' : '60vw' }" [closable]="true"
+  [draggable]="false" [resizable]="false">
+  <form [formGroup]="costoTrasfertaForm" *ngIf="costoTrasfertaForm">
+    <div class="grid">
+      <div class="col-12 md:col-4">
+        <label class="font-semibold block mb-2">Cliente *</label>
+        <p-select [options]="clientiList" optionLabel="ragioneSociale" optionValue="id" placeholder="Seleziona cliente"
+          formControlName="clienteId" styleClass="w-full" [filter]="true" />
+        <small class="p-error block mt-1"
+          *ngIf="costoTrasfertaForm.get('clienteId')?.invalid && costoTrasfertaForm.get('clienteId')?.touched">
+          Campo obbligatorio
+        </small>
+      </div>
+      <div class="col-12 md:col-4">
+        <label class="font-semibold block mb-2">Commessa *</label>
+        <p-select [options]="commesseList" optionValue="id" placeholder="Seleziona commessa"
+          formControlName="commessaId" styleClass="w-full" [filter]="true">
+          <ng-template pTemplate="item" let-commessa>
+            {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+          </ng-template>
+          <ng-template pTemplate="selectedItem" let-commessa>
+            {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+          </ng-template>
+        </p-select>
+        <small class="p-error block mt-1"
+          *ngIf="costoTrasfertaForm.get('commessaId')?.invalid && costoTrasfertaForm.get('commessaId')?.touched">
+          Campo obbligatorio
+        </small>
+      </div>
+      <div class="col-12 md:col-4">
+        <label class="font-semibold block mb-2">Utente *</label>
+        <p-select [options]="utentiList" optionLabel="nominativo" optionValue="id" placeholder="Seleziona utente"
+          formControlName="utenteId" styleClass="w-full" [filter]="true" />
+        <small class="p-error block mt-1"
+          *ngIf="costoTrasfertaForm.get('utenteId')?.invalid && costoTrasfertaForm.get('utenteId')?.touched">
+          Campo obbligatorio
+        </small>
+      </div>
+      <div class="col-12 md:col-6">
+        <label class="font-semibold block mb-2">Località Partenza</label>
+        <input type="text" pInputText formControlName="localitaPartenza" class="w-full" />
+      </div>
+      <div class="col-12 md:col-6">
+        <label class="font-semibold block mb-2">Località Arrivo</label>
+        <input type="text" pInputText formControlName="localitaArrivo" class="w-full" />
+      </div>
+      <div class="col-12 md:col-6">
+        <label class="font-semibold block mb-2">Data Da</label>
+        <p-datepicker formControlName="dataDa" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full" [showClear]="true"
+          appendTo="body" />
+      </div>
+      <div class="col-12 md:col-6">
+        <label class="font-semibold block mb-2">Data A</label>
+        <p-datepicker formControlName="dataA" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full" [showClear]="true"
+          appendTo="body" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label class="font-semibold block mb-2">Chilometri</label>
+        <p-inputnumber formControlName="chilometri" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="2"
+          class="w-full" styleClass="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label class="font-semibold block mb-2">Costo Km (€)</label>
+        <p-inputnumber formControlName="costoChilometri" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="4"
+          class="w-full" styleClass="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label class="font-semibold block mb-2">Telepass (€)</label>
+        <p-inputnumber formControlName="costoTelepass" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+          class="w-full" styleClass="w-full" />
+      </div>
+      <div class="col-12 md:col-6">
+        <label class="font-semibold block mb-2">Hotel (€)</label>
+        <p-inputnumber formControlName="costoHotel" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+          class="w-full" styleClass="w-full" />
+      </div>
+      <div class="col-12 md:col-6">
+        <label class="font-semibold block mb-2">Treno (€)</label>
+        <p-inputnumber formControlName="costoTreno" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+          class="w-full" styleClass="w-full" />
+      </div>
+    </div>
+    <div class="grid mt-4">
+      <div class="col-12 flex justify-content-end gap-2">
+        <p-button label="Annulla" severity="secondary" icon="pi pi-times" (click)="showDialog = false" />
+        <p-button [label]="isModifying ? 'Modifica' : 'Crea'" icon="pi pi-check" (click)="salva()"
+          [disabled]="!costoTrasfertaForm.valid" />
+      </div>
+    </div>
+  </form>
+</p-dialog>

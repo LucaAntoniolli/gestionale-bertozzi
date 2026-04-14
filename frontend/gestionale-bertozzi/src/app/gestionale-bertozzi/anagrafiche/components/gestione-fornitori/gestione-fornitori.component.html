@@ -1,0 +1,163 @@
+<div class="grid">
+  <div class="col-12">
+    <app-titolo-pagina [titoloPagina]="'Gestione Fornitori'"></app-titolo-pagina>
+
+    <div class="mb-5">
+      <p-toolbar>
+        <div class="p-toolbar-group-center"></div>
+        <div class="p-toolbar-group-end">
+          <p-button label="Crea nuovo fornitore" icon="pi pi-plus" (click)="mostraFormCreazione()" />
+        </div>
+      </p-toolbar>
+    </div>
+
+    <!-- TABLE FORNITORI -->
+    @if(fornitori && fornitori.length > 0) {
+    <p-table stripedRows [value]="fornitori" [loading]="loading" dataKey="id" [scrollable]="true" scrollHeight="600px"
+      [size]="'small'" styleClass="p-datatable-gridlines"
+      [globalFilterFields]="['ragioneSociale', 'sigla', 'partitaIva', 'codiceFiscale']" [rowHover]="true" #dt1>
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+          <div class="flex">
+            <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+              class="p-button-success mr-2" pTooltip="XLS" tooltipPosition="bottom"></button>
+          </div>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                placeholder="Cerca" />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th style="width: 8rem">Azioni</th>
+          <th pSortableColumn="ragioneSociale">Ragione Sociale <p-sortIcon field="ragioneSociale" /></th>
+          <th pSortableColumn="sigla">Sigla <p-sortIcon field="sigla" /></th>
+          <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo" /></th>
+          <th pSortableColumn="partitaIva">P.IVA <p-sortIcon field="partitaIva" /></th>
+          <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+          <th pSortableColumn="telefono">Telefono <p-sortIcon field="telefono" /></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-fornitore>
+        <tr>
+          <td>
+            <div class="flex gap-2">
+              <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica fornitore"
+                tooltipPosition="top" (click)="mostraFormModifica(fornitore)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina fornitore"
+                tooltipPosition="top" (click)="elimina($event, fornitore)"></button>
+            </div>
+          </td>
+          <td><strong>{{ fornitore.ragioneSociale }}</strong></td>
+          <td>{{ fornitore.sigla }}</td>
+          <td>{{ fornitore.tipo }}</td>
+          <td>{{ fornitore.partitaIva }}</td>
+          <td>{{ fornitore.email }}</td>
+          <td>{{ fornitore.telefono }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">Nessun fornitore presente.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else if(!loading) {
+    <p-message severity="info" text="Nessun fornitore presente. Clicca su 'Crea nuovo fornitore' per iniziare." />
+    }
+  </div>
+</div>
+
+<!-- DIALOG CREAZIONE / MODIFICA FORNITORE -->
+<p-dialog [header]="isModifying ? 'Modifica fornitore' : 'Dati nuovo fornitore'" [modal]="true" [(visible)]="showDialog"
+  [style]="{width: '50dvw', height: '60dvh'}" [closable]="true" [draggable]="false" [resizable]="false">
+  <span class="p-text-secondary block mb-5" *ngIf="!isModifying">Inserisci i dati per creare il nuovo
+    fornitore.</span>
+  <form [formGroup]="fornitoreForm" *ngIf="fornitoreForm">
+    <div class="grid">
+      <div class="col-12 md:col-4">
+        <label htmlFor="ragioneSociale" class="font-semibold block mb-2">Ragione Sociale *</label>
+        <input type="text" pInputText id="ragioneSociale" formControlName="ragioneSociale" class="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="fornitoreForm.get('ragioneSociale')?.invalid && fornitoreForm.get('ragioneSociale')?.touched">
+          Campo obbligatorio
+        </small>
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="sigla" class="font-semibold block mb-2">Sigla</label>
+        <input type="text" pInputText id="sigla" formControlName="sigla" class="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="modalitaPagamento" class="font-semibold block mb-2">Modalità di Pagamento</label>
+        <p-select [options]="modalitaPagamento" optionLabel="descrizione" optionValue="id"
+          placeholder="Seleziona modalità di pagamento" formControlName="modalitaPagamentoId" styleClass="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="partitaIva" class="font-semibold block mb-2">Partita IVA</label>
+        <input type="text" pInputText id="partitaIva" formControlName="partitaIva" class="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="fornitoreForm.get('partitaIva')?.invalid && fornitoreForm.get('partitaIva')?.touched">
+          Deve essere di 11 caratteri
+        </small>
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="codiceFiscale" class="font-semibold block mb-2">Codice Fiscale</label>
+        <input type="text" pInputText id="codiceFiscale" formControlName="codiceFiscale" class="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="tipo" class="font-semibold block mb-2">Tipo</label>
+        <p-select [options]="tipoFornitore" placeholder="Seleziona tipologia" formControlName="tipo"
+          styleClass="w-full" />
+      </div>
+      <div class="col-12 md:col-6">
+        <label htmlFor="indirizzo" class="font-semibold block mb-2">Indirizzo</label>
+        <input type="text" pInputText id="indirizzo" formControlName="indirizzo" class="w-full" />
+      </div>
+      <div class="col-12 md:col-6">
+        <label htmlFor="comune" class="font-semibold block mb-2">Comune</label>
+        <input type="text" pInputText id="comune" formControlName="comune" class="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="cap" class="font-semibold block mb-2">CAP</label>
+        <input type="text" pInputText id="cap" formControlName="cap" class="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="provincia" class="font-semibold block mb-2">Provincia</label>
+        <input type="text" pInputText id="provincia" formControlName="provincia" class="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="nazione" class="font-semibold block mb-2">Nazione</label>
+        <input type="text" pInputText id="nazione" formControlName="nazione" class="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="sdi" class="font-semibold block mb-2">SDI</label>
+        <input type="text" pInputText id="sdi" formControlName="sdi" class="w-full" />
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="email" class="font-semibold block mb-2">Email</label>
+        <input type="email" pInputText id="email" formControlName="email" class="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="fornitoreForm.get('email')?.invalid && fornitoreForm.get('email')?.touched">
+          Email non valida
+        </small>
+      </div>
+      <div class="col-12 md:col-4">
+        <label htmlFor="telefono" class="font-semibold block mb-2">Telefono</label>
+        <input type="text" pInputText id="telefono" formControlName="telefono" class="w-full" />
+      </div>
+    </div>
+    <div class="grid mt-4">
+      <div class="col-12 flex justify-content-end gap-2">
+        <p-button label="Annulla" severity="secondary" icon="pi pi-times" (click)="showDialog = false" />
+        <p-button [label]="isModifying ? 'Modifica Fornitore' : 'Crea Fornitore'" icon="pi pi-check" (click)="salva()"
+          [disabled]="!fornitoreForm.valid" />
+      </div>
+    </div>
+  </form>
+</p-dialog>

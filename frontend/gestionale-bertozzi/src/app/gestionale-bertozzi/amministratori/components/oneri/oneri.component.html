@@ -1,0 +1,132 @@
+<div class="grid">
+  <div class="col-12">
+    <app-titolo-pagina [titoloPagina]="'Oneri'"></app-titolo-pagina>
+
+    <!-- FILTRI -->
+    <div class="mb-3">
+      <div class="grid">
+        <div class="col-12 md:col-4">
+          <div class="field">
+            <label class="mb-2 font-semibold">Commessa</label>
+            <p-select [options]="commesseList" optionValue="id" placeholder="Tutte le commesse"
+              [(ngModel)]="filtroCommessaId" [showClear]="true" class="w-full" [filter]="true"
+              [disabled]="referenceDataLoading" (onChange)="onFiltroChange()">
+              <ng-template pTemplate="item" let-commessa>
+                {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+              </ng-template>
+              <ng-template pTemplate="selectedItem" let-commessa>
+                {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+              </ng-template>
+            </p-select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="mb-3">
+      <p-toolbar>
+        <div class="p-toolbar-group-start">
+          <p-button label="Aggiungi onere" icon="pi pi-plus" (click)="apriDialogCrea()"
+            [disabled]="referenceDataLoading" />
+        </div>
+        <div class="p-toolbar-group-end">
+          @if(totalRecords > 0) {
+          <div class="flex gap-4 align-items-center text-sm">
+            <span><strong>Importo totale oneri:</strong> {{ totaleImportoOneri | number: '1.2-2' }} €</span>
+          </div>
+          }
+        </div>
+      </p-toolbar>
+    </div>
+
+    <!-- TABELLA ONERI (lazy) -->
+    <p-table #dt1 [value]="oneriList" [lazy]="true" (onLazyLoad)="loadData($event)" [totalRecords]="totalRecords"
+      [paginator]="true" [rows]="20" [rowsPerPageOptions]="[10, 20, 50]" [loading]="loading" [size]="'small'"
+      styleClass="p-datatable-gridlines" [rowHover]="true" dataKey="id" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem">Azioni</th>
+          <th style="min-width: 20rem">Commessa</th>
+          <th style="min-width: 14rem">Pratica</th>
+          <th style="min-width: 10rem">Importo Oneri (€)</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>
+            <div class="flex gap-1">
+              <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
+                tooltipPosition="top" (click)="apriDialogModifica(item)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
+                tooltipPosition="top" (click)="elimina(item)"></button>
+            </div>
+          </td>
+          <td>
+            <span *ngIf="item.commessaCodiceInterno || item.commessaDescrizione">
+              {{ item.commessaCodiceInterno }} - {{ item.commessaDescrizione }}
+            </span>
+            <span *ngIf="!item.commessaCodiceInterno && !item.commessaDescrizione">-</span>
+          </td>
+          <td>{{ item.pratica || '-' }}</td>
+          <td>{{ item.importoOneri !== null && item.importoOneri !== undefined ? (item.importoOneri | number: '1.2-2') :
+            '-' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4">Nessun onere trovato.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- DIALOG CREAZIONE / MODIFICA ONERE -->
+<p-dialog [header]="isModifying ? 'Modifica onere' : 'Aggiungi onere'" [modal]="true" [(visible)]="showDialog"
+  [style]="{ width: (isMobile$ | async) ? '95vw' : '40vw' }" [closable]="true" [draggable]="false" [resizable]="false">
+  <form [formGroup]="onereForm" *ngIf="onereForm">
+    <div class="grid">
+      <div class="col-12">
+        <label class="font-semibold block mb-2">Commessa *</label>
+        <p-select [options]="commesseList" optionValue="id" placeholder="Seleziona commessa"
+          formControlName="commessaId" styleClass="w-full" [filter]="true">
+          <ng-template pTemplate="item" let-commessa>
+            {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+          </ng-template>
+          <ng-template pTemplate="selectedItem" let-commessa>
+            {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+          </ng-template>
+        </p-select>
+        <small class="p-error block mt-1"
+          *ngIf="onereForm.get('commessaId')?.invalid && onereForm.get('commessaId')?.touched">
+          Campo obbligatorio
+        </small>
+      </div>
+      <div class="col-12">
+        <label class="font-semibold block mb-2">Pratica *</label>
+        <input type="text" pInputText formControlName="pratica" class="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="onereForm.get('pratica')?.invalid && onereForm.get('pratica')?.touched">
+          Campo obbligatorio
+        </small>
+      </div>
+      <div class="col-12">
+        <label class="font-semibold block mb-2">Importo Oneri (€) *</label>
+        <p-inputnumber formControlName="importoOneri" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+          class="w-full" styleClass="w-full" />
+        <small class="p-error block mt-1"
+          *ngIf="onereForm.get('importoOneri')?.invalid && onereForm.get('importoOneri')?.touched">
+          Campo obbligatorio
+        </small>
+      </div>
+    </div>
+    <div class="grid mt-4">
+      <div class="col-12 flex justify-content-end gap-2">
+        <p-button label="Annulla" severity="secondary" icon="pi pi-times" (click)="showDialog = false" />
+        <p-button [label]="isModifying ? 'Modifica Onere' : 'Crea Onere'" icon="pi pi-check" (click)="salva()"
+          [disabled]="!onereForm.valid" />
+      </div>
+    </div>
+  </form>
+</p-dialog>

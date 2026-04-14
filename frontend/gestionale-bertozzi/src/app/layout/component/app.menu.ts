@@ -51,6 +51,7 @@ export class AppMenu {
                                 { label: 'Status commessa', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/status-commessa'] },
                                 { label: 'Modalità pagamento', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/modalita-pagamento'] },
                                 { label: 'Clienti', icon: 'pi pi-fw pi-users', routerLink: ['/anagrafiche/gestione-clienti'] },
+                                { label: 'Fornitori', icon: 'pi pi-fw pi-users', routerLink: ['/anagrafiche/gestione-fornitori'] },
                             ]
                         }
                     ]
@@ -62,6 +63,15 @@ export class AppMenu {
                             { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
                             { label: 'Planning', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
                             { label: 'Ore e Spese', icon: 'pi pi-fw pi-stopwatch', routerLink: ['/gestione-commesse/ore-e-spese'] },
+
+                    ]
+                },
+                {
+                    label: 'FUNZIONI PER AMMINISTRATORI',
+                    items: [
+                        { label: 'Costi trasferta', icon: 'pi pi-fw pi-euro', routerLink: ['/amministratori/costi-trasferta'] },
+                        { label: 'Collaudi', icon: 'pi pi-fw pi-file', routerLink: ['/amministratori/collaudi'] },
+                        { label: 'Oneri', icon: 'pi pi-fw pi-credit-card', routerLink: ['/amministratori/oneri'] },
 
                     ]
                 },
