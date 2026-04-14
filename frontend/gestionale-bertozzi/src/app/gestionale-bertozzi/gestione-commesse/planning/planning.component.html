@@ -179,7 +179,7 @@
             <!-- Riga 1: Commessa -->
             <div class="field">
                 <label htmlFor="commessaId" class="mb-2 font-semibold">Commessa</label>
-                <p-select id="commessaId" [options]="commesseList" optionLabel="descrizione" optionValue="id"
+                <p-select id="commessaId" [options]="commesseList" optionLabel="commessaCodiceInterno" optionValue="id"
                     placeholder="Seleziona commessa" formControlName="commessaId" [showClear]="true" class="w-full"
                     [filter]="true" />
                 <small id="commessaId-error" class="p-error" *ngIf="nuovoTodoForm.get('commessaId')?.invalid">
