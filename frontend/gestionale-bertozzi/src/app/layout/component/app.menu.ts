@@ -50,6 +50,7 @@ export class AppMenu {
                                 { label: 'Tipologie commessa', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/tipologie-commessa'] },
                                 { label: 'Status commessa', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/status-commessa'] },
                                 { label: 'Modalità pagamento', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/modalita-pagamento'] },
+                                { label: 'Scopi lavoro', icon: 'pi pi-fw pi-list', routerLink: ['/anagrafiche/scopi-lavoro'] },
                                 { label: 'Clienti', icon: 'pi pi-fw pi-users', routerLink: ['/anagrafiche/gestione-clienti'] },
                                 { label: 'Fornitori', icon: 'pi pi-fw pi-users', routerLink: ['/anagrafiche/gestione-fornitori'] },
                             ]

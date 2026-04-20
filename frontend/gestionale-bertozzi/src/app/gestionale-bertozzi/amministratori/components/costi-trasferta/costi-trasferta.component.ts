@@ -60,6 +60,8 @@ export class CostiTrasfertaComponent implements OnInit {
     // Dati di riferimento
     clientiList: Cliente[] = [];
     commesseList: CommessaLight[] = [];
+    commesseDialogList: CommessaLight[] = [];
+    commesseDialogLoading: boolean = false;
     utentiList: Utente[] = [];
 
     // Filtri
@@ -112,10 +114,10 @@ export class CostiTrasfertaComponent implements OnInit {
             next: (data) => {
                 this.clientiList = data.clienti;
                 this.commesseList = data.commesse;
-                this.utentiList = data.utenti;
+                this.utentiList = data.utenti.filter(u => u.ruoli?.includes('Amministratore') &&  u.costoKmAuto != null && u.costoKmAuto > 0);
                 this.referenceDataLoading = false;
                 this.loadData();
-                this.cdr.detectChanges();
+                this.cdr.markForCheck();
             },
             error: () => {
                 this.referenceDataLoading = false;
@@ -148,7 +150,7 @@ export class CostiTrasfertaComponent implements OnInit {
                 this.totalRecords = response.totalCount;
                 this.totaleCostoTotale = response.totaleCostoTotale;
                 this.loading = false;
-                this.cdr.detectChanges();
+                this.cdr.markForCheck();
             },
             error: () => {
                 this.loading = false;
@@ -169,6 +171,7 @@ export class CostiTrasfertaComponent implements OnInit {
     apriDialogCrea() {
         this.isModifying = false;
         this.selectedCostoTrasferta = undefined;
+        this.commesseDialogList = [];
         this.costoTrasfertaForm = this.fb.group({
             clienteId: [null, Validators.required],
             commessaId: [null, Validators.required],
@@ -183,12 +186,14 @@ export class CostiTrasfertaComponent implements OnInit {
             dataDa: [null],
             dataA: [null],
         });
+        this.subscribeCalcoloKm();
         this.showDialog = true;
     }
 
     apriDialogModifica(item: CostoTrasfertaPagedItemDto) {
         this.isModifying = true;
         this.selectedCostoTrasferta = item;
+        this.commesseDialogList = [];
         this.costoTrasfertaForm = this.fb.group({
             clienteId: [item.clienteId, Validators.required],
             commessaId: [item.commessaId, Validators.required],
@@ -203,7 +208,60 @@ export class CostiTrasfertaComponent implements OnInit {
             dataDa: [item.dataDa ? item.dataDa.toDate() : null],
             dataA: [item.dataA ? item.dataA.toDate() : null],
         });
+        this.subscribeCalcoloKm();
+        if (item.clienteId) {
+            this.commesseDialogLoading = true;
+            this.commessaService.getAll(item.clienteId).pipe(first()).subscribe({
+                next: (commesse) => {
+                    this.commesseDialogList = commesse;
+                    this.commesseDialogLoading = false;
+                    this.cdr.markForCheck();
+                },
+                error: () => {
+                    this.commesseDialogLoading = false;
+                    this.commesseDialogList = [];
+                }
+            });
+        }
         this.showDialog = true;
+    }
+
+    private ricalcolaCostoKm() {
+        const chilometri = this.costoTrasfertaForm?.get('chilometri')?.value;
+        const utenteId = this.costoTrasfertaForm?.get('utenteId')?.value;
+        if (chilometri != null && utenteId) {
+            const utente = this.utentiList.find(u => u.id === utenteId);
+            if (utente?.costoKmAuto != null) {
+                const costo = Math.round(chilometri * utente.costoKmAuto * 10000) / 10000;
+                this.costoTrasfertaForm?.get('costoChilometri')?.setValue(costo, { emitEvent: false });
+            }
+        }
+    }
+
+    private subscribeCalcoloKm() {
+        this.costoTrasfertaForm?.get('chilometri')?.valueChanges.subscribe(() => this.ricalcolaCostoKm());
+        this.costoTrasfertaForm?.get('utenteId')?.valueChanges.subscribe(() => this.ricalcolaCostoKm());
+    }
+
+    onDialogClienteChange(event: any) {
+        this.costoTrasfertaForm?.get('commessaId')?.setValue(null);
+        const clienteId = event.value;
+        if (clienteId) {
+            this.commesseDialogLoading = true;
+            this.commessaService.getAll(clienteId).pipe(first()).subscribe({
+                next: (commesse) => {
+                    this.commesseDialogList = commesse;
+                    this.commesseDialogLoading = false;
+                    this.cdr.markForCheck();
+                },
+                error: () => {
+                    this.commesseDialogLoading = false;
+                    this.commesseDialogList = [];
+                }
+            });
+        } else {
+            this.commesseDialogList = [];
+        }
     }
 
     salva() {

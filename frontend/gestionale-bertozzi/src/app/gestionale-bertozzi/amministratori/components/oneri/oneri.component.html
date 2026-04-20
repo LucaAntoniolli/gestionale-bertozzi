@@ -87,6 +87,14 @@
   [style]="{ width: (isMobile$ | async) ? '95vw' : '40vw' }" [closable]="true" [draggable]="false" [resizable]="false">
   <form [formGroup]="onereForm" *ngIf="onereForm">
     <div class="grid">
+      <div class="col-4">
+        <label class="font-semibold block mb-2">Data</label>
+        <p-datepicker formControlName="data" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full" [showClear]="true"
+          appendTo="body" />
+        <small class="p-error block mt-1" *ngIf="onereForm.get('data')?.invalid">
+          Campo obbligatorio
+        </small>
+      </div>
       <div class="col-12">
         <label class="font-semibold block mb-2">Commessa *</label>
         <p-select [options]="commesseList" optionValue="id" placeholder="Seleziona commessa"
@@ -98,16 +106,14 @@
             {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
           </ng-template>
         </p-select>
-        <small class="p-error block mt-1"
-          *ngIf="onereForm.get('commessaId')?.invalid && onereForm.get('commessaId')?.touched">
+        <small class="p-error block mt-1" *ngIf="onereForm.get('commessaId')?.invalid">
           Campo obbligatorio
         </small>
       </div>
       <div class="col-12">
         <label class="font-semibold block mb-2">Pratica *</label>
         <input type="text" pInputText formControlName="pratica" class="w-full" />
-        <small class="p-error block mt-1"
-          *ngIf="onereForm.get('pratica')?.invalid && onereForm.get('pratica')?.touched">
+        <small class="p-error block mt-1" *ngIf="onereForm.get('pratica')?.invalid">
           Campo obbligatorio
         </small>
       </div>
@@ -115,8 +121,7 @@
         <label class="font-semibold block mb-2">Importo Oneri (€) *</label>
         <p-inputnumber formControlName="importoOneri" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
           class="w-full" styleClass="w-full" />
-        <small class="p-error block mt-1"
-          *ngIf="onereForm.get('importoOneri')?.invalid && onereForm.get('importoOneri')?.touched">
+        <small class="p-error block mt-1" *ngIf="onereForm.get('importoOneri')?.invalid">
           Campo obbligatorio
         </small>
       </div>

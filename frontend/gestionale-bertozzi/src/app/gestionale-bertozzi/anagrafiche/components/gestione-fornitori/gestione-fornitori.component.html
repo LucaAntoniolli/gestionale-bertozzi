@@ -84,8 +84,7 @@
       <div class="col-12 md:col-4">
         <label htmlFor="ragioneSociale" class="font-semibold block mb-2">Ragione Sociale *</label>
         <input type="text" pInputText id="ragioneSociale" formControlName="ragioneSociale" class="w-full" />
-        <small class="p-error block mt-1"
-          *ngIf="fornitoreForm.get('ragioneSociale')?.invalid && fornitoreForm.get('ragioneSociale')?.touched">
+        <small class="p-error block mt-1" *ngIf="fornitoreForm.get('ragioneSociale')?.invalid">
           Campo obbligatorio
         </small>
       </div>
@@ -101,9 +100,8 @@
       <div class="col-12 md:col-4">
         <label htmlFor="partitaIva" class="font-semibold block mb-2">Partita IVA</label>
         <input type="text" pInputText id="partitaIva" formControlName="partitaIva" class="w-full" />
-        <small class="p-error block mt-1"
-          *ngIf="fornitoreForm.get('partitaIva')?.invalid && fornitoreForm.get('partitaIva')?.touched">
-          Deve essere di 11 caratteri
+        <small class="p-error block mt-1" *ngIf="fornitoreForm.get('partitaIva')?.invalid">
+          Campo obbligatorio
         </small>
       </div>
       <div class="col-12 md:col-4">
@@ -114,6 +112,9 @@
         <label htmlFor="tipo" class="font-semibold block mb-2">Tipo</label>
         <p-select [options]="tipoFornitore" placeholder="Seleziona tipologia" formControlName="tipo"
           styleClass="w-full" />
+        <small class="p-error block mt-1" *ngIf="fornitoreForm.get('tipo')?.invalid">
+          Campo obbligatorio
+        </small>
       </div>
       <div class="col-12 md:col-6">
         <label htmlFor="indirizzo" class="font-semibold block mb-2">Indirizzo</label>

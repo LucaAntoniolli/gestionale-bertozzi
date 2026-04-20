@@ -81,7 +81,7 @@ namespace NemesiAPI.Controllers
             }
 
             var users = await q 
-                .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo, u.IsEsterno, u.Societa, u.CostoOrario, u.RuoloAziendale })
+                .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo, u.IsEsterno, u.Societa, u.CostoOrario, u.CostoKmAuto, u.RuoloAziendale })
                 .ToListAsync();
 
 
@@ -100,6 +100,7 @@ namespace NemesiAPI.Controllers
                 IsEsterno = u.IsEsterno,
                 Societa = u.Societa,
                 CostoOrario = u.CostoOrario,
+                CostoKmAuto = u.CostoKmAuto,
                 RuoloAziendale = u.RuoloAziendale,
                 Ruoli = userRolePairs.Where(ur => ur.UserId == u.Id).Select(ur => ur.RoleName ?? string.Empty).ToList()
             });
@@ -133,6 +134,7 @@ namespace NemesiAPI.Controllers
                 IsEsterno = user.IsEsterno,
                 Societa = user.Societa,
                 CostoOrario = user.CostoOrario,
+                CostoKmAuto = user.CostoKmAuto,
                 RuoloAziendale = user.RuoloAziendale,
                 Ruoli = roles.ToList()
             };
@@ -184,7 +186,7 @@ namespace NemesiAPI.Controllers
                 return BadRequest("L'email è già stata utilizzata");
             }
 
-            var user = new Utente(model.Email, model.Nominativo, model.IsEsterno, model.Societa, model.CostoOrario, model.RuoloAziendale);
+            var user = new Utente(model.Email, model.Nominativo, model.IsEsterno, model.Societa, model.CostoOrario, model.CostoKmAuto, model.RuoloAziendale);
             var result = await userManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded)
@@ -220,6 +222,7 @@ namespace NemesiAPI.Controllers
             utente.IsEsterno = model.IsEsterno;
             utente.Societa = model.Societa;
             utente.CostoOrario = model.CostoOrario;
+            utente.CostoKmAuto = model.CostoKmAuto;
             utente.RuoloAziendale = model.RuoloAziendale;
 
             var result = await userManager.UpdateAsync(utente);

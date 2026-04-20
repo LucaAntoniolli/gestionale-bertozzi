@@ -83,6 +83,12 @@
                             <p-sortIcon field="costoOrario" />
                         </div>
                     </th>
+                    <th style="min-width: 10rem" pSortableColumn="costoKmAuto">
+                        <div class="flex justify-content-between align-items-center">
+                            Costo Km Auto
+                            <p-sortIcon field="costoKmAuto" />
+                        </div>
+                    </th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-utente>
@@ -120,7 +126,12 @@
                         <span class="image-text">{{ utente.societa || '-' }}</span>
                     </td>
                     <td>
-                        <span class="image-text">{{ utente.costoOrario ? utente.costoOrario + ' €' : '-' }}</span>
+                        <span class="image-text">{{ utente.costoOrario != null ? (utente.costoOrario |
+                            number:'1.2-4':'it') + ' €' : '-' }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ utente.costoKmAuto != null ? (utente.costoKmAuto |
+                            number:'1.2-4':'it') + ' €' : '-' }}</span>
                     </td>
                 </tr>
             </ng-template>
@@ -217,6 +228,13 @@
                         currency="EUR" locale="it-IT" [minFractionDigits]="2" />
                 </div>
             </div>
+            <div class="field grid">
+                <label htmlFor="costoKmAuto" class="col-12 mb-2 font-semibold w-full">Costo Km Auto (€)</label>
+                <div class="col-12">
+                    <p-inputNumber id="costoKmAuto" class="w-full" formControlName="costoKmAuto" mode="currency"
+                        currency="EUR" locale="it-IT" [minFractionDigits]="2" />
+                </div>
+            </div>
         </div>
         <div class="field grid mt-5">
             <div class="col-12 flex justify-content-end gap-2">
@@ -280,6 +298,13 @@
                 <label htmlFor="costoOrarioModifica" class="col-12 mb-2 font-semibold w-full">Costo Orario (€)</label>
                 <div class="col-12">
                     <p-inputNumber id="costoOrarioModifica" class="w-full" formControlName="costoOrario" mode="currency"
+                        currency="EUR" locale="it-IT" [minFractionDigits]="2" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="costoKmAutoModifica" class="col-12 mb-2 font-semibold w-full">Costo Km Auto (€)</label>
+                <div class="col-12">
+                    <p-inputNumber id="costoKmAutoModifica" class="w-full" formControlName="costoKmAuto" mode="currency"
                         currency="EUR" locale="it-IT" [minFractionDigits]="2" />
                 </div>
             </div>

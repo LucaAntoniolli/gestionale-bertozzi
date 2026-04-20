@@ -83,6 +83,7 @@ namespace NemesiAPI.Controllers.Amministrazione
             if (!await dbContext.Commessa.AnyAsync(c => c.Id == model.CommessaId))
                 return BadRequest("Commessa non trovata");
 
+            existing.Data = model.Data;
             existing.CommessaId = model.CommessaId;
             existing.Pratica = model.Pratica;
             existing.ImportoOneri = model.ImportoOneri;

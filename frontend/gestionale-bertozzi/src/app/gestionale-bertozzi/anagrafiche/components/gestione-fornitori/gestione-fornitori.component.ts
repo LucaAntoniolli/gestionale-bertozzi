@@ -115,7 +115,7 @@ export class GestioneFornitoriComponent implements OnInit {
             ragioneSociale: ['', [Validators.required, Validators.minLength(2)]],
             sigla: [''],
             modalitaPagamentoId: [null],
-            partitaIva: ['', [Validators.minLength(11), Validators.maxLength(11)]],
+            partitaIva: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
             codiceFiscale: [''],
             indirizzo: [''],
             comune: [''],
@@ -125,7 +125,7 @@ export class GestioneFornitoriComponent implements OnInit {
             telefono: [''],
             email: ['', [Validators.email]],
             sdi: [''],
-            tipo: [''],
+            tipo: ['', [Validators.required]],
         });
         this.showDialog = true;
     }
@@ -137,7 +137,7 @@ export class GestioneFornitoriComponent implements OnInit {
             ragioneSociale: [fornitore.ragioneSociale, [Validators.required, Validators.minLength(2)]],
             sigla: [fornitore.sigla],
             modalitaPagamentoId: [fornitore.modalitaPagamentoId],
-            partitaIva: [fornitore.partitaIva, [Validators.minLength(11), Validators.maxLength(11)]],
+            partitaIva: [fornitore.partitaIva, [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
             codiceFiscale: [fornitore.codiceFiscale],
             indirizzo: [fornitore.indirizzo],
             comune: [fornitore.comune],
@@ -147,7 +147,7 @@ export class GestioneFornitoriComponent implements OnInit {
             telefono: [fornitore.telefono],
             email: [fornitore.email, [Validators.email]],
             sdi: [fornitore.sdi],
-            tipo: [fornitore.tipo],
+            tipo: [fornitore.tipo, [Validators.required]],
         });
         this.showDialog = true;
     }

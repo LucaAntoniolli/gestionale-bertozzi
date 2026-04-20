@@ -20,6 +20,7 @@ import { OnerePagedItemDto } from '../../../../models/Amministrazione/onere-page
 import { OnereService } from '../../../../services/Amministrazione/onere.service';
 import { CommessaLight } from '../../../../models/GestioneCommesse/commessa-light';
 import { CommessaService } from '../../../../services/GestioneCommesse/commessa.service';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
     selector: 'app-oneri',
@@ -30,6 +31,7 @@ import { CommessaService } from '../../../../services/GestioneCommesse/commessa.
         ButtonModule,
         CommonModule,
         DialogModule,
+        DatePickerModule,
         FormsModule,
         InputNumberModule,
         InputText,
@@ -146,6 +148,7 @@ export class OneriComponent implements OnInit {
         this.selectedOnere = undefined;
         this.onereForm = this.fb.group({
             commessaId: [null, Validators.required],
+            data: [null, Validators.required],
             pratica: ['', Validators.required],
             importoOneri: [null, Validators.required],
         });
@@ -157,6 +160,7 @@ export class OneriComponent implements OnInit {
         this.selectedOnere = item;
         this.onereForm = this.fb.group({
             commessaId: [item.commessaId, Validators.required],
+            data: [item.data ? new Date(item.data.toDate()) : null, Validators.required],
             pratica: [item.pratica, Validators.required],
             importoOneri: [item.importoOneri, Validators.required],
         });

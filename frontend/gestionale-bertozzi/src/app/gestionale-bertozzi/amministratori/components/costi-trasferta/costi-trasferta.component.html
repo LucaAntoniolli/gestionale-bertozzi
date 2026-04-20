@@ -144,16 +144,16 @@
       <div class="col-12 md:col-4">
         <label class="font-semibold block mb-2">Cliente *</label>
         <p-select [options]="clientiList" optionLabel="ragioneSociale" optionValue="id" placeholder="Seleziona cliente"
-          formControlName="clienteId" styleClass="w-full" [filter]="true" />
-        <small class="p-error block mt-1"
-          *ngIf="costoTrasfertaForm.get('clienteId')?.invalid && costoTrasfertaForm.get('clienteId')?.touched">
+          formControlName="clienteId" styleClass="w-full" [filter]="true" (onChange)="onDialogClienteChange($event)" />
+        <small class="p-error block mt-1" *ngIf="costoTrasfertaForm.get('clienteId')?.invalid">
           Campo obbligatorio
         </small>
       </div>
       <div class="col-12 md:col-4">
         <label class="font-semibold block mb-2">Commessa *</label>
-        <p-select [options]="commesseList" optionValue="id" placeholder="Seleziona commessa"
-          formControlName="commessaId" styleClass="w-full" [filter]="true">
+        <p-select [options]="commesseDialogList" optionValue="id" placeholder="Seleziona commessa"
+          formControlName="commessaId" styleClass="w-full" [filter]="true"
+          [disabled]="!costoTrasfertaForm.get('clienteId')?.value || commesseDialogLoading">
           <ng-template pTemplate="item" let-commessa>
             {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
           </ng-template>
@@ -161,8 +161,7 @@
             {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
           </ng-template>
         </p-select>
-        <small class="p-error block mt-1"
-          *ngIf="costoTrasfertaForm.get('commessaId')?.invalid && costoTrasfertaForm.get('commessaId')?.touched">
+        <small class="p-error block mt-1" *ngIf="costoTrasfertaForm.get('commessaId')?.invalid">
           Campo obbligatorio
         </small>
       </div>
@@ -170,8 +169,7 @@
         <label class="font-semibold block mb-2">Utente *</label>
         <p-select [options]="utentiList" optionLabel="nominativo" optionValue="id" placeholder="Seleziona utente"
           formControlName="utenteId" styleClass="w-full" [filter]="true" />
-        <small class="p-error block mt-1"
-          *ngIf="costoTrasfertaForm.get('utenteId')?.invalid && costoTrasfertaForm.get('utenteId')?.touched">
+        <small class="p-error block mt-1" *ngIf="costoTrasfertaForm.get('utenteId')?.invalid">
           Campo obbligatorio
         </small>
       </div>
@@ -201,7 +199,7 @@
       <div class="col-12 md:col-4">
         <label class="font-semibold block mb-2">Costo Km (€)</label>
         <p-inputnumber formControlName="costoChilometri" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="4"
-          class="w-full" styleClass="w-full" />
+          class="w-full" styleClass="w-full" [readonly]="true" />
       </div>
       <div class="col-12 md:col-4">
         <label class="font-semibold block mb-2">Telepass (€)</label>

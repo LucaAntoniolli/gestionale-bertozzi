@@ -170,11 +170,11 @@ namespace NemesiAPI.Controllers.Amministrazione
             var totalCount = await baseQuery.CountAsync();
 
             var costiRaw = await baseQuery
-                .Select(ct => new { ct.CostoChilometri, ct.Chilometri, ct.CostoTelepass, ct.CostoHotel, ct.CostoTreno })
+                .Select(ct => new { ct.CostoChilometri, ct.CostoTelepass, ct.CostoHotel, ct.CostoTreno })
                 .ToListAsync();
 
             var totaleCostoTotale = costiRaw.Sum(ct =>
-                (ct.CostoChilometri ?? 0) * (ct.Chilometri ?? 0) +
+                (ct.CostoChilometri ?? 0) +
                 (ct.CostoTelepass ?? 0) +
                 (ct.CostoHotel ?? 0) +
                 (ct.CostoTreno ?? 0));

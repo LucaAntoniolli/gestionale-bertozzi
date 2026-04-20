@@ -123,8 +123,7 @@
         <label class="font-semibold block mb-2">Fornitore *</label>
         <p-select [options]="fornitoriList" optionLabel="ragioneSociale" optionValue="id"
           placeholder="Seleziona fornitore" formControlName="fornitoreId" styleClass="w-full" [filter]="true" />
-        <small class="p-error block mt-1"
-          *ngIf="collaudoForm.get('fornitoreId')?.invalid && collaudoForm.get('fornitoreId')?.touched">
+        <small class="p-error block mt-1" *ngIf="collaudoForm.get('fornitoreId')?.invalid">
           Campo obbligatorio
         </small>
       </div>
@@ -132,8 +131,7 @@
         <label class="font-semibold block mb-2">Scopo Lavoro *</label>
         <p-select [options]="scopiLavoroList" optionLabel="descrizione" optionValue="id"
           placeholder="Seleziona scopo lavoro" formControlName="scopoLavoroId" styleClass="w-full" [filter]="true" />
-        <small class="p-error block mt-1"
-          *ngIf="collaudoForm.get('scopoLavoroId')?.invalid && collaudoForm.get('scopoLavoroId')?.touched">
+        <small class="p-error block mt-1" *ngIf="collaudoForm.get('scopoLavoroId')?.invalid">
           Campo obbligatorio
         </small>
       </div>
@@ -148,8 +146,7 @@
             {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
           </ng-template>
         </p-select>
-        <small class="p-error block mt-1"
-          *ngIf="collaudoForm.get('commessaId')?.invalid && collaudoForm.get('commessaId')?.touched">
+        <small class="p-error block mt-1" *ngIf="collaudoForm.get('commessaId')?.invalid">
           Campo obbligatorio
         </small>
       </div>
@@ -161,12 +158,12 @@
         <label class="font-semibold block mb-2">Importo (€) *</label>
         <p-inputnumber formControlName="importo" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
           class="w-full" styleClass="w-full" />
-        <small class="p-error block mt-1"
-          *ngIf="collaudoForm.get('importo')?.invalid && collaudoForm.get('importo')?.touched">
+        <small class="p-error block mt-1" *ngIf="collaudoForm.get('importo')?.invalid">
           Campo obbligatorio
         </small>
       </div>
       <div class="col-12">
+        <label class="font-semibold block mb-2">Pagato</label>
         <p-checkbox formControlName="pagato" [binary]="true" label="Pagato" />
       </div>
     </div>

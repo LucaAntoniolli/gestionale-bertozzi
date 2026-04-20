@@ -4,6 +4,7 @@ import { AnagraficheComponent } from "./anagrafiche.component";
 import { GestioneClientiComponent } from "./components/gestione-clienti/gestione-clienti.component";
 import { GestioneFornitoriComponent } from "./components/gestione-fornitori/gestione-fornitori.component";
 import { ModalitaPagamentoComponent } from "./components/modalita-pagamento/modalita-pagamento.component";
+import { ScopiLavoroComponent } from "./components/scopi-lavoro/scopi-lavoro.component";
 import { StatusCommessaComponent } from "./components/status-commessa/status-commessa.component";
 import { TipologieCommessaComponent } from "./components/tipologie-commessa/tipologie-commessa.component";
 
@@ -14,6 +15,7 @@ export default [
             { path: 'tipologie-commessa', component: TipologieCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
             { path: 'status-commessa', component: StatusCommessaComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
             { path: 'modalita-pagamento', component: ModalitaPagamentoComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
+            { path: 'scopi-lavoro', component: ScopiLavoroComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
             { path: 'gestione-clienti', component: GestioneClientiComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
             { path: 'gestione-fornitori', component: GestioneFornitoriComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
         ]

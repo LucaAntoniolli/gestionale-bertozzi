@@ -67,6 +67,7 @@ namespace NemesiAPI.Model
         public int CommessaId { get; set; }
         public string? CommessaDescrizione { get; set; }
         public string? CommessaCodiceInterno { get; set; }
+        public DateTime Data { get; set; }
         public string Pratica { get; set; } = string.Empty;
         public decimal ImportoOneri { get; set; }
         public DateTime DataCreazione { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NemesiLIB.Context;
 
@@ -11,9 +12,11 @@ using NemesiLIB.Context;
 namespace NemesiLIB.Migrations
 {
     [DbContext(typeof(GestionaleBertozziContext))]
-    partial class GestionaleBertozziContextModelSnapshot : ModelSnapshot
+    [Migration("20260420081706_AggiuntaCostoKmAutoAdUtente")]
+    partial class AggiuntaCostoKmAutoAdUtente
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -287,9 +290,6 @@ namespace NemesiLIB.Migrations
 
                     b.Property<int>("CommessaId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("Data")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataCreazione")
                         .HasColumnType("datetime2");

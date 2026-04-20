@@ -69,10 +69,10 @@ export class CostoTrasfertaService {
   private preparePayload(costoTrasferta: CostoTrasferta): any {
     const payload: any = { ...costoTrasferta };
     if (costoTrasferta.dataDa) {
-      payload.dataDa = costoTrasferta.dataDa.toISOString();
+      payload.dataDa = costoTrasferta.dataDa.format('YYYY-MM-DD');
     }
     if (costoTrasferta.dataA) {
-      payload.dataA = costoTrasferta.dataA.toISOString();
+      payload.dataA = costoTrasferta.dataA.format('YYYY-MM-DD');
     }
     return payload;
   }

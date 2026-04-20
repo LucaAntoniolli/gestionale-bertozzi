@@ -62,6 +62,7 @@ namespace NemesiLIB.Context
                 e.Property(u => u.Societa).HasMaxLength(200);
                 e.Property(u => u.IsEsterno).IsRequired().HasDefaultValue(false);
                 e.Property(u => u.CostoOrario).HasColumnType("decimal(18,2)").IsRequired();
+                e.Property(u => u.CostoKmAuto).HasColumnType("decimal(18,2)");
                 e.Property(u => u.RuoloAziendale).HasMaxLength(100);
             });
 
@@ -320,6 +321,7 @@ namespace NemesiLIB.Context
                 e.HasKey(o => o.Id);
                 e.Property(o => o.Id).ValueGeneratedOnAdd();
                 e.Property(o => o.CommessaId).IsRequired();
+                e.Property(o => o.Data).IsRequired();
                 e.Property(o => o.Pratica).IsRequired().HasMaxLength(500);
                 e.Property(o => o.ImportoOneri).HasColumnType("decimal(18,2)").IsRequired();
                 e.HasOne(o => o.Commessa).WithMany().HasForeignKey(o => o.CommessaId).OnDelete(DeleteBehavior.NoAction);

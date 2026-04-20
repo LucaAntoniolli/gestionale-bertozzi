@@ -131,6 +131,7 @@ export class GestioneUtentiComponent implements OnInit {
       isEsterno: [false],
       societa: [''],
       costoOrario: [0],
+      costoKmAuto: [0],
     }, { validators: this.societaRequiredWhenEsterno });
 
     // Aggiungo listener per cambiamenti nel campo isEsterno
@@ -159,6 +160,7 @@ export class GestioneUtentiComponent implements OnInit {
       isEsterno: new FormControl({ value: utenteCompleto?.isEsterno || false, disabled: false }),
       societa: new FormControl({ value: utenteCompleto?.societa || '', disabled: false }),
       costoOrario: new FormControl({ value: utenteCompleto?.costoOrario || null, disabled: false }),
+      costoKmAuto: new FormControl({ value: utenteCompleto?.costoKmAuto || null, disabled: false }),
     }, { validators: this.societaRequiredWhenEsterno });
 
     // Aggiungo listener per cambiamenti nel campo isEsterno
@@ -179,7 +181,8 @@ export class GestioneUtentiComponent implements OnInit {
       formValue.ruoloAziendale,
       formValue.isEsterno,
       formValue.societa,
-      formValue.costoOrario
+      formValue.costoOrario,
+      formValue.costoKmAuto
     )
       .subscribe({
         next: () => {
@@ -211,7 +214,8 @@ export class GestioneUtentiComponent implements OnInit {
       formValue.ruoloAziendale,
       formValue.isEsterno,
       formValue.societa,
-      formValue.costoOrario ? formValue.costoOrario : 0
+      formValue.costoOrario ? formValue.costoOrario : 0,
+      formValue.costoKmAuto ? formValue.costoKmAuto : 0
     )
       .subscribe({
         next: () => {
@@ -306,6 +310,7 @@ export class GestioneUtentiComponent implements OnInit {
         isEsterno: utente.isEsterno ? 'S\u00ec' : 'No',
         societa: utente.societa || '',
         costoOrario: utente.costoOrario || '',
+        costoKmAuto: utente.costoKmAuto || '',
       }));
 
       if (utentiForExcel) {

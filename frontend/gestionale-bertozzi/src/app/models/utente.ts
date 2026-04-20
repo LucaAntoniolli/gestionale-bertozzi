@@ -9,6 +9,7 @@ export class Utente {
     isEsterno: boolean = false;
     societa?: string;
     costoOrario?: number;
+    costoKmAuto?: number;
     ruoloAziendale?: string;
 
     static map(utente: any): Utente {

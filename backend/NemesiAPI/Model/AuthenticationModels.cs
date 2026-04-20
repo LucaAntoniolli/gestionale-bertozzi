@@ -9,6 +9,7 @@
         public bool IsEsterno { get; set; }
         public string? Societa { get; set; }
         public decimal CostoOrario { get; set; }
+        public decimal CostoKmAuto { get; set; }
         public string? RuoloAziendale { get; set; }
     }
 
@@ -45,6 +46,7 @@
         public bool IsEsterno { get; set; } 
         public string? Societa { get; set; }
         public decimal CostoOrario { get; set; }
+        public decimal CostoKmAuto { get; set; }
         public string? RuoloAziendale { get; set; }
         public List<string> Ruoli { get; set; } = new();
     }

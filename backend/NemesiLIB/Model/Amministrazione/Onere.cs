@@ -9,6 +9,7 @@ namespace NemesiLIB.Model.Amministrazione
     {
         public int Id { get; set; }
         public int CommessaId { get; set; }
+        public DateTime Data { get; set; }
         public required string Pratica { get; set; }
         public decimal ImportoOneri { get; set; }        
         public DateTime DataCreazione { get; set; }
