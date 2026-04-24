@@ -8,9 +8,10 @@
         <div class="col-12 md:col-4">
           <div class="field">
             <label class="mb-2 font-semibold">Commessa</label>
-            <p-select [options]="commesseList" optionValue="id" placeholder="Tutte le commesse"
-              [(ngModel)]="filtroCommessaId" [showClear]="true" class="w-full" [filter]="true"
-              [disabled]="referenceDataLoading" (onChange)="onFiltroChange()">
+            <p-select [options]="commesseList" optionLabel="descrizione" optionValue="id"
+              placeholder="Tutte le commesse" [(ngModel)]="filtroCommessaId" [showClear]="true" class="w-full"
+              [filter]="true" filterBy="commessaCodiceInterno,descrizione" [disabled]="referenceDataLoading"
+              (onChange)="onFiltroChange()">
               <ng-template pTemplate="item" let-commessa>
                 {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
               </ng-template>
@@ -97,8 +98,8 @@
       </div>
       <div class="col-12">
         <label class="font-semibold block mb-2">Commessa *</label>
-        <p-select [options]="commesseList" optionValue="id" placeholder="Seleziona commessa"
-          formControlName="commessaId" styleClass="w-full" [filter]="true">
+        <p-select [options]="commesseList" optionLabel="descrizione" optionValue="id" placeholder="Seleziona commessa"
+          formControlName="commessaId" styleClass="w-full" [filter]="true" filterBy="commessaCodiceInterno,descrizione">
           <ng-template pTemplate="item" let-commessa>
             {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
           </ng-template>

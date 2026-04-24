@@ -8,8 +8,9 @@
             <!-- Commessa (visibile solo se non fissa) -->
             <div class="field" *ngIf="showCommessaSelector">
                 <label class="mb-2 font-semibold">Commessa *</label>
-                <p-select [options]="commesseList" optionValue="id" placeholder="Seleziona commessa"
-                    formControlName="commessaId" [showClear]="true" class="w-full" [filter]="true">
+                <p-select [options]="commesseList" optionLabel="descrizione" optionValue="id"
+                    placeholder="Seleziona commessa" formControlName="commessaId" [showClear]="true" class="w-full"
+                    [filter]="true" filterBy="commessaCodiceInterno,descrizione">
                     <ng-template pTemplate="item" let-commessa>
                         {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
                     </ng-template>

@@ -19,8 +19,9 @@
                 <div class="col-12 md:col-3">
                     <div class="field">
                         <label class="mb-2 font-semibold">Commessa</label>
-                        <p-select [options]="commesseList" optionValue="id" placeholder="Tutte le commesse"
-                            [(ngModel)]="filtroCommessaId" [showClear]="true" class="w-full" [filter]="true"
+                        <p-select [options]="commesseList" optionLabel="descrizione" optionValue="id"
+                            placeholder="Tutte le commesse" [(ngModel)]="filtroCommessaId" [showClear]="true"
+                            class="w-full" [filter]="true" filterBy="commessaCodiceInterno,descrizione"
                             [disabled]="referenceDataLoading" (onChange)="onFiltroChange()">
                             <ng-template pTemplate="item" let-commessa>
                                 {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
