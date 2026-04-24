@@ -60,6 +60,9 @@
         <div class="p-toolbar-group-start">
           <p-button label="Aggiungi costo trasferta" icon="pi pi-plus" (click)="apriDialogCrea()"
             [disabled]="referenceDataLoading" />
+          <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()"
+            class="p-button-success ml-2" pTooltip="Esporta in Excel" tooltipPosition="bottom"
+            [disabled]="referenceDataLoading || totalRecords === 0"></button>
         </div>
         <div class="p-toolbar-group-end">
           @if(totalRecords > 0) {

@@ -9,10 +9,10 @@ namespace NemesiLIB.Model
         public bool IsEsterno { get; set; }
         public decimal CostoOrario { get; set; }
         public decimal CostoKmAuto { get; set; }
-
         public string? RuoloAziendale { get; set; }
+        public bool IsAttivo { get; set; }
 
-        public Utente(string email, string nominativo, bool isEsterno = false, string societa = null, decimal costoOrario = 0m, decimal costoKmAuto = 0m, string ruoloAziendale = null)
+        public Utente(string email, string nominativo, bool isEsterno = false, string societa = null, decimal costoOrario = 0m, decimal costoKmAuto = 0m, string ruoloAziendale = null, bool isAttivo = true)
         {
             Email = email;
             UserName = email;
@@ -22,6 +22,7 @@ namespace NemesiLIB.Model
             CostoOrario = costoOrario;
             CostoKmAuto = costoKmAuto;
             RuoloAziendale = ruoloAziendale;
+            IsAttivo = IsAttivo;
         }
     }
 }

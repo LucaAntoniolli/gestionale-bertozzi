@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, FormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { first, map, Observable } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -18,6 +18,7 @@ import { PasswordModule } from 'primeng/password';
 import { InputText } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { Utente } from '../../../../models/utente';
 import { Ruolo } from '../../../../models/ruolo';
 import { GestioneAccessoService } from '../../../../services/gestione-accesso.service';
@@ -29,6 +30,7 @@ import { GestioneAccessoService } from '../../../../services/gestione-accesso.se
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
 
     TitoloPaginaComponent,
 
@@ -44,11 +46,27 @@ import { GestioneAccessoService } from '../../../../services/gestione-accesso.se
     CheckboxModule,
     IconFieldModule,
     InputIconModule,
+    SelectButtonModule,
   ]
 })
 export class GestioneUtentiComponent implements OnInit {
 
   ruoliAziendali: string[] = ['PM Edile', 'PM Amministrativo'];
+
+  // Opzioni per SelectButton filtro attivi/non attivi
+  filtroAttiviOptions: any[] = [
+    { label: 'Attivi', value: true },
+    { label: 'Non attivi', value: false }
+  ];
+  
+  // Stato del filtro (default: solo attivi)
+  mostraSoloAttivi: boolean = true;
+
+  // Opzioni per SelectButton isAttivo nei form
+  statoAttivoOptions: any[] = [
+    { label: 'Attivo', value: true },
+    { label: 'Non attivo', value: false }
+  ];
 
   utenti?: Utente[];
   ruoli?: Ruolo[];
@@ -85,19 +103,20 @@ export class GestioneUtentiComponent implements OnInit {
 
   private loadData() {
     // Forza il bypass della cache del service worker per avere dati freschi
-    this.gas.elencoUtenti().pipe(first())
+    this.gas.elencoUtenti(this.mostraSoloAttivi).pipe(first())
       .subscribe({
         next: (ut) => {
           this.loading = false;
           this.utenti = ut;
-          this.cdr.detectChanges();
+          
 
-          if (this.utenti?.length == 1) {
+          if (this.utenti?.length == 1 && this.mostraSoloAttivi == true) {
             this.disabilitaEliminazioneUtenti = true;
           }
           else {
             this.disabilitaEliminazioneUtenti = false;
           }
+          this.cdr.detectChanges();
         },
         error: (err) => {
           if (err.status == 404) {
@@ -121,6 +140,10 @@ export class GestioneUtentiComponent implements OnInit {
       });
   }
 
+  onFiltroAttiviChange() {
+    this.loadData();
+  }
+
   mostraFormCreazioneUtente() {
     this.nuovoUtenteForm = this.fb.group({
       nominativo: ['', [Validators.required]],
@@ -129,6 +152,7 @@ export class GestioneUtentiComponent implements OnInit {
       ruolo: ['', [Validators.required]],
       ruoloAziendale : [''],
       isEsterno: [false],
+      isAttivo: [true],
       societa: [''],
       costoOrario: [0],
       costoKmAuto: [0],
@@ -158,6 +182,7 @@ export class GestioneUtentiComponent implements OnInit {
       ruolo: new FormControl({ value: this.utente.ruoli && this.utente.ruoli.length > 0 ? this.utente.ruoli[0] : '', disabled: false }, Validators.required),
       ruoloAziendale: new FormControl({ value: this.utente.ruoloAziendale || '', disabled: false }),
       isEsterno: new FormControl({ value: utenteCompleto?.isEsterno || false, disabled: false }),
+      isAttivo: new FormControl({ value: utenteCompleto?.isAttivo !== undefined ? utenteCompleto.isAttivo : true, disabled: false }),
       societa: new FormControl({ value: utenteCompleto?.societa || '', disabled: false }),
       costoOrario: new FormControl({ value: utenteCompleto?.costoOrario || null, disabled: false }),
       costoKmAuto: new FormControl({ value: utenteCompleto?.costoKmAuto || null, disabled: false }),
@@ -182,7 +207,8 @@ export class GestioneUtentiComponent implements OnInit {
       formValue.isEsterno,
       formValue.societa,
       formValue.costoOrario,
-      formValue.costoKmAuto
+      formValue.costoKmAuto,
+      formValue.isAttivo
     )
       .subscribe({
         next: () => {
@@ -215,7 +241,8 @@ export class GestioneUtentiComponent implements OnInit {
       formValue.isEsterno,
       formValue.societa,
       formValue.costoOrario ? formValue.costoOrario : 0,
-      formValue.costoKmAuto ? formValue.costoKmAuto : 0
+      formValue.costoKmAuto ? formValue.costoKmAuto : 0,
+      formValue.isAttivo
     )
       .subscribe({
         next: () => {
@@ -260,6 +287,13 @@ export class GestioneUtentiComponent implements OnInit {
             });
             this.loadData();
           },
+          error: (err) => {
+            this.ms.add({
+              severity: 'error',
+              summary: 'Errore',
+              detail: 'Impossibile eliminare l\'utente perché ha delle informazioni collegate.' ,
+            });
+          }
         });
       },
       reject: () => {
@@ -308,6 +342,7 @@ export class GestioneUtentiComponent implements OnInit {
         email: utente.email,
         ruolo: utente.ruoli?.join(', '),
         isEsterno: utente.isEsterno ? 'S\u00ec' : 'No',
+        isAttivo: utente.isAttivo ? 'Attivo' : 'Non attivo',
         societa: utente.societa || '',
         costoOrario: utente.costoOrario || '',
         costoKmAuto: utente.costoKmAuto || '',

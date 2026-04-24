@@ -11,6 +11,7 @@
         public decimal CostoOrario { get; set; }
         public decimal CostoKmAuto { get; set; }
         public string? RuoloAziendale { get; set; }
+        public bool IsAttivo { get; set; }
     }
 
     public class LoginModel
@@ -48,6 +49,7 @@
         public decimal CostoOrario { get; set; }
         public decimal CostoKmAuto { get; set; }
         public string? RuoloAziendale { get; set; }
+        public bool IsAttivo { get; set; }
         public List<string> Ruoli { get; set; } = new();
     }
 

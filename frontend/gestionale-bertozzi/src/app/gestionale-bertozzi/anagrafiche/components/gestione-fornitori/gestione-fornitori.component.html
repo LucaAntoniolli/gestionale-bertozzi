@@ -100,13 +100,13 @@
       <div class="col-12 md:col-4">
         <label htmlFor="partitaIva" class="font-semibold block mb-2">Partita IVA</label>
         <input type="text" pInputText id="partitaIva" formControlName="partitaIva" class="w-full" />
-        <small class="p-error block mt-1" *ngIf="fornitoreForm.get('partitaIva')?.invalid">
-          Campo obbligatorio
-        </small>
       </div>
       <div class="col-12 md:col-4">
-        <label htmlFor="codiceFiscale" class="font-semibold block mb-2">Codice Fiscale</label>
+        <label htmlFor="codiceFiscale" class="font-semibold block mb-2">Codice Fiscale *</label>
         <input type="text" pInputText id="codiceFiscale" formControlName="codiceFiscale" class="w-full" />
+        <small class="p-error block mt-1" *ngIf="fornitoreForm.get('codiceFiscale')?.invalid">
+          Campo obbligatorio
+        </small>
       </div>
       <div class="col-12 md:col-4">
         <label htmlFor="tipo" class="font-semibold block mb-2">Tipo</label>

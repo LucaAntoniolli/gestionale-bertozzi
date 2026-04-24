@@ -230,6 +230,35 @@ export class OneriComponent implements OnInit {
             }
         });
     }
+
+    // ─── Export Excel ─────────────────────────────────────────────────────────
+
+    exportExcel() {
+        this.onereService.getAll(this.filtroCommessaId).pipe(first()).subscribe({
+            next: (oneri) => {
+                import('xlsx').then((xlsx) => {
+                    const data = oneri.map(o => ({
+                        'Commessa': o.commessa ? `${o.commessa.commessaCodiceInterno} - ${o.commessa.descrizione}` : '-',
+                        'Pratica': o.pratica || '-',
+                        'Data': o.data ? new Date(o.data.toDate()).toLocaleDateString('it-IT') : '-',
+                        'Importo Oneri (€)': o.importoOneri !== null && o.importoOneri !== undefined ? o.importoOneri : 0,
+                    }));
+                    const ws = xlsx.utils.json_to_sheet(data);
+                    const wb = xlsx.utils.book_new();
+                    xlsx.utils.book_append_sheet(wb, ws, 'Oneri');
+                    const excelBuffer = xlsx.write(wb, { bookType: 'xlsx', type: 'array' });
+                    import('file-saver').then(module => {
+                        const FileSaver = module.default;
+                        const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+                        FileSaver.saveAs(dataBlob, 'oneri.xlsx');
+                    });
+                });
+            },
+            error: () => {
+                this.ms.add({ severity: 'error', summary: 'Errore', detail: 'Errore nell\'esportazione dei dati', life: 3000 });
+            }
+        });
+    }
 }
 
 export default [

@@ -64,6 +64,7 @@ namespace NemesiLIB.Context
                 e.Property(u => u.CostoOrario).HasColumnType("decimal(18,2)").IsRequired();
                 e.Property(u => u.CostoKmAuto).HasColumnType("decimal(18,2)");
                 e.Property(u => u.RuoloAziendale).HasMaxLength(100);
+                e.Property(u => u.IsAttivo).IsRequired().HasDefaultValue(true);
             });
 
             // RefreshToken

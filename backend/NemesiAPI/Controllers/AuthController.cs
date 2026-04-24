@@ -62,7 +62,7 @@ namespace NemesiAPI.Controllers
 
         [HttpGet("get-users")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> GetUsers([FromQuery] bool? onlyPmEdile = false, [FromQuery] bool? onlyPmAmministrativo = false)
+        public async Task<IActionResult> GetUsers([FromQuery] bool? onlyPmEdile = false, [FromQuery] bool? onlyPmAmministrativo = false, [FromQuery] bool? onlyAttivi = true)
         {
             if(onlyPmEdile == true && onlyPmAmministrativo == true)
             {
@@ -80,8 +80,17 @@ namespace NemesiAPI.Controllers
                 q = q.Where(u => u.RuoloAziendale == "PM Amministrativo");
             }
 
+            if (onlyAttivi == true)
+            {
+                q = q.Where(u => u.IsAttivo == true);
+            }
+            else{
+                q = q.Where(u => u.IsAttivo == false);
+            }
+
             var users = await q 
-                .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo, u.IsEsterno, u.Societa, u.CostoOrario, u.CostoKmAuto, u.RuoloAziendale })
+                .Select(u => new { u.Id, u.UserName, u.Email, u.Nominativo, u.IsEsterno, u.Societa, u.CostoOrario, u.CostoKmAuto, u.RuoloAziendale, u.IsAttivo })
+                .OrderBy(u => u.Nominativo)
                 .ToListAsync();
 
 
@@ -102,6 +111,7 @@ namespace NemesiAPI.Controllers
                 CostoOrario = u.CostoOrario,
                 CostoKmAuto = u.CostoKmAuto,
                 RuoloAziendale = u.RuoloAziendale,
+                IsAttivo = u.IsAttivo,
                 Ruoli = userRolePairs.Where(ur => ur.UserId == u.Id).Select(ur => ur.RoleName ?? string.Empty).ToList()
             });
 
@@ -136,6 +146,7 @@ namespace NemesiAPI.Controllers
                 CostoOrario = user.CostoOrario,
                 CostoKmAuto = user.CostoKmAuto,
                 RuoloAziendale = user.RuoloAziendale,
+                IsAttivo = user.IsAttivo,
                 Ruoli = roles.ToList()
             };
 
@@ -186,7 +197,7 @@ namespace NemesiAPI.Controllers
                 return BadRequest("L'email è già stata utilizzata");
             }
 
-            var user = new Utente(model.Email, model.Nominativo, model.IsEsterno, model.Societa, model.CostoOrario, model.CostoKmAuto, model.RuoloAziendale);
+            var user = new Utente(model.Email, model.Nominativo, model.IsEsterno, model.Societa, model.CostoOrario, model.CostoKmAuto, model.RuoloAziendale, model.IsAttivo);
             var result = await userManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded)
@@ -224,6 +235,7 @@ namespace NemesiAPI.Controllers
             utente.CostoOrario = model.CostoOrario;
             utente.CostoKmAuto = model.CostoKmAuto;
             utente.RuoloAziendale = model.RuoloAziendale;
+            utente.IsAttivo = model.IsAttivo;
 
             var result = await userManager.UpdateAsync(utente);
 

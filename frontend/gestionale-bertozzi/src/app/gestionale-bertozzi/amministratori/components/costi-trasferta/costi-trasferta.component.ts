@@ -332,6 +332,47 @@ export class CostiTrasfertaComponent implements OnInit {
             }
         });
     }
+
+    // ─── Export Excel ─────────────────────────────────────────────────────────
+
+    exportExcel() {
+        this.costoTrasfertaService.getAll(
+            this.filtroClienteId,
+            this.filtroCommessaId,
+            this.filtroUtenteId
+        ).pipe(first()).subscribe({
+            next: (costi) => {
+                import('xlsx').then((xlsx) => {
+                    const data = costi.map(c => ({
+                        'Cliente': c.commessa?.cliente?.ragioneSociale || '-',
+                        'Commessa': c.commessa ? `${c.commessa.commessaCodiceInterno} - ${c.commessa.descrizione}` : '-',
+                        'Utente': c.utente?.nominativo || '-',
+                        'Partenza': c.localitaPartenza || '-',
+                        'Arrivo': c.localitaArrivo || '-',
+                        'Data Da': c.dataDa ? new Date(c.dataDa.toDate()).toLocaleDateString('it-IT') : '-',
+                        'Data A': c.dataA ? new Date(c.dataA.toDate()).toLocaleDateString('it-IT') : '-',
+                        'Km': c.chilometri !== null && c.chilometri !== undefined ? c.chilometri : 0,
+                        'Costo Km (€)': c.costoChilometri !== null && c.costoChilometri !== undefined ? c.costoChilometri : 0,
+                        'Telepass (€)': c.costoTelepass !== null && c.costoTelepass !== undefined ? c.costoTelepass : 0,
+                        'Hotel (€)': c.costoHotel !== null && c.costoHotel !== undefined ? c.costoHotel : 0,
+                        'Treno (€)': c.costoTreno !== null && c.costoTreno !== undefined ? c.costoTreno : 0,
+                    }));
+                    const ws = xlsx.utils.json_to_sheet(data);
+                    const wb = xlsx.utils.book_new();
+                    xlsx.utils.book_append_sheet(wb, ws, 'Costi Trasferta');
+                    const excelBuffer = xlsx.write(wb, { bookType: 'xlsx', type: 'array' });
+                    import('file-saver').then(module => {
+                        const FileSaver = module.default;
+                        const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+                        FileSaver.saveAs(dataBlob, 'costi-trasferta.xlsx');
+                    });
+                });
+            },
+            error: () => {
+                this.ms.add({ severity: 'error', summary: 'Errore', detail: 'Errore nell\'esportazione dei dati', life: 3000 });
+            }
+        });
+    }
 }
 
 export default [

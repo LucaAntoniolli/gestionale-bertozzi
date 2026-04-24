@@ -486,6 +486,13 @@ export class PlanningComponent implements OnInit {
         return commessa?.descrizione || '';
     }
 
+    /** Ottiene il codice interno della commessa */
+    getCodiceInternoCommessa(commessaId?: number): string {
+        if (!commessaId) return '';
+        const commessa = this.commesseList.find(c => c.id === commessaId);
+        return commessa?.commessaCodiceInterno || '';
+    }
+
     /** Ottiene il nominativo dell'utente */
     getNominativoUtente(utenteId?: string): string {
         if (!utenteId) return '';

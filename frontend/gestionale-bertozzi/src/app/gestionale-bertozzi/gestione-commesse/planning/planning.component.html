@@ -17,15 +17,15 @@
         <div class="mb-3">
             <div class="field">
                 <label htmlFor="commessaFiltro" class="mb-2 font-semibold">Filtro Commessa</label>
-                <p-select id="commessaFiltro" [options]="commesseList" optionLabel="commessaCodiceInterno" 
-                    optionValue="id" placeholder="Seleziona una commessa" [(ngModel)]="commessaSelezionata" 
-                    [showClear]="true" class="w-full" [filter]="true" filterBy="commessaCodiceInterno"
+                <p-select id="commessaFiltro" [options]="commesseList" optionLabel="commessaCodiceInterno"
+                    optionValue="id" placeholder="Seleziona una commessa" [(ngModel)]="commessaSelezionata"
+                    [showClear]="true" class="w-full" [filter]="true" filterBy="commessaCodiceInterno,descrizione"
                     (onChange)="onCommessaChange()" [loading]="loading">
                     <ng-template pTemplate="item" let-commessa>
-                        {{ commessa.commessaCodiceInterno }}
+                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
                     </ng-template>
                     <ng-template pTemplate="selectedItem" let-commessa>
-                        {{ commessa.commessaCodiceInterno }}
+                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
                     </ng-template>
                 </p-select>
             </div>
@@ -61,19 +61,25 @@
                             Azioni
                         </div>
                     </th>
+                    <th style="min-width: 5rem" pSortableColumn="commessaCodiceInterno">
+                        <div class="flex justify-content-between align-items-center">
+                            Codice interno
+                            <p-sortIcon field="commessaCodiceInterno" />
+                        </div>
+                    </th>
                     <th style="min-width: 15rem" pSortableColumn="commessaId">
                         <div class="flex justify-content-between align-items-center">
                             Commessa
                             <p-sortIcon field="commessaId" />
                         </div>
                     </th>
-                    <th style="min-width: 15rem" pSortableColumn="dataCreazione">
+                    <th style="min-width: 7rem" pSortableColumn="dataCreazione">
                         <div class="flex justify-content-between align-items-center">
                             Data Creazione
                             <p-sortIcon field="dataCreazione" />
                         </div>
                     </th>
-                    <th style="min-width: 15rem" pSortableColumn="dataConsegna">
+                    <th style="min-width: 7rem" pSortableColumn="dataConsegna">
                         <div class="flex justify-content-between align-items-center">
                             Data Consegna
                             <p-sortIcon field="dataConsegna" />
@@ -91,16 +97,22 @@
                             <p-sortIcon field="completato" />
                         </div>
                     </th>
-                    <th style="min-width: 8rem" pSortableColumn="priorita">
+                    <th style="min-width: 5rem" pSortableColumn="priorita">
                         <div class="flex justify-content-between align-items-center">
                             Priorità
                             <p-sortIcon field="priorita" />
                         </div>
                     </th>
-                    <th style="min-width: 12rem" pSortableColumn="assegnatarioPrimario.nominativo">
+                    <th style="min-width: 10rem" pSortableColumn="assegnatarioPrimario.nominativo">
                         <div class="flex justify-content-between align-items-center">
                             Assegnatario Primario
                             <p-sortIcon field="assegnatarioPrimario.nominativo" />
+                        </div>
+                    </th>
+                    <th style="min-width: 10rem" pSortableColumn="assegnatarioSecondario.nominativo">
+                        <div class="flex justify-content-between align-items-center">
+                            Assegnatario Secondario
+                            <p-sortIcon field="assegnatarioSecondario.nominativo" />
                         </div>
                     </th>
                     <th style="min-width: 10rem" pSortableColumn="descrizioneAttivitaSvolta">
@@ -130,6 +142,9 @@
                         </div>
                     </td>
                     <td>
+                        <span class="image-text">{{ getCodiceInternoCommessa(todo.commessaId) }}</span>
+                    </td>
+                    <td>
                         <span class="image-text">{{ getDescrizioneCommessa(todo.commessaId) }}</span>
                     </td>
                     <td>
@@ -152,6 +167,9 @@
                     </td>
                     <td>
                         <span class="image-text">{{ getNominativoUtente(todo.assegnatarioPrimarioId) }}</span>
+                    </td>
+                    <td>
+                        <span class="image-text">{{ getNominativoUtente(todo.assegnatarioSecondarioId) }}</span>
                     </td>
                     <td>
                         <span class="image-text">{{ todo.descrizioneAttivitaSvolta }}</span>
@@ -182,7 +200,14 @@
                 <label htmlFor="commessaId" class="mb-2 font-semibold">Commessa</label>
                 <p-select id="commessaId" [options]="commesseList" optionLabel="commessaCodiceInterno" optionValue="id"
                     placeholder="Seleziona commessa" formControlName="commessaId" [showClear]="true" class="w-full"
-                    [filter]="true" filterBy="commessaCodiceInterno" />
+                    [filter]="true" filterBy="commessaCodiceInterno,descrizione">
+                    <ng-template pTemplate="item" let-commessa>
+                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+                    </ng-template>
+                    <ng-template pTemplate="selectedItem" let-commessa>
+                        {{ commessa.commessaCodiceInterno }} - {{ commessa.descrizione }}
+                    </ng-template>
+                </p-select>
                 <small id="commessaId-error" class="p-error" *ngIf="nuovoTodoForm.get('commessaId')?.invalid">
                     Campo obbligatorio
                 </small>

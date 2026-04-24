@@ -7,6 +7,7 @@ export class Utente {
     email?: string;
     ruoli?: string[];
     isEsterno: boolean = false;
+    isAttivo: boolean = true;
     societa?: string;
     costoOrario?: number;
     costoKmAuto?: number;

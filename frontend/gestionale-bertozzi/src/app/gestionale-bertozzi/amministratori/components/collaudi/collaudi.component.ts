@@ -262,6 +262,42 @@ export class CollaudiComponent implements OnInit {
         });
     }
 
+    // ─── Export Excel ─────────────────────────────────────────────────────────
+
+    exportExcel() {
+        this.collaudoService.getAll(
+            this.filtroFornitoreId,
+            this.filtroScopoLavoroId,
+            this.filtroCommessaId,
+            this.filtroPagato
+        ).pipe(first()).subscribe({
+            next: (collaudi) => {
+                import('xlsx').then((xlsx) => {
+                    const data = collaudi.map(c => ({
+                        'Fornitore': c.fornitore?.ragioneSociale || '-',
+                        'Scopo Lavoro': c.scopoLavoro?.descrizione || '-',
+                        'Commessa': c.commessa ? `${c.commessa.commessaCodiceInterno} - ${c.commessa.descrizione}` : '-',
+                        'Contratto': c.contratto || '-',
+                        'Importo (€)': c.importo !== null && c.importo !== undefined ? c.importo : 0,
+                        'Pagato': c.pagato ? 'Sì' : 'No',
+                    }));
+                    const ws = xlsx.utils.json_to_sheet(data);
+                    const wb = xlsx.utils.book_new();
+                    xlsx.utils.book_append_sheet(wb, ws, 'Collaudi');
+                    const excelBuffer = xlsx.write(wb, { bookType: 'xlsx', type: 'array' });
+                    import('file-saver').then(module => {
+                        const FileSaver = module.default;
+                        const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+                        FileSaver.saveAs(dataBlob, 'collaudi.xlsx');
+                    });
+                });
+            },
+            error: () => {
+                this.ms.add({ severity: 'error', summary: 'Errore', detail: 'Errore nell\'esportazione dei dati', life: 3000 });
+            }
+        });
+    }
+
     getCommessaLabel(commessaId?: number): string {
         if (!commessaId) return '-';
         const c = this.commesseList.find(x => x.id === commessaId);

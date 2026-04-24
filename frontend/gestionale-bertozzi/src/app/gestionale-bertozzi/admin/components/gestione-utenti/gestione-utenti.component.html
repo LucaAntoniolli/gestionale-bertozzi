@@ -4,6 +4,10 @@
 
         <div class="mb-5">
             <p-toolbar>
+                <div class="p-toolbar-group-start">
+                    <p-selectbutton [options]="filtroAttiviOptions" [(ngModel)]="mostraSoloAttivi"
+                        (onChange)="onFiltroAttiviChange()" optionLabel="label" optionValue="value" />
+                </div>
                 <div class="p-toolbar-group-center"></div>
                 <div class="p-toolbar-group-end">
                     <p-button label="Crea nuovo utente" icon="pi pi-plus" (click)="mostraFormCreazioneUtente()" />
@@ -71,6 +75,12 @@
                             <p-sortIcon field="isEsterno" />
                         </div>
                     </th>
+                    <th style="min-width: 8rem" pSortableColumn="isAttivo">
+                        <div class="flex justify-content-between align-items-center">
+                            Stato
+                            <p-sortIcon field="isAttivo" />
+                        </div>
+                    </th>
                     <th style="min-width: 12rem" pSortableColumn="societa">
                         <div class="flex justify-content-between align-items-center">
                             Società
@@ -123,6 +133,12 @@
                         </span>
                     </td>
                     <td>
+                        <span class="image-text">
+                            <i class="pi" [class.pi-check]="utente.isAttivo" [class.pi-times]="!utente.isAttivo"
+                                [class.text-green-500]="utente.isAttivo" [class.text-red-500]="!utente.isAttivo"></i>
+                        </span>
+                    </td>
+                    <td>
                         <span class="image-text">{{ utente.societa || '-' }}</span>
                     </td>
                     <td>
@@ -137,12 +153,12 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="8">Nessun utente presente.</td>
+                    <td colspan="10">Nessun utente presente.</td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="loadingbody">
                 <tr>
-                    <td colspan="8">Utenti in caricamento...</td>
+                    <td colspan="10">Utenti in caricamento...</td>
                 </tr>
             </ng-template>
         </p-table>
@@ -208,6 +224,13 @@
                 <label htmlFor="isEsterno" class="col-12 mb-2 font-semibold w-full">Utente esterno</label>
                 <div class="col-12">
                     <p-checkbox formControlName="isEsterno" binary="true" label="Utente esterno" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="isAttivo" class="col-12 mb-2 font-semibold w-full">Stato utente</label>
+                <div class="col-12">
+                    <p-selectbutton formControlName="isAttivo" [options]="statoAttivoOptions" optionLabel="label"
+                        optionValue="value" />
                 </div>
             </div>
             <div class="field grid">
@@ -281,6 +304,13 @@
                 <label htmlFor="isEsterno" class="col-12 mb-2 font-semibold w-full">Utente esterno</label>
                 <div class="col-12">
                     <p-checkbox formControlName="isEsterno" binary="true" label="Utente esterno" />
+                </div>
+            </div>
+            <div class="field grid">
+                <label htmlFor="isAttivoModifica" class="col-12 mb-2 font-semibold w-full">Stato utente</label>
+                <div class="col-12">
+                    <p-selectbutton formControlName="isAttivo" [options]="statoAttivoOptions" optionLabel="label"
+                        optionValue="value" />
                 </div>
             </div>
             <div class="field grid">

@@ -42,7 +42,7 @@ namespace NemesiAPI
                                 .AllowAnyHeader()
                                 .AllowAnyMethod()
                                 .AllowCredentials()
-                                .SetPreflightMaxAge(TimeSpan.FromHours(24));
+                                .SetPreflightMaxAge(TimeSpan.FromHours(5));
                         }
                         else
                         {
@@ -51,7 +51,7 @@ namespace NemesiAPI
                                 .AllowAnyHeader()
                                 .AllowAnyMethod()
                                 .AllowCredentials()
-                                .SetPreflightMaxAge(TimeSpan.FromHours(24));
+                                .SetPreflightMaxAge(TimeSpan.FromHours(5));
                         }
                     });
             });
