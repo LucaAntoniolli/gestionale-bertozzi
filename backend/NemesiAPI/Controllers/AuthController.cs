@@ -385,14 +385,17 @@ namespace NemesiAPI.Controllers
             {
                 var user = await userManager.FindByEmailAsync(model.Email);
 
-                if(user == null || !await userManager.CheckPasswordAsync(user, model.Password))
-                {
+                if (user == null)
                     return Unauthorized("Invalid email or password");
-                }
+
+                // ← verifica abilitazione prima di qualsiasi altro controllo
+                if (!user.IsAttivo)
+                    return Unauthorized("Utente non abilitato");
+
+                if (!await userManager.CheckPasswordAsync(user, model.Password))
+                    return Unauthorized("Invalid email or password");
 
                 var isTfaEnabled = await userManager.GetTwoFactorEnabledAsync(user);
-
-                //var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, isPersistent: false, lockoutOnFailure: false);
 
                 if (!isTfaEnabled)
                 {
@@ -404,7 +407,6 @@ namespace NemesiAPI.Controllers
                 }
 
                 return Ok(new { IsAuthSuccessful = true, IsTfaEnabled = true });
-
             }
             catch (Exception ex)
             {

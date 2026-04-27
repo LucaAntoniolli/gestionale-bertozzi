@@ -22,7 +22,7 @@ namespace NemesiLIB.Model
             CostoOrario = costoOrario;
             CostoKmAuto = costoKmAuto;
             RuoloAziendale = ruoloAziendale;
-            IsAttivo = IsAttivo;
+            IsAttivo = isAttivo;
         }
     }
 }
