@@ -75,6 +75,18 @@ namespace NemesiAPI
             }
 
             app.UseCors("NemesiPolicy");
+
+            // Fix Private Network Access (Chrome/Edge PNA policy)
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Method == "OPTIONS" &&
+                    context.Request.Headers.ContainsKey("Access-Control-Request-Private-Network"))
+                {
+                    context.Response.Headers.Append("Access-Control-Allow-Private-Network", "true");
+                }
+                await next();
+            });
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
