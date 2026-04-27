@@ -66,6 +66,21 @@
                 </div>
             </p-card>
         </div>
+
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadScopoLavoro">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-list text-6xl text-primary mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-900">Scopi lavoro</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci l'anagrafica degli scopi lavoro
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToGestioneScopoLavoro()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
     </div>
     <p-divider align="left" type="solid" *ngIf="hasClientAndCommessaPermissions">
         <b>Clienti e commesse</b>
@@ -137,6 +152,67 @@
                     </p>
                     <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
                         (onClick)="navigateToOreESpese()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+    </div>
+    <p-divider align="left" type="solid" *ngIf="hasAmministratoriPermissions">
+        <b>Funzioni per amministratori</b>
+    </p-divider>
+    <div class="grid">
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadFornitore">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-users text-6xl text-primary text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Fornitori</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci i fornitori
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToGestioneFornitori()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadCostoTrasferta">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-money-bill text-6xl text-primary text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Costi trasferta</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci i costi di trasferta del personale
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToCostiTrasferta()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadCollaudo">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-file-check text-6xl text-primary text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Collaudi</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci i collaudi
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToCollaudi()">
+                    </p-button>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-4 lg:col-2" *ngIf="canReadOnere">
+            <p-card class="h-full">
+                <div class="text-center p-2">
+                    <i class="pi pi-money-bill text-6xl text-primary text-600 mb-3"></i>
+                    <h3 class="text-xl font-semibold mb-3 text-4600">Oneri</h3>
+                    <p class="text-600 mb-2 line-height-3">
+                        Gestisci gli oneri
+                    </p>
+                    <p-button label="Accedi" icon="pi pi-arrow-right" class="w-full" size="large"
+                        (onClick)="navigateToOneri()">
                     </p-button>
                 </div>
             </p-card>

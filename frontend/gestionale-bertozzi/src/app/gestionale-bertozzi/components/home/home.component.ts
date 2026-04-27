@@ -29,11 +29,16 @@ export class HomeComponent {
     //Getter per gestione permessi 
     get canReadUser(): boolean { return this.permissionsService.createEntityHelper('user').canRead(); }
     get canReadCliente(): boolean { return this.permissionsService.createEntityHelper('cliente').canRead(); }
+    get canReadFornitore(): boolean { return this.permissionsService.createEntityHelper('fornitore').canRead(); }
     get canReadStatusCommessa(): boolean { return this.permissionsService.createEntityHelper('statuscommessa').canRead(); }
     get canReadTipologiaCommessa(): boolean { return this.permissionsService.createEntityHelper('tipologiacommessa').canRead(); }
     get canReadModalitaPagamento(): boolean { return this.permissionsService.createEntityHelper('modalitapagamento').canRead(); }
+    get canReadScopoLavoro(): boolean { return this.permissionsService.createEntityHelper('scopolavoro').canRead(); }
     get canReadTempleatePianoSviluppo(): boolean { return this.permissionsService.createEntityHelper('templatepianosviluppo').canRead(); }
     get canReadCommessa(): boolean { return this.permissionsService.createEntityHelper('commessa').canRead(); }
+    get canReadCostoTrasferta(): boolean { return this.permissionsService.createEntityHelper('costotrasferta').canRead(); }
+    get canReadCollaudo(): boolean { return this.permissionsService.createEntityHelper('collaudo').canRead(); }
+    get canReadOnere(): boolean { return this.permissionsService.createEntityHelper('onere').canRead(); }
 
     // Getters per visibilità sezioni
     get hasBasicInfoPermissions(): boolean { 
@@ -42,6 +47,10 @@ export class HomeComponent {
 
     get hasClientAndCommessaPermissions(): boolean { 
         return this.canReadCliente || this.canReadTempleatePianoSviluppo || this.canReadCommessa;
+    }
+
+    get hasAmministratoriPermissions(): boolean {
+        return this.canReadCostoTrasferta || this.canReadCollaudo || this.canReadOnere;
     }
 
     navigateToGestioneUtenti() {
@@ -60,8 +69,16 @@ export class HomeComponent {
         this.navigator.gestioneModalitaPagamento();
     }
 
+    navigateToGestioneScopoLavoro() {
+        this.navigator.gestioneScopoLavoro();
+    }
+
     navigateToGestioneClienti() {
         this.navigator.gestioneClienti();
+    }
+
+    navigateToGestioneFornitori() {
+        this.navigator.gestioneFornitori();
     }
 
     navigateToGestioneTemplatePianoSviluppo() {
@@ -82,5 +99,17 @@ export class HomeComponent {
 
     navigateToOreESpese() {
         this.navigator.oreESpese();
+    }
+
+    navigateToCostiTrasferta() {
+        this.navigator.costiTrasferta();
+    }
+
+    navigateToCollaudi() {
+        this.navigator.collaudi();
+    }
+
+    navigateToOneri() {
+        this.navigator.oneri();
     }
 }

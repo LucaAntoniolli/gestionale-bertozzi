@@ -34,8 +34,16 @@ export class NavigatorService {
     this.router.navigate(['/anagrafiche/modalita-pagamento']);
   }
 
+  gestioneScopoLavoro(){
+    this.router.navigate(['/anagrafiche/scopi-lavoro']);
+  }
+
   gestioneClienti() {
     this.router.navigate(['/anagrafiche/gestione-clienti']);
+  }
+
+  gestioneFornitori(){
+    this.router.navigate(['/anagrafiche/gestione-fornitori']);
   }
 
   gestioneTemplatePianoSviluppo() {
@@ -62,5 +70,16 @@ export class NavigatorService {
     this.router.navigate(['/gestione-commesse/ore-e-spese']);
   }
 
+  costiTrasferta(){
+    this.router.navigate(['/amministratori/costi-trasferta']);
+  }
+
+  collaudi(){
+    this.router.navigate(['/amministratori/collaudi']);
+  }
+  
+  oneri(){
+    this.router.navigate(['/amministratori/oneri']);
+  }
 
 }
