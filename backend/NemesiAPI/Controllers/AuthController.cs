@@ -179,7 +179,6 @@ namespace NemesiAPI.Controllers
 
         [HttpGet("get-all-roles")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Amministratore")]
         public async Task<IActionResult> GetAllRoles()
         {
             var roles = await roleManager.Roles.ToListAsync();
@@ -188,7 +187,6 @@ namespace NemesiAPI.Controllers
 
         [HttpPost("register")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Amministratore")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var utente = await userManager.FindByEmailAsync(model.Email);
@@ -219,7 +217,6 @@ namespace NemesiAPI.Controllers
 
         [HttpPatch("update-user")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Amministratore")]
         public async Task<IActionResult> Update([FromBody] RegisterModel model)
         {
             var utente = await userManager.FindByEmailAsync(model.Email);
@@ -258,7 +255,6 @@ namespace NemesiAPI.Controllers
 
         [HttpDelete("unregister/{email}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Amministratore")]
         public async Task<IActionResult> Unregister(string email)
         {
             var utente = await userManager.FindByEmailAsync(email);
