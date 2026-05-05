@@ -71,6 +71,7 @@ export class PlanningComponent implements OnInit {
 
     // Dati per i dropdown
     commesseList: Commessa[] = [];
+    utentiPm: Utente[] = [];
     utentiPmEdileList: Utente[] = [];
     utentiList: Utente[] = [];
     utenteLoggato: Utente | null = null;
@@ -165,12 +166,14 @@ export class PlanningComponent implements OnInit {
     private loadReferenceData() {
         forkJoin({
             commesse: this.commessaService.getAllLight(),
+            utentiPm: this.utenteService.getAll(false, false, true),
             utentiPmEdile: this.utenteService.getAll(true, false),
             utenti: this.utenteService.getAll(),
             utente: this.authService.getUser(),
         }).pipe(first()).subscribe({
             next: (data) => {
                 this.commesseList = data.commesse;
+                this.utentiPm = data.utentiPm;
                 this.utentiPmEdileList = data.utentiPmEdile;
                 this.utentiList = data.utenti;
                 this.utenteLoggato = data.utente;

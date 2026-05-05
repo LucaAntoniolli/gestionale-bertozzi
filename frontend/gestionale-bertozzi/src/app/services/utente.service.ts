@@ -21,13 +21,16 @@ export class UtenteService {
      * Recupera tutti gli utenti dal backend
      * @returns Observable array di utenti
      */
-    getAll(onlyPmEdile: boolean = false, onlyPmAmministrativo: boolean = false, onlyAttivi: boolean = true): Observable<Utente[]> {
+    getAll(onlyPmEdile: boolean = false, onlyPmAmministrativo: boolean = false, onlyPm: boolean = false, onlyAttivi: boolean = true): Observable<Utente[]> {
         let params = new HttpParams();
         if (onlyPmEdile) {
             params = params.set('onlyPmEdile', onlyPmEdile.toString());
         }
         if (onlyPmAmministrativo) {
             params = params.set('onlyPmAmministrativo', onlyPmAmministrativo.toString());
+        }
+        if (onlyPm) {
+            params = params.set('onlyPm', onlyPm.toString());
         }
         if (onlyAttivi !== undefined) {
             params = params.set('onlyAttivi', onlyAttivi.toString());

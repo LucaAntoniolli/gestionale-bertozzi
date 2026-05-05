@@ -17,8 +17,8 @@
 
         <!-- TABELLA UTENTI CLIENTI - DESKTOP-->
         @if(utenti) {
-        <p-table #dt1 [size]="'small'" [value]="utenti" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
-            styleClass="p-datatable-gridlines" [paginator]="true"
+        <p-table #dt1 [size]="'small'" [value]="utenti" dataKey="id" [loading]="loading" [rowHover]="true"
+            styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="600px"
             [globalFilterFields]="['nominativo', 'cliente', 'email', 'societa', 'ruoli']" responsiveLayout="scroll"
             sortMode="multiple">
             <ng-template pTemplate="caption">

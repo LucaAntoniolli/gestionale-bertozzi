@@ -62,22 +62,30 @@ namespace NemesiAPI.Controllers
 
         [HttpGet("get-users")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> GetUsers([FromQuery] bool? onlyPmEdile = false, [FromQuery] bool? onlyPmAmministrativo = false, [FromQuery] bool? onlyAttivi = true)
+        public async Task<IActionResult> GetUsers([FromQuery] bool? onlyPmEdile = false, [FromQuery] bool? onlyPmAmministrativo = false, [FromQuery] bool? onlyPm = false, [FromQuery] bool? onlyAttivi = true)
         {
             if(onlyPmEdile == true && onlyPmAmministrativo == true)
             {
                 return BadRequest("I parametri onlyPmEdile e onlyPmAmministrativo non possono essere entrambi true");
             }
 
+
             IQueryable<Utente> q = db.Users.AsNoTracking();
 
-            if(onlyPmEdile == true)
-                {
-                q = q.Where(u => u.RuoloAziendale == "PM Edile");
-            }
-            else if(onlyPmAmministrativo == true)
+            if (onlyPm == true)
             {
-                q = q.Where(u => u.RuoloAziendale == "PM Amministrativo");
+                q = q.Where(u => u.RuoloAziendale == "PM Edile" || u.RuoloAziendale == "PM Amministrativo");
+            }
+            else
+            {
+                if (onlyPmEdile == true)
+                {
+                    q = q.Where(u => u.RuoloAziendale == "PM Edile");
+                }
+                else if (onlyPmAmministrativo == true)
+                {
+                    q = q.Where(u => u.RuoloAziendale == "PM Amministrativo");
+                }
             }
 
             if (onlyAttivi == true)

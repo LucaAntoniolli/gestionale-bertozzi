@@ -120,6 +120,39 @@
                 </tr>
             </ng-template>
         </p-table>
+
+        <!-- ======================================================= -->
+        <!-- SEZIONE: GRAFICO ANDAMENTO ORE GIORNALIERO             -->
+        <!-- ======================================================= -->
+        <div class="mt-4">
+            <p-divider align="left" type="solid">
+                <b class="text-xl">Andamento ore giornaliero</b>
+            </p-divider>
+        </div>
+
+        <p-card>
+            <div class="flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                <span class="text-color-secondary text-sm">Ore caricate giorno per giorno (utilizza i filtri utente e
+                    commessa sopra la tabella)</span>
+                <div class="flex flex-wrap gap-2 align-items-center">
+                    <p-select [options]="giorniOptions" [(ngModel)]="giorniSelezionati" optionLabel="label"
+                        optionValue="value" (onChange)="loadOrePerGiorno()" [style]="{ 'min-width': '180px' }"
+                        [disabled]="referenceDataLoading"></p-select>
+                </div>
+            </div>
+
+            @if (loadingChart) {
+            <p-skeleton height="300px" borderRadius="8px"></p-skeleton>
+            } @else if (chartData) {
+            <div style="height: 300px">
+                <p-chart type="bar" [data]="chartData" [options]="chartOptions" height="300"></p-chart>
+            </div>
+            } @else {
+            <div class="flex align-items-center justify-content-center" style="height: 300px">
+                <p class="text-color-secondary">Nessun dato disponibile per il periodo selezionato.</p>
+            </div>
+            }
+        </p-card>
     </div>
 </div>
 

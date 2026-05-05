@@ -13,17 +13,24 @@ import { InputIconModule } from 'primeng/inputicon';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
+import { ChartModule } from 'primeng/chart';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { SkeletonModule } from 'primeng/skeleton';
 
 import { TitoloPaginaComponent } from '../../shared/components/titolo-pagina/titolo-pagina.component';
 import { OreSpeseDialogComponent, OreSpeseDialogEditData } from '../../shared/components/ore-spese-dialog/ore-spese-dialog.component';
 import { OreSpesePagedItemDto } from '../../../models/GestioneCommesse/ore-spese-paged.model';
 import { OreSpeseCommessaService } from '../../../services/GestioneCommesse/ore-spese-commessa.service';
 import { Commessa } from '../../../models/GestioneCommesse/commessa';
+import { CommessaLight } from '../../../models/GestioneCommesse/commessa-light';
 import { CommessaService } from '../../../services/GestioneCommesse/commessa.service';
 import { Utente } from '../../../models/utente';
 import { UtenteService } from '../../../services/utente.service';
 import { PermissionsService } from '../../../auth/permissions.service';
 import { AuthService } from '../../../auth/auth.service';
+import { DashboardService } from '../../../services/dashboard.service';
+import { OrePerGiornoItem } from '../../../models/dashboard.model';
 
 @Component({
     selector: 'app-ore-e-spese',
@@ -32,15 +39,19 @@ import { AuthService } from '../../../auth/auth.service';
     standalone: true,
     imports: [
         ButtonModule,
+        CardModule,
+        ChartModule,
         CommonModule,
         ConfirmDialogModule,
         DatePickerModule,
+        DividerModule,
         FormsModule,
         IconFieldModule,
         InputIconModule,
         MessageModule,
         OreSpeseDialogComponent,
         SelectModule,
+        SkeletonModule,
         TableModule,
         TitoloPaginaComponent,
         ToolbarModule,
@@ -58,7 +69,7 @@ export class OreESpeseComponent implements OnInit {
     totaleChilometri: number = 0;
 
     // Dati di riferimento
-    commesseList: Commessa[] = [];
+    commesseList: CommessaLight[] = [];
     utentiList: Utente[] = [];
     utenteLoggato: Utente | null = null;
 
@@ -77,6 +88,18 @@ export class OreESpeseComponent implements OnInit {
     isModifying: boolean = false;
     editDataDialog?: OreSpeseDialogEditData;
 
+    // Grafico ore per giorno
+    loadingChart: boolean = false;
+    chartData: any;
+    chartOptions: any;
+    giorniOptions = [
+        { label: 'Ultimi 7 giorni', value: 7 },
+        { label: 'Ultimi 30 giorni', value: 30 },
+        { label: 'Ultimi 60 giorni', value: 60 },
+        { label: 'Ultimi 90 giorni', value: 90 },
+    ];
+    giorniSelezionati: number = 30;
+
     isMobile$?: Observable<boolean>;
 
     @ViewChild('dt1') table!: Table;
@@ -93,6 +116,7 @@ export class OreESpeseComponent implements OnInit {
         private oreSpeseService: OreSpeseCommessaService,
         private commessaService: CommessaService,
         private utenteService: UtenteService,
+        private dashboardService: DashboardService,
         private ms: MessageService,
         private cs: ConfirmationService,
         private bo: BreakpointObserver,
@@ -118,14 +142,17 @@ export class OreESpeseComponent implements OnInit {
                 this.commesseList = data.commesse;
                 this.utentiList = data.utenti;
                 this.utenteLoggato = data.utente;
-                this.referenceDataLoading = false;
 
-                // Utente Base: pre-seleziona se stesso e carica subito i dati
+                // Utente Base: pre-seleziona se stesso per filtri tabella e grafico
+                // IMPORTANTE: deve essere fatto PRIMA di referenceDataLoading = false
                 if (this.isUtenteBase && this.utenteLoggato?.id) {
                     this.filtroUtenteId = this.utenteLoggato.id;
                 }
 
+                this.referenceDataLoading = false;
+
                 this.loadData();
+                this.loadOrePerGiorno();
                 this.cdr.detectChanges();
             },
             error: () => {
@@ -186,6 +213,7 @@ export class OreESpeseComponent implements OnInit {
             this.table.first = 0;
         }
         this.loadData();
+        this.loadOrePerGiorno();
     }
 
     // ─── Dialog creazione ──────────────────────────────────────────────────────
@@ -230,6 +258,89 @@ export class OreESpeseComponent implements OnInit {
                 });
             }
         });
+    }
+
+    // ─── Grafico ore per giorno ────────────────────────────────────────────────
+
+    loadOrePerGiorno() {
+        this.loadingChart = true;
+        this.dashboardService
+            .getOrePerGiorno(
+                this.giorniSelezionati,
+                this.filtroCommessaId,
+                this.filtroUtenteId,
+            )
+            .pipe(first())
+            .subscribe({
+                next: (data) => {
+                    this.buildChartData(data);
+                    this.loadingChart = false;
+                    this.cdr.detectChanges();
+                },
+                error: () => {
+                    this.loadingChart = false;
+                    this.cdr.detectChanges();
+                },
+            });
+    }
+
+    private buildChartData(items: OrePerGiornoItem[]) {
+        const style = getComputedStyle(document.documentElement);
+        const textColor = style.getPropertyValue('--p-text-color');
+        const textMuted = style.getPropertyValue('--p-text-muted-color');
+        const borderColor = style.getPropertyValue('--p-content-border-color');
+        const primaryBg = style.getPropertyValue('--p-primary-400');
+        const primaryBorder = style.getPropertyValue('--p-primary-500');
+
+        this.chartData = {
+            labels: items.map((i) => this.formatDateLabel(i.data)),
+            datasets: [
+                {
+                    label: 'Ore caricate',
+                    data: items.map((i) => i.totaleOre),
+                    backgroundColor: primaryBg || '#6366f1',
+                    borderColor: primaryBorder || '#4f46e5',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                },
+            ],
+        };
+
+        this.chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: textColor },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx: any) => ` ${ctx.parsed.y} h`,
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    ticks: { color: textMuted, maxRotation: 45 },
+                    grid: { color: borderColor },
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: textMuted,
+                        callback: (value: number) => `${value} h`,
+                    },
+                    grid: { color: borderColor },
+                },
+            },
+        };
+    }
+
+    private formatDateLabel(dateStr: string): string {
+        if (!dateStr) return '';
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr;
+        return `${parts[2]}/${parts[1]}`;
     }
 
     getCommessaLabel(commessaId?: number): string {

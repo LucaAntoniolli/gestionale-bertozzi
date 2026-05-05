@@ -228,7 +228,7 @@
                 <div class="col-6">
                     <div class="field">
                         <label htmlFor="assegnatarioPrimarioId" class="mb-2 font-semibold">Assegnatario Primario</label>
-                        <p-select id="assegnatarioPrimarioId" [options]="utentiPmEdileList" optionLabel="nominativo"
+                        <p-select id="assegnatarioPrimarioId" [options]="utentiPm" optionLabel="nominativo"
                             optionValue="id" placeholder="Seleziona utente" formControlName="assegnatarioPrimarioId"
                             [showClear]="canEditAssegnatarioPrimario" class="w-full" [filter]="true"
                             [disabled]="!canEditAssegnatarioPrimario" />
