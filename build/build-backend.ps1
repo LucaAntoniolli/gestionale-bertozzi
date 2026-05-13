@@ -4,13 +4,13 @@ $publishDir = $args[2]
 
 $cliTools = "$PSScriptRoot\.cli-tools"
 $cliToolsVersion = "6.0"
-$dotnet = "$cliTools\dotnet"
+$dotnet = "$cliTools\dotnet.exe"
 
 $apisDir = "$sourcesDir\backend"
 
 Write-Host "Installing (updating) build tools:"
-if (Test-Path -Path $cliTools) {
-    "cli-tools path exists; skipping installation"
+if (Test-Path -Path $dotnet) {
+    "cli-tools already installed; skipping installation"
 } else {
     & "$PSScriptRoot\install-cli.ps1" $cliTools $cliToolsVersion
 }
