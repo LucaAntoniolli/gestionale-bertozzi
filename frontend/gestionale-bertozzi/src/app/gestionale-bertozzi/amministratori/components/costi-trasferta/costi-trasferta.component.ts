@@ -26,6 +26,7 @@ import { CommessaLight } from '../../../../models/GestioneCommesse/commessa-ligh
 import { CommessaService } from '../../../../services/GestioneCommesse/commessa.service';
 import { Utente } from '../../../../models/utente';
 import { UtenteService } from '../../../../services/utente.service';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
     selector: 'app-costi-trasferta',
@@ -44,6 +45,7 @@ import { UtenteService } from '../../../../services/utente.service';
         ReactiveFormsModule,
         SelectModule,
         TableModule,
+        TextareaModule,
         TitoloPaginaComponent,
         ToolbarModule,
     ]
@@ -185,6 +187,7 @@ export class CostiTrasfertaComponent implements OnInit {
             costoTreno: [null],
             dataDa: [null],
             dataA: [null],
+            note: [''],
         });
         this.subscribeCalcoloKm();
         this.showDialog = true;
@@ -207,6 +210,8 @@ export class CostiTrasfertaComponent implements OnInit {
             costoTreno: [item.costoTreno],
             dataDa: [item.dataDa ? item.dataDa.toDate() : null],
             dataA: [item.dataA ? item.dataA.toDate() : null],
+            note: [item.note || ''],
+
         });
         this.subscribeCalcoloKm();
         if (item.clienteId) {

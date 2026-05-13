@@ -21,6 +21,7 @@ namespace NemesiLIB.Model.Amministrazione
         public decimal? CostoTreno { get; set; }
         public DateTime? DataDa { get; set; }
         public DateTime? DataA { get; set; }
+        public string? Note { get; set; }
         public DateTime DataCreazione { get; set; }
         public DateTime? DataModifica { get; set; }
         public string? UtenteCreazione { get; set; }

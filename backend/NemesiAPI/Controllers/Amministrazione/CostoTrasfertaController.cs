@@ -118,6 +118,7 @@ namespace NemesiAPI.Controllers.Amministrazione
             existing.CostoTreno = model.CostoTreno;
             existing.DataDa = model.DataDa;
             existing.DataA = model.DataA;
+            existing.Note = model.Note;
 
             try
             {
@@ -213,6 +214,7 @@ namespace NemesiAPI.Controllers.Amministrazione
                     CostoTelepass = ct.CostoTelepass,
                     CostoHotel = ct.CostoHotel,
                     CostoTreno = ct.CostoTreno,
+                    Note = ct.Note,
                     DataDa = ct.DataDa,
                     DataA = ct.DataA,
                     DataCreazione = ct.DataCreazione,

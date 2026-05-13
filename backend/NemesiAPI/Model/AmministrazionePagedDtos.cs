@@ -47,6 +47,7 @@ namespace NemesiAPI.Model
         public decimal? CostoTelepass { get; set; }
         public decimal? CostoHotel { get; set; }
         public decimal? CostoTreno { get; set; }
+        public string? Note { get; set; }
         public DateTime? DataDa { get; set; }
         public DateTime? DataA { get; set; }
         public DateTime DataCreazione { get; set; }

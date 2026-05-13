@@ -15,6 +15,7 @@ export class CostoTrasferta {
     costoTreno?: number;
     dataDa?: moment.Moment;
     dataA?: moment.Moment;
+    note?: string;
     dataCreazione?: Date;
     dataModifica?: Date;
     utenteCreazione?: string;

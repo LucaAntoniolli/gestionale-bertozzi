@@ -311,6 +311,7 @@ namespace NemesiLIB.Context
                 e.Property(ct => ct.CostoTelepass).HasColumnType("decimal(18,2)").IsRequired(false);
                 e.Property(ct => ct.CostoHotel).HasColumnType("decimal(18,2)").IsRequired(false);
                 e.Property(ct => ct.CostoTreno).HasColumnType("decimal(18,2)").IsRequired(false);
+                e.Property(ct => ct.Note).HasMaxLength(2000).IsRequired(false);
                 e.HasOne(ct => ct.Utente).WithMany().HasForeignKey(ct => ct.UtenteId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne(ct => ct.Commessa).WithMany().HasForeignKey(ct => ct.CommessaId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne(ct => ct.Cliente).WithMany().HasForeignKey(ct => ct.ClienteId).OnDelete(DeleteBehavior.NoAction);

@@ -18,6 +18,7 @@ export class CostoTrasfertaPagedItemDto {
     costoTreno?: number;
     dataDa?: moment.Moment;
     dataA?: moment.Moment;
+    note?: string;
     dataCreazione!: Date;
 
     static map(item: any): CostoTrasfertaPagedItemDto {

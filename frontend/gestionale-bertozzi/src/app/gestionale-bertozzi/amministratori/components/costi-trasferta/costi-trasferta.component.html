@@ -94,6 +94,8 @@
           <th style="min-width: 8rem">Telepass (€)</th>
           <th style="min-width: 8rem">Hotel (€)</th>
           <th style="min-width: 8rem">Treno (€)</th>
+          <th style="min-width: 16rem">Note</th>
+
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-item>
@@ -128,11 +130,12 @@
             }}</td>
           <td>{{ item.costoTreno !== null && item.costoTreno !== undefined ? (item.costoTreno | number: '1.2-2') : '-'
             }}</td>
+          <td>{{ item.note || '-' }}</td>
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="13">Nessun costo trasferta trovato.</td>
+          <td colspan="14">Nessun costo trasferta trovato.</td>
         </tr>
       </ng-template>
     </p-table>
@@ -219,6 +222,10 @@
         <label class="font-semibold block mb-2">Treno (€)</label>
         <p-inputnumber formControlName="costoTreno" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
           class="w-full" styleClass="w-full" />
+      </div>
+      <div class="col-12">
+        <label class="font-semibold block mb-2">Note</label>
+        <textarea pInputTextarea formControlName="note" class="w-full" rows="3"></textarea>
       </div>
     </div>
     <div class="grid mt-4">
