@@ -160,7 +160,7 @@ export class OneriComponent implements OnInit {
         this.selectedOnere = item;
         this.onereForm = this.fb.group({
             commessaId: [item.commessaId, Validators.required],
-            data: [item.data ? new Date(item.data.toDate()) : null, Validators.required],
+            data: [item.data ? item.data.toDate() : null, Validators.required],
             pratica: [item.pratica, Validators.required],
             importoOneri: [item.importoOneri, Validators.required],
         });

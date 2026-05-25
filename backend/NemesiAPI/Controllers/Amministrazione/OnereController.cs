@@ -151,6 +151,7 @@ namespace NemesiAPI.Controllers.Amministrazione
                     CommessaId = o.CommessaId,
                     CommessaDescrizione = commessa?.Descrizione,
                     CommessaCodiceInterno = commessa?.CommessaCodiceInterno,
+                    Data = o.Data,
                     Pratica = o.Pratica,
                     ImportoOneri = o.ImportoOneri,
                     DataCreazione = o.DataCreazione,
