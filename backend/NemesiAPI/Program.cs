@@ -68,7 +68,7 @@ namespace NemesiAPI
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.EnvironmentName == "luca")
+            if (app.Environment.EnvironmentName == "luca" || app.Environment.EnvironmentName == "giacomo")
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
