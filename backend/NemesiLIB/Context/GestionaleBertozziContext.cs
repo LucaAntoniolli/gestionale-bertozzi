@@ -230,6 +230,8 @@ namespace NemesiLIB.Context
                 e.Property(t => t.DataConsegna).IsRequired(false);
                 e.Property(t => t.DescrizioneAttivitaSvolta).IsRequired(false).HasColumnType("nvarchar(max)");
                 e.Property(t => t.Completato).IsRequired().HasDefaultValue(false);
+                e.Property(t => t.TipoPlanning).IsRequired().HasDefaultValue(TipoPlanning.Edile);
+                e.HasIndex(t => t.TipoPlanning);
                 e.HasOne(t => t.AssegnatarioPrimario).WithMany().HasForeignKey(t => t.AssegnatarioPrimarioId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne(t => t.AssegnatarioSecondario).WithMany().HasForeignKey(t => t.AssegnatarioSecondarioId).OnDelete(DeleteBehavior.NoAction);
                 e.HasOne<Commessa>().WithMany().HasForeignKey(t => t.CommessaId).OnDelete(DeleteBehavior.NoAction);

@@ -2,6 +2,11 @@ import moment from 'moment';
 import { Utente } from '../utente';
 import { Commessa } from './commessa';
 
+export enum TipoPlanning {
+    Edile = 0,
+    Amministrativo = 1,
+}
+
 export class ToDo {
     id?: number;
     assegnatarioPrimarioId?: string;
@@ -12,6 +17,7 @@ export class ToDo {
     priorita?: number;
     descrizioneAttivitaSvolta?: string;
     completato: boolean = false;
+    tipoPlanning?: TipoPlanning;
     dataCreazione?: moment.Moment;
     dataModifica?: moment.Moment;
     utenteCreazione?: string;

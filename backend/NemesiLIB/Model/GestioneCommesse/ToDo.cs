@@ -5,6 +5,12 @@ using System.Text;
 
 namespace NemesiLIB.Model.GestioneCommesse
 {
+    public enum TipoPlanning : short
+    {
+        Edile = 0,
+        Amministrativo = 1
+    }
+
     public class ToDo : IAuditable
     {
         public int Id { get; set; }
@@ -16,6 +22,7 @@ namespace NemesiLIB.Model.GestioneCommesse
         public short Priorita { get; set; } = 0;
         public string? DescrizioneAttivitaSvolta { get; set; }
         public bool Completato { get; set; } = false;
+        public TipoPlanning TipoPlanning { get; set; } = TipoPlanning.Edile;
         public DateTime DataCreazione { get; set; }
         public DateTime? DataModifica { get; set; }
         public string? UtenteCreazione { get; set; }
