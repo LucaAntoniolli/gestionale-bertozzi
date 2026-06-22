@@ -412,3 +412,6 @@ FodyWeavers.xsd
 appsettings.*.json
 !appsettings.json
 backend/NemesiAPI/appsettings.luca.json
+
+# Documentazione interna AI / contesto di lavoro
+.ai-docs/
