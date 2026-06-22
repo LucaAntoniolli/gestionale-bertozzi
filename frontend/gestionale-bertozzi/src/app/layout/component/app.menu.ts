@@ -63,6 +63,7 @@ export class AppMenu {
                         { label: 'Gestione template piani di sviluppo', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/template-piani-sviluppo'] },
                         { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
                         { label: 'Planning Edile', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
+                        { label: 'Planning Amministrativo', icon: 'pi pi-fw pi-calendar', routerLink: ['/gestione-commesse/planning-amministrativo'] },
                         { label: 'Ore e Spese', icon: 'pi pi-fw pi-stopwatch', routerLink: ['/gestione-commesse/ore-e-spese'] },
 
                     ]

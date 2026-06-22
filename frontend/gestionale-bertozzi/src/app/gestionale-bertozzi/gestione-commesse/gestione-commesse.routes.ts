@@ -6,6 +6,7 @@ import { PlanningComponent } from "./planning/planning.component";
 import { OreESpeseComponent } from "./ore-e-spese/ore-e-spese.component";
 import { GestioneCommesseComponent } from "./gestione-commesse.component";
 import { TemplatePianiSviluppoComponent } from "./template-piani-sviluppo/template-piani-sviluppo.component";
+import { PlanningAmministrativoComponent } from "./planning-amministrativo/planning-amministrativo.component";
 
 export default [
     {
@@ -15,6 +16,7 @@ export default [
             { path: 'elenco-commesse', component: ElencoCommesseComponent, canActivate: [accessoGuard] },
             { path: 'dettaglio-commessa/:id', component: DettaglioCommessaComponent, canActivate: [accessoGuard] },
             { path: 'planning', component: PlanningComponent, canActivate: [accessoGuard] },
+            { path: 'planning-amministrativo', component: PlanningAmministrativoComponent, canActivate: [accessoGuard, hasAnyRoleGuard(['Amministratore', 'Backoffice'])] },
             { path: 'ore-e-spese', component: OreESpeseComponent, canActivate: [accessoGuard] },
         ]
     },
