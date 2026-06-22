@@ -413,5 +413,6 @@ appsettings.*.json
 !appsettings.json
 backend/NemesiAPI/appsettings.luca.json
 
-# Documentazione interna AI / contesto di lavoro
-.ai-docs/
+# Documentazione interna AI, escluso il launcher
+.ai-docs/*
+!.ai-docs/START_LOCAL.cmd
