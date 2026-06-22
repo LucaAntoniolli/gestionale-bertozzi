@@ -406,6 +406,8 @@ FodyWeavers.xsd
 
 # Escludi la mini analisi iniziale
 /docs/AnalisiIniziale.docx 
+/docs/AnalisiIniziale.pdf
+
 # Escludi tutti gli appsettings degli ambienti tranne quello base
 appsettings.*.json
 !appsettings.json
