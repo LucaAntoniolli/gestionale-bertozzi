@@ -404,6 +404,8 @@ FodyWeavers.xsd
 /**/.publish
 /frontend/sakai-ng-20.0.0
 
+# Escludi la mini analisi iniziale
+/docs/AnalisiIniziale.docx 
 # Escludi tutti gli appsettings degli ambienti tranne quello base
 appsettings.*.json
 !appsettings.json
