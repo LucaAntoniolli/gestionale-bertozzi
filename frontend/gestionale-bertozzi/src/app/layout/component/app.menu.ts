@@ -60,10 +60,10 @@ export class AppMenu {
                 {
                     label: 'GESTIONE COMMESSE',
                     items: [
-                            { label: 'Gestione template piani di sviluppo', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/template-piani-sviluppo'] },
-                            { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
-                            { label: 'Planning', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
-                            { label: 'Ore e Spese', icon: 'pi pi-fw pi-stopwatch', routerLink: ['/gestione-commesse/ore-e-spese'] },
+                        { label: 'Gestione template piani di sviluppo', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/template-piani-sviluppo'] },
+                        { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
+                        { label: 'Planning Edile', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
+                        { label: 'Ore e Spese', icon: 'pi pi-fw pi-stopwatch', routerLink: ['/gestione-commesse/ore-e-spese'] },
 
                     ]
                 },
@@ -85,13 +85,13 @@ export class AppMenu {
                     label: 'GESTIONE COMMESSE',
                     items: [
                         { label: 'Commesse', icon: 'pi pi-fw pi-file', routerLink: ['/gestione-commesse/elenco-commesse'] },
-                        { label: 'Planning', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
+                        { label: 'Planning Edile', icon: 'pi pi-fw pi-clock', routerLink: ['/gestione-commesse/planning'] },
                         { label: 'Ore e Spese', icon: 'pi pi-fw pi-stopwatch', routerLink: ['/gestione-commesse/ore-e-spese'] },
                     ]
                 },
             );
         }
-        
+
         this.cdr.detectChanges();
     }
 }
