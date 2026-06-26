@@ -23,7 +23,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { TagModule } from 'primeng/tag';
 import moment from 'moment';
 
-import { ToDo } from '../../../models/GestioneCommesse/todo.model';
+import { ToDo, TipoPlanning } from '../../../models/GestioneCommesse/todo.model';
 import { TodoService } from '../../../services/GestioneCommesse/todo.service';
 import { Commessa } from '../../../models/GestioneCommesse/commessa';
 import { CommessaService } from '../../../services/GestioneCommesse/commessa.service';
@@ -197,7 +197,7 @@ export class PlanningComponent implements OnInit {
     loadData() {
         this.loading = true;
         const completato = this.vistaSelezionata === 'nonCompletati' ? false : true;
-        this.todoService.getAll(this.commessaSelezionata, undefined, undefined, completato).pipe(first())
+        this.todoService.getAll(this.commessaSelezionata, undefined, undefined, completato, TipoPlanning.Edile).pipe(first())
             .subscribe({
                 next: (todoList: ToDo[]) => {
                     this.loading = false;
@@ -289,6 +289,7 @@ export class PlanningComponent implements OnInit {
         const formValue = this.nuovoTodoForm.getRawValue();
 
         const todo = new ToDo();
+        todo.tipoPlanning = TipoPlanning.Edile;
         todo.commessaId = formValue.commessaId;
         todo.assegnatarioPrimarioId = formValue.assegnatarioPrimarioId;
         todo.assegnatarioSecondarioId = formValue.assegnatarioSecondarioId || null;
@@ -355,7 +356,8 @@ export class PlanningComponent implements OnInit {
         }
 
         const todo = new ToDo();
-        
+        todo.tipoPlanning = TipoPlanning.Edile;
+
         if (this.isModifying && this.todoInModifica?.id) {
             todo.id = this.todoInModifica.id;
         }

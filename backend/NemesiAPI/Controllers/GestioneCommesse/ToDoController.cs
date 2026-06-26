@@ -33,13 +33,13 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             [FromQuery] int? commessaId = null,
             [FromQuery] string? assegnatarioPrimarioId = null,
             [FromQuery] string? assegnatarioSecondarioId = null,
-            [FromQuery] bool? completato = null)
+            [FromQuery] bool? completato = null,
+            [FromQuery] TipoPlanning tipoPlanning = TipoPlanning.Edile)
         {
             IQueryable<ToDo> q = dbContext.ToDo
                 .AsNoTracking()
-                .Where(t => t.TipoPlanning == TipoPlanning.Edile);
+                .Where(t => t.TipoPlanning == tipoPlanning);
 
-            // Ottengo l'utente corrente e applica il filtro per "Utente Base"
             var currentUserEmail = User?.Identity?.Name;
             var currentUser = await userManager.FindByEmailAsync(currentUserEmail);
 
@@ -47,11 +47,10 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             {
                 var roles = await userManager.GetRolesAsync(currentUser);
 
-                // Se l'utente ha il ruolo "Utente Base", mostra solo i ToDo assegnati a lui o creati da lui
                 if (roles.Contains("Utente Base"))
                 {
-                    q = q.Where(t => 
-                        t.AssegnatarioPrimarioId == currentUser.Id || 
+                    q = q.Where(t =>
+                        t.AssegnatarioPrimarioId == currentUser.Id ||
                         t.AssegnatarioSecondarioId == currentUser.Id ||
                         t.UtenteCreazione == currentUserEmail);
                 }
@@ -92,7 +91,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
                 .AsNoTracking()
                 .Include(t => t.AssegnatarioPrimario)
                 .Include(t => t.AssegnatarioSecondario)
-                .FirstOrDefaultAsync(x => x.Id == id && x.TipoPlanning == TipoPlanning.Edile);
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (item == null)
                 return NotFound();
@@ -106,8 +105,6 @@ namespace NemesiAPI.Controllers.GestioneCommesse
         {
             if (model == null)
                 return BadRequest();
-
-            model.TipoPlanning = TipoPlanning.Edile;
 
             // Valida che la commessa esista
             if (!await dbContext.Commessa.AnyAsync(c => c.Id == model.CommessaId))
@@ -137,7 +134,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (model == null || id != model.Id)
                 return BadRequest();
 
-            var existing = await dbContext.ToDo.FirstOrDefaultAsync(t => t.Id == id && t.TipoPlanning == TipoPlanning.Edile);
+            var existing = await dbContext.ToDo.FirstOrDefaultAsync(t => t.Id == id);
             if (existing == null)
                 return NotFound();
 
@@ -184,7 +181,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
         [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "todo.delete")]
         public async Task<IActionResult> Delete(int id)
         {
-            var item = await dbContext.ToDo.FirstOrDefaultAsync(t => t.Id == id && t.TipoPlanning == TipoPlanning.Edile);
+            var item = await dbContext.ToDo.FirstOrDefaultAsync(t => t.Id == id);
             if (item == null)
                 return NotFound();
 
@@ -198,7 +195,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
         [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "todo.update")]
         public async Task<IActionResult> MarkAsComplete(int id, [FromBody] string? descrizioneAttivitaSvolta = null)
         {
-            var item = await dbContext.ToDo.FirstOrDefaultAsync(t => t.Id == id && t.TipoPlanning == TipoPlanning.Edile);
+            var item = await dbContext.ToDo.FirstOrDefaultAsync(t => t.Id == id);
             if (item == null)
                 return NotFound();
 
@@ -217,7 +214,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
         [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "todo.update")]
         public async Task<IActionResult> MarkAsIncomplete(int id)
         {
-            var item = await dbContext.ToDo.FirstOrDefaultAsync(t => t.Id == id && t.TipoPlanning == TipoPlanning.Edile);
+            var item = await dbContext.ToDo.FirstOrDefaultAsync(t => t.Id == id);
             if (item == null)
                 return NotFound();
 

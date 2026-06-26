@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { ToDo } from '../../models/GestioneCommesse/todo.model';
+import { ToDo, TipoPlanning } from '../../models/GestioneCommesse/todo.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,10 +23,11 @@ export class TodoService {
    * @returns Observable array di ToDo
    */
   getAll(
-    commessaId?: number, 
-    assegnatarioPrimarioId?: string, 
+    commessaId?: number,
+    assegnatarioPrimarioId?: string,
     assegnatarioSecondarioId?: string,
-    completato?: boolean
+    completato?: boolean,
+    tipoPlanning: TipoPlanning = TipoPlanning.Edile
   ): Observable<ToDo[]> {
     let params = new HttpParams();
     if (commessaId) {
@@ -41,6 +42,7 @@ export class TodoService {
     if (completato !== undefined) {
       params = params.set('completato', completato.toString());
     }
+    params = params.set('tipoPlanning', tipoPlanning.toString());
     return this.httpClient.get<any[]>(this.baseUrl, { params })
       .pipe(map(data => ToDo.mapArray(data)));
   }

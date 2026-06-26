@@ -22,10 +22,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { first, forkJoin, map, Observable } from 'rxjs';
 import { CommessaLight } from '../../../models/GestioneCommesse/commessa-light';
-import { ToDo } from '../../../models/GestioneCommesse/todo.model';
+import { ToDo, TipoPlanning } from '../../../models/GestioneCommesse/todo.model';
 import { Utente } from '../../../models/utente';
 import { CommessaService } from '../../../services/GestioneCommesse/commessa.service';
-import { PlanningAmministrativoService } from '../../../services/GestioneCommesse/planning-amministrativo.service';
+import { TodoService } from '../../../services/GestioneCommesse/todo.service';
 import { UtenteService } from '../../../services/utente.service';
 import { AuthService } from '../../../auth/auth.service';
 import { TitoloPaginaComponent } from '../../shared/components/titolo-pagina/titolo-pagina.component';
@@ -81,7 +81,7 @@ export class PlanningAmministrativoComponent implements OnInit {
     @ViewChild('descrizioneTodoInput') descrizioneTodoInput?: ElementRef;
 
     constructor(
-        private planningService: PlanningAmministrativoService,
+        private todoService: TodoService,
         private commessaService: CommessaService,
         private utenteService: UtenteService,
         private authService: AuthService,
@@ -103,7 +103,7 @@ export class PlanningAmministrativoComponent implements OnInit {
     loadData(): void {
         this.loading = true;
         const completato = this.vistaSelezionata === 'nonCompletati' ? false : true;
-        this.planningService.getAll(this.commessaSelezionata, completato).pipe(first()).subscribe({
+        this.todoService.getAll(this.commessaSelezionata, undefined, undefined, completato, TipoPlanning.Amministrativo).pipe(first()).subscribe({
             next: todoList => {
                 this.todoList = todoList;
                 this.loading = false;
@@ -145,9 +145,9 @@ export class PlanningAmministrativoComponent implements OnInit {
 
         let operation$: Observable<ToDo | void>;
         if (this.todoInModifica?.id) {
-            operation$ = this.planningService.update(this.todoInModifica.id, todo);
+            operation$ = this.todoService.update(this.todoInModifica.id, todo);
         } else {
-            operation$ = this.planningService.create(todo);
+            operation$ = this.todoService.create(todo);
         }
 
         operation$.pipe(first()).subscribe({
@@ -177,7 +177,7 @@ export class PlanningAmministrativoComponent implements OnInit {
             return;
         }
 
-        this.planningService.create(this.buildTodoFromForm()).pipe(first()).subscribe({
+        this.todoService.create(this.buildTodoFromForm()).pipe(first()).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',
@@ -200,7 +200,7 @@ export class PlanningAmministrativoComponent implements OnInit {
 
     completaTodo(todo: ToDo): void {
         if (!todo.id) return;
-        this.planningService.markAsComplete(todo.id).pipe(first()).subscribe({
+        this.todoService.markAsComplete(todo.id).pipe(first()).subscribe({
             next: () => {
                 this.messageService.add({ severity: 'success', summary: 'Conferma', detail: 'Attività completata' });
                 this.loadData();
@@ -211,7 +211,7 @@ export class PlanningAmministrativoComponent implements OnInit {
 
     riapriTodo(todo: ToDo): void {
         if (!todo.id) return;
-        this.planningService.markAsIncomplete(todo.id).pipe(first()).subscribe({
+        this.todoService.markAsIncomplete(todo.id).pipe(first()).subscribe({
             next: () => {
                 this.messageService.add({ severity: 'success', summary: 'Conferma', detail: 'Attività riaperta' });
                 this.loadData();
@@ -236,7 +236,7 @@ export class PlanningAmministrativoComponent implements OnInit {
             acceptLabel: 'Sì',
             rejectLabel: 'No',
             accept: () => {
-                this.planningService.delete(todo.id!).pipe(first()).subscribe({
+                this.todoService.delete(todo.id!).pipe(first()).subscribe({
                     next: () => {
                         this.messageService.add({
                             severity: 'success',
@@ -314,6 +314,7 @@ export class PlanningAmministrativoComponent implements OnInit {
     private buildTodoFromForm(): ToDo {
         const value = this.todoForm!.getRawValue();
         const todo = new ToDo();
+        todo.tipoPlanning = TipoPlanning.Amministrativo;
         todo.commessaId = value.commessaId;
         todo.descrizioneTodo = value.descrizioneTodo;
         todo.assegnatarioPrimarioId = value.assegnatarioPrimarioId;
