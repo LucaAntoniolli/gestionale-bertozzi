@@ -314,6 +314,7 @@ export class PlanningAmministrativoComponent implements OnInit {
     private buildTodoFromForm(): ToDo {
         const value = this.todoForm!.getRawValue();
         const todo = new ToDo();
+        todo.id = this.todoInModifica?.id;
         todo.tipoPlanning = TipoPlanning.Amministrativo;
         todo.commessaId = value.commessaId;
         todo.descrizioneTodo = value.descrizioneTodo;
