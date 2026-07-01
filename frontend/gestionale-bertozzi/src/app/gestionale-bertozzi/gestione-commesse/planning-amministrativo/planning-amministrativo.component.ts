@@ -304,8 +304,8 @@ export class PlanningAmministrativoComponent implements OnInit {
             commessaId: [todo?.commessaId ?? this.commessaSelezionata ?? '', Validators.required],
             descrizioneTodo: [todo?.descrizioneTodo ?? '', Validators.required],
             assegnatarioPrimarioId: [todo?.assegnatarioPrimarioId ?? '', Validators.required],
-            priorita: [todo?.priorita || null, Validators.required],
-            dataConsegna: [todo?.dataConsegna?.toDate() ?? null, Validators.required],
+            priorita: [todo?.priorita || null],
+            dataConsegna: [todo?.dataConsegna?.toDate() ?? null],
             descrizioneAttivitaSvolta: [todo?.descrizioneAttivitaSvolta ?? ''],
             completato: [todo?.completato ?? false],
         });
@@ -320,7 +320,7 @@ export class PlanningAmministrativoComponent implements OnInit {
         todo.descrizioneTodo = value.descrizioneTodo;
         todo.assegnatarioPrimarioId = value.assegnatarioPrimarioId;
         todo.priorita = value.priorita;
-        todo.dataConsegna = moment(value.dataConsegna).startOf('day');
+        todo.dataConsegna = value.dataConsegna ? moment(value.dataConsegna).startOf('day') : undefined;
         todo.descrizioneAttivitaSvolta = value.descrizioneAttivitaSvolta || undefined;
         todo.completato = value.completato;
         return todo;

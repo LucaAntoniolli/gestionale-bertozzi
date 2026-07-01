@@ -228,6 +228,7 @@ namespace NemesiLIB.Context
                 e.Property(t => t.CommessaId).IsRequired();
                 e.Property(t => t.DescrizioneTodo).IsRequired().HasColumnType("nvarchar(max)");
                 e.Property(t => t.DataConsegna).IsRequired(false);
+                e.Property(t => t.Priorita).IsRequired(false);
                 e.Property(t => t.DescrizioneAttivitaSvolta).IsRequired(false).HasColumnType("nvarchar(max)");
                 e.Property(t => t.Completato).IsRequired().HasDefaultValue(false);
                 e.Property(t => t.TipoPlanning).IsRequired().HasDefaultValue(TipoPlanning.Edile);
