@@ -531,7 +531,7 @@ export class DettaglioCommessaComponent implements OnInit {
     } else if (this.selectedAttivita.tipoInfoDaRegistrare === 'Flag completamento') {
       attivitaAggiornata.completata = formValue.completata;
     } else if (this.selectedAttivita.tipoInfoDaRegistrare === 'Data') {
-      attivitaAggiornata.dataRiferimento = formValue.dataRiferimento ? moment(formValue.dataRiferimento).startOf('day') : undefined;
+      attivitaAggiornata.dataRiferimento = formValue.dataRiferimento ? moment.utc(moment(formValue.dataRiferimento).format('YYYY-MM-DD')) : undefined;
     } else if (this.selectedAttivita.tipoInfoDaRegistrare === 'Lettera') {
       attivitaAggiornata.lettera = formValue.lettera;
     }
