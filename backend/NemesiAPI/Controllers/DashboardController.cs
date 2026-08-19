@@ -8,6 +8,7 @@ using NemesiLIB.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace NemesiAPI.Controllers
@@ -91,8 +92,10 @@ namespace NemesiAPI.Controllers
         }
 
         // GET api/dashboard/ore-per-giorno?giorni=30&commessaId=5&utenteId=abc
+        // Accessibile anche a chi ha solo 'orespesecommessa.read' (es. Utente Base),
+        // che però può vedere esclusivamente le proprie ore.
         [HttpGet("ore-per-giorno")]
-        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "dashboard.read")]
+        [Authorize(Policy = PermissionPolicyProvider.POLICY_PREFIX + "dashboard.read, orespesecommessa.read")]
         public async Task<ActionResult<IEnumerable<OrePerGiornoItemDto>>> GetOrePerGiorno(
             [FromQuery] int giorni = 30,
             [FromQuery] int? commessaId = null,
@@ -101,11 +104,22 @@ namespace NemesiAPI.Controllers
             if (giorni <= 0 || giorni > 365)
                 return BadRequest("Il parametro 'giorni' deve essere compreso tra 1 e 365.");
 
-            var cutoff = DateTime.Today.AddDays(-giorni);
+            // Chi non ha il permesso sulla dashboard può vedere solo i propri dati
+            if (!HasPermission("dashboard.read"))
+            {
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(currentUserId))
+                    return Forbid();
+
+                utenteId = currentUserId;
+            }
+
+            var dataFine = DateTime.Today;
+            var dataInizio = dataFine.AddDays(-(giorni - 1));
 
             var query = dbContext.OreSpeseCommessa
                 .AsNoTracking()
-                .Where(o => o.Data >= cutoff);
+                .Where(o => o.Data >= dataInizio && o.Data < dataFine.AddDays(1));
 
             if (commessaId.HasValue)
                 query = query.Where(o => o.CommessaId == commessaId.Value);
@@ -119,15 +133,22 @@ namespace NemesiAPI.Controllers
                 .Select(o => new { Data = o.Data.Date, Ore = o.Ore ?? 0 })
                 .ToListAsync();
 
-            var result = rawData
-                .GroupBy(o => o.Data)
-                .Select(g => new OrePerGiornoItemDto
+            var orePerGiorno = rawData
+                .GroupBy(o => DateOnly.FromDateTime(o.Data))
+                .ToDictionary(g => g.Key, g => g.Sum(o => o.Ore));
+
+            // Serie completa: tutti i giorni del periodo, compresi quelli senza
+            // caricamenti (sabati, domeniche e festivi inclusi)
+            var result = new List<OrePerGiornoItemDto>(giorni);
+            var ultimoGiorno = DateOnly.FromDateTime(dataFine);
+            for (var giorno = DateOnly.FromDateTime(dataInizio); giorno <= ultimoGiorno; giorno = giorno.AddDays(1))
+            {
+                result.Add(new OrePerGiornoItemDto
                 {
-                    Data = DateOnly.FromDateTime(g.Key),
-                    TotaleOre = g.Sum(o => o.Ore)
-                })
-                .OrderBy(x => x.Data)
-                .ToList();
+                    Data = giorno,
+                    TotaleOre = orePerGiorno.TryGetValue(giorno, out var ore) ? ore : 0m
+                });
+            }
 
             return Ok(result);
         }
@@ -156,6 +177,13 @@ namespace NemesiAPI.Controllers
                 .ToListAsync();
 
             return Ok(result);
+        }
+
+        private bool HasPermission(string permission)
+        {
+            return User.Claims.Any(c =>
+                string.Equals(c.Type, "permission", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(c.Value, permission, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
