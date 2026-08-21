@@ -1,4 +1,4 @@
-<div class="grid">
+<div class="grid nemesi-pagina-tabella-piena">
     <div class="col-12">
         <app-titolo-pagina [titoloPagina]="'Planning Edile'"></app-titolo-pagina>
 
@@ -33,8 +33,8 @@
 
         <!-- TABELLA TODO -->
         @if(todoList && todoList.length > 0) {
-        <p-table #dt1 [size]="'small'" [value]="todoList" dataKey="id" [rows]="15" [loading]="loading" [rowHover]="true"
-            styleClass="p-datatable-gridlines" [paginator]="true"
+        <p-table #dt1 [size]="'small'" [value]="todoList" dataKey="id" [loading]="loading" [rowHover]="true"
+            styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="flex"
             [globalFilterFields]="['assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo']"
             responsiveLayout="scroll" sortMode="multiple">
             <ng-template pTemplate="caption">

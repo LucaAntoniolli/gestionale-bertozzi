@@ -1,4 +1,4 @@
-<div class="grid">
+<div class="grid nemesi-pagina-tabella-piena">
   <div class="col-12">
     <app-titolo-pagina [titoloPagina]="'Gestione Commesse'"></app-titolo-pagina>
 
@@ -19,8 +19,8 @@
 
     <!-- TABELLA COMMESSE -->
     @if((commesseList && commesseList.length > 0) || loading) {
-    <p-table #dt1 [size]="'small'" [value]="commesseList" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true"
-      styleClass="p-datatable-gridlines" [paginator]="true"
+    <p-table #dt1 [size]="'small'" [value]="commesseList" dataKey="id" [loading]="loading" [rowHover]="true"
+      styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="flex"
       [globalFilterFields]="['cliente.ragioneSociale', 'protocollo', 'descrizione', 'tipologiaCommessa.descrizione', 'statusCommessa.descrizione', 'referenteCliente.nome', 'commessaCodiceInterno']"
       responsiveLayout="scroll" sortMode="multiple">
       <ng-template pTemplate="caption">

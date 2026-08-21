@@ -1,4 +1,4 @@
-<div class="grid">
+<div class="grid nemesi-pagina-tabella-piena">
     <div class="col-12">
         <app-titolo-pagina [titoloPagina]="'Planning Amministrativo'" />
 
@@ -29,8 +29,8 @@
         </div>
 
         @if (todoList.length > 0) {
-        <p-table #todoTable [value]="todoList" dataKey="id" [rows]="15" [loading]="loading" [rowHover]="true"
-            [paginator]="true" size="small" styleClass="p-datatable-gridlines" responsiveLayout="scroll"
+        <p-table #todoTable [value]="todoList" dataKey="id" [loading]="loading" [rowHover]="true"
+            [scrollable]="true" scrollHeight="flex" size="small" styleClass="p-datatable-gridlines" responsiveLayout="scroll"
             sortMode="multiple"
             [globalFilterFields]="['descrizioneTodo', 'assegnatarioPrimario.nominativo', 'descrizioneAttivitaSvolta']">
             <ng-template #caption>

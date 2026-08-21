@@ -82,3 +82,39 @@ h1{
         color: var(--primary-color) !important;
     }
 }
+
+/* ---------------------------------------------------------------------------
+   Pagina con tabella a tutta altezza.
+   Si applica al <div class="grid"> radice di una pagina strutturata come
+   .grid > .col-12 > [titolo, toolbar, ..., p-table], dove la p-table ha
+   [scrollable]="true" e scrollHeight="flex".
+
+   Effetto: la tabella tiene la sua altezza naturale finche' ci sta; oltre, si
+   ferma al bordo dello schermo e scrolla al suo interno invece di far scrollare
+   la pagina. Titolo, toolbar ed eventuali filtri restano alla loro altezza.
+
+   Il tetto e' 100vh meno il "chrome" del layout: padding-top di
+   .layout-main-container (5rem) + padding-bottom di .layout-main (2rem) +
+   footer (~3.5rem). Se cambiano quelli in _main.scss / _footer.scss, va
+   riallineato qui.
+--------------------------------------------------------------------------- */
+.nemesi-pagina-tabella-piena {
+    max-height: calc(100vh - 11rem);
+    /* una sola colonna: con flex-wrap la riga resterebbe alta quanto il
+       contenuto e il tetto non si propagherebbe alla .col-12 */
+    flex-wrap: nowrap;
+
+    > .col-12 {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    /* min-height: 0 permette la compressione, height: auto annulla lo stretch
+       a 100% imposto da scrollHeight="flex" */
+    > .col-12 > p-table {
+        flex: 0 1 auto;
+        min-height: 0;
+        height: auto;
+    }
+}
