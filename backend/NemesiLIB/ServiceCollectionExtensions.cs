@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NemesiLIB.Context;
 using Microsoft.EntityFrameworkCore;
+using NemesiLIB.Services.Notifiche;
 
 namespace NemesiLIB
 {
@@ -25,6 +26,9 @@ namespace NemesiLIB
             {
                 o.UseSqlServer(Configuration.GetConnectionString("GestionaleBertozzi"));
             });
+
+            // notifiche
+            services.AddScoped<INotificaService, NotificaService>();
 
             return services;
         }

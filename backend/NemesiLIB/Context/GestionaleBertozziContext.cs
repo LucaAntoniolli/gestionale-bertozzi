@@ -6,6 +6,7 @@ using NemesiLIB.Model.Anagrafiche;
 using NemesiLIB.Model.PianiSviluppo;
 using NemesiLIB.Model.GestioneCommesse;
 using NemesiLIB.Model.Amministrazione;
+using NemesiLIB.Model.Notifiche;
 using System.Reflection;
 using NemesiCOMMONS.Models;
 using Microsoft.AspNetCore.Http;
@@ -44,6 +45,9 @@ namespace NemesiLIB.Context
         public virtual DbSet<Collaudo> Collaudo { get; set; }
         public virtual DbSet<CostoTrasferta> CostoTrasferta { get; set; }
         public virtual DbSet<Onere> Onere { get; set; }
+
+        //NOTIFICHE
+        public virtual DbSet<Notifica> Notifica { get; set; }
 
         private readonly IHttpContextAccessor httpContextAccessor;
 
@@ -330,6 +334,34 @@ namespace NemesiLIB.Context
                 e.Property(o => o.Pratica).IsRequired().HasMaxLength(500);
                 e.Property(o => o.ImportoOneri).HasColumnType("decimal(18,2)").IsRequired();
                 e.HasOne(o => o.Commessa).WithMany().HasForeignKey(o => o.CommessaId).OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // Notifica
+            model.Entity<Notifica>(e =>
+            {
+                e.HasKey(n => n.Id);
+                e.Property(n => n.Id).ValueGeneratedOnAdd();
+                e.Property(n => n.UtenteId).IsRequired();
+                e.Property(n => n.Titolo).IsRequired().HasMaxLength(200);
+                e.Property(n => n.Descrizione).HasMaxLength(1000);
+                e.Property(n => n.Link).HasMaxLength(500);
+                e.Property(n => n.Tipo).IsRequired().HasDefaultValue(TipoNotifica.Info);
+                e.Property(n => n.Categoria).IsRequired().HasDefaultValue(CategoriaNotifica.Sistema);
+                e.Property(n => n.IsLetta).IsRequired().HasDefaultValue(false);
+                e.Property(n => n.DataCreazione).IsRequired();
+                e.Property(n => n.ChiaveDeduplica).HasMaxLength(200);
+                e.Property(n => n.UtenteOrigine).HasMaxLength(200);
+
+                // Le notifiche non hanno senso senza il destinatario: cascade voluto,
+                // diversamente dal NoAction usato per le altre relazioni.
+                e.HasOne(n => n.Utente).WithMany().HasForeignKey(n => n.UtenteId).OnDelete(DeleteBehavior.Cascade);
+
+                e.HasIndex(n => new { n.UtenteId, n.IsLetta });        // il conteggio, query più frequente
+                e.HasIndex(n => new { n.UtenteId, n.DataCreazione });  // la lista
+
+                // La deduplica applicativa è un check-then-insert: due esecuzioni sovrapposte
+                // lo superano entrambe. Il vincolo a database è la garanzia effettiva.
+                e.HasIndex(n => n.ChiaveDeduplica).IsUnique().HasFilter("[ChiaveDeduplica] IS NOT NULL");
             });
 
             base.OnModelCreating(model);
