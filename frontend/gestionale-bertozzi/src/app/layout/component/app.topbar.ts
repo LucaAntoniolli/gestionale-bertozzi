@@ -9,16 +9,18 @@ import { AuthService } from '../../auth/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { ChipModule } from 'primeng/chip';
 import { SplitButton } from 'primeng/splitbutton';
+import { AppNotifiche } from './app.notifiche';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
     imports: [
         SplitButton,
-        RouterModule, 
-        CommonModule, 
+        RouterModule,
+        CommonModule,
         ButtonModule,
         ChipModule,
+        AppNotifiche,
         StyleClassModule, ],
     templateUrl: './app.topbar.component.html'
 })

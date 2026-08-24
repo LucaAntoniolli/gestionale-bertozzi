@@ -9,7 +9,8 @@
     </button>
 
     <div #topbarmenu class="layout-topbar-actions">
-        <div class="topbar-menu-right-container">
+        <div class="topbar-menu-right-container flex-row">
+            <app-notifiche></app-notifiche>
             <p-splitbutton label="Esci" (onClick)="logout()" [model]="topbarMenuItems" severity="secondary" />
         </div>
     </div>

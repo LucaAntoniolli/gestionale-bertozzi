@@ -1,0 +1,56 @@
+<p-overlaybadge *ngIf="nonLette() > 0; else campanellaVuota" [value]="nonLette()" severity="danger"
+    (click)="apriPannello()">
+    <button type="button" class="p-link layout-topbar-button" (click)="apriPannello()" pTooltip="Notifiche"
+        tooltipPosition="bottom" aria-label="Apri le notifiche">
+        <i class="pi pi-bell"></i>
+    </button>
+</p-overlaybadge>
+
+<ng-template #campanellaVuota>
+    <button type="button" class="p-link layout-topbar-button" (click)="apriPannello()" pTooltip="Notifiche"
+        tooltipPosition="bottom" aria-label="Apri le notifiche">
+        <i class="pi pi-bell"></i>
+    </button>
+</ng-template>
+
+<p-drawer header="Notifiche" position="right" [(visible)]="pannelloAperto" styleClass="w-full sm:w-30rem">
+
+    <div class="flex justify-content-end mb-3" *ngIf="notifiche().length > 0">
+        <p-button label="Segna tutte come lette" icon="pi pi-check" severity="secondary" size="small" [text]="true"
+            (onClick)="segnaTutteLette()" />
+    </div>
+
+    <div *ngIf="caricamento()" class="flex justify-content-center py-5">
+        <i class="pi pi-spin pi-spinner text-2xl text-color-secondary"></i>
+    </div>
+
+    <div *ngIf="!caricamento() && notifiche().length === 0" class="flex flex-column align-items-center py-6 gap-2">
+        <i class="pi pi-check-circle text-3xl text-color-secondary"></i>
+        <span class="text-color-secondary">Nessuna notifica da leggere</span>
+    </div>
+
+    <ul class="list-none p-0 m-0 flex flex-column gap-2" *ngIf="!caricamento()">
+        <li *ngFor="let notifica of notifiche()"
+            class="surface-card border-round p-3 flex gap-3 align-items-start border-1 surface-border"
+            [class.cursor-pointer]="haLink(notifica)" (click)="haLink(notifica) ? apriNotifica(notifica) : null">
+
+            <i [class]="iconaPerTipo(notifica.tipo) + ' ' + classePerTipo(notifica.tipo)" class="mt-1"></i>
+
+            <div class="flex-1 min-w-0">
+                <div class="font-medium text-color">{{ notifica.titolo }}</div>
+                <div *ngIf="notifica.descrizione" class="text-sm text-color-secondary mt-1 white-space-normal">
+                    {{ notifica.descrizione }}
+                </div>
+                <div class="text-xs text-color-secondary mt-2">
+                    {{ tempoRelativo(notifica.dataCreazione) }}
+                    <span *ngIf="notifica.utenteOrigine"> · {{ notifica.utenteOrigine }}</span>
+                </div>
+            </div>
+
+            <p-button icon="pi pi-check" severity="secondary" size="small" [rounded]="true" [text]="true"
+                pTooltip="Segna come letta" tooltipPosition="left" ariaLabel="Segna come letta"
+                (onClick)="segnaLetta(notifica, $event)" />
+        </li>
+    </ul>
+
+</p-drawer>
