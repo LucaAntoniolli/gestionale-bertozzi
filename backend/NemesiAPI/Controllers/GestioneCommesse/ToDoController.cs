@@ -34,6 +34,8 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             [FromQuery] string? assegnatarioPrimarioId = null,
             [FromQuery] string? assegnatarioSecondarioId = null,
             [FromQuery] bool? completato = null,
+            [FromQuery] bool soloCompletati = false,
+            [FromQuery] bool soloScadute = false,
             [FromQuery] TipoPlanning tipoPlanning = TipoPlanning.Edile)
         {
             IQueryable<ToDo> q = dbContext.ToDo
@@ -65,20 +67,35 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (!string.IsNullOrEmpty(assegnatarioSecondarioId))
                 q = q.Where(t => t.AssegnatarioSecondarioId == assegnatarioSecondarioId);
 
-            // Se completato è null o false: restituisce i non completati + i completati
+            // Se soloScadute è true: restituisce esclusivamente i ToDo non completati la cui
+            // data di consegna è già passata.
+            // Se soloCompletati è true: restituisce esclusivamente i ToDo completati.
+            // Altrimenti, se completato è null o false: restituisce i non completati + i completati
             // creati negli ultimi 7 giorni.
             // Se completato è true: restituisce tutto senza filtri aggiuntivi.
-            if (!completato.HasValue || !completato.Value)
+            if (soloScadute)
+            {
+                var oggi = DateTime.Today;
+                q = q.Where(t => !t.Completato && t.DataConsegna != null && t.DataConsegna < oggi);
+            }
+            else if (soloCompletati)
+            {
+                q = q.Where(t => t.Completato);
+            }
+            else if (!completato.HasValue || !completato.Value)
             {
                 var cutoff = DateTime.Today.AddDays(-7);
                 q = q.Where(t => !t.Completato || t.DataCreazione >= cutoff);
             }
 
-            var list = await q
+            q = q
                 .Include(t => t.AssegnatarioPrimario)
-                .Include(t => t.AssegnatarioSecondario)
-                .OrderBy(t => t.DataCreazione)
-                .ToListAsync();
+                .Include(t => t.AssegnatarioSecondario);
+
+            // Nella vista delle scadute le attività più in ritardo vengono mostrate per prime
+            var list = soloScadute
+                ? await q.OrderBy(t => t.DataConsegna).ToListAsync()
+                : await q.OrderBy(t => t.DataCreazione).ToListAsync();
 
             return Ok(list);
         }
@@ -121,6 +138,9 @@ namespace NemesiAPI.Controllers.GestioneCommesse
                     return BadRequest("Assegnatario secondario non trovato");
             }
 
+            // La data di completamento è gestita dal server: valorizzata solo se il ToDo nasce già completato
+            model.DataCompletamento = model.Completato ? DateTime.Today : null;
+
             dbContext.ToDo.Add(model);
             await dbContext.SaveChangesAsync();
 
@@ -160,8 +180,16 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             existing.DescrizioneTodo = model.DescrizioneTodo;
             existing.DataConsegna = model.DataConsegna;
             existing.DescrizioneAttivitaSvolta = model.DescrizioneAttivitaSvolta;
-            existing.Completato = model.Completato;
             existing.Priorita = model.Priorita;
+
+            // Valorizza la data di completamento nel momento in cui il ToDo viene completato
+            // e la azzera se il ToDo viene riaperto
+            if (model.Completato && !existing.Completato)
+                existing.DataCompletamento = DateTime.Today;
+            else if (!model.Completato)
+                existing.DataCompletamento = null;
+
+            existing.Completato = model.Completato;
 
             try
             {
@@ -199,6 +227,9 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (item == null)
                 return NotFound();
 
+            if (!item.Completato)
+                item.DataCompletamento = DateTime.Today;
+
             item.Completato = true;
             if (!string.IsNullOrEmpty(descrizioneAttivitaSvolta))
             {
@@ -219,6 +250,7 @@ namespace NemesiAPI.Controllers.GestioneCommesse
                 return NotFound();
 
             item.Completato = false;
+            item.DataCompletamento = null;
 
             await dbContext.SaveChangesAsync();
 

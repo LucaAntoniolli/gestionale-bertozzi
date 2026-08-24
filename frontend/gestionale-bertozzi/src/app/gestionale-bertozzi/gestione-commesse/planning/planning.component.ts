@@ -21,7 +21,11 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import * as FileSaver from 'file-saver';
 import moment from 'moment';
+
+import { OreSpeseDialogComponent, OreSpeseDialogEditData } from '../../shared/components/ore-spese-dialog/ore-spese-dialog.component';
 
 import { ToDo, TipoPlanning } from '../../../models/GestioneCommesse/todo.model';
 import { TodoService } from '../../../services/GestioneCommesse/todo.service';
@@ -50,6 +54,7 @@ import { AuthService } from '../../../auth/auth.service';
         InputNumberModule,
         InputText,
         MessageModule,
+        OreSpeseDialogComponent,
         ReactiveFormsModule,
         SelectModule,
         SelectButtonModule,
@@ -58,6 +63,7 @@ import { AuthService } from '../../../auth/auth.service';
         TextareaModule,
         TitoloPaginaComponent,
         ToolbarModule,
+        TooltipModule,
     ]
 })
 export class PlanningComponent implements OnInit {
@@ -80,12 +86,21 @@ export class PlanningComponent implements OnInit {
 
     vistaOptions = [
         { label: 'Non completati e recenti', value: 'nonCompletati' },
+        { label: 'Scadute', value: 'scadute' },
+        { label: 'Completate', value: 'completate' },
         { label: 'Tutti', value: 'tutti' },
     ];
     vistaSelezionata: string = 'nonCompletati';
-    
+
+    // Numero di attività scadute e non completate, usato per l'alert sopra la tabella
+    todoScadutiCount: number = 0;
+
     // Filtro per commessa
     commessaSelezionata?: number;
+
+    // Dialog caricamento ore e spese da un ToDo
+    showDialogOreSpese: boolean = false;
+    editDataOreSpese?: OreSpeseDialogEditData;
 
     isMobile$?: Observable<boolean>;
 
@@ -96,6 +111,8 @@ export class PlanningComponent implements OnInit {
     get canDeleteTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canDelete(); }  
     get canCreateTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canCreate(); }
     get canEditTodo(): boolean { return this.permissionsService.createEntityHelper('todo').canUpdate(); }
+    get canCreateOreSpese(): boolean { return this.permissionsService.createEntityHelper('orespesecommessa').canCreate(); }
+    get isUtenteBase(): boolean { return this.authService.isUserUtenteBase(); }
     // L'utente base non può cambiare l'assegnatario primario in creazione (può solo inserire per sè stesso)
     get canEditAssegnatarioPrimario(): boolean {
         if (!this.isModifying && this.authService.isUserUtenteBase()) {
@@ -197,17 +214,36 @@ export class PlanningComponent implements OnInit {
     loadData() {
         this.loading = true;
         const completato = this.vistaSelezionata === 'nonCompletati' ? false : true;
-        this.todoService.getAll(this.commessaSelezionata, undefined, undefined, completato, TipoPlanning.Edile).pipe(first())
+        const soloCompletati = this.vistaSelezionata === 'completate';
+        const soloScadute = this.vistaSelezionata === 'scadute';
+
+        const lista$ = soloScadute
+            ? this.todoService.getScadute(this.commessaSelezionata, TipoPlanning.Edile)
+            : this.todoService.getAll(this.commessaSelezionata, undefined, undefined, completato, TipoPlanning.Edile, soloCompletati);
+
+        // Nella vista "Scadute" la lista coincide con le attività scadute:
+        // il contatore si ricava dal risultato senza una seconda chiamata
+        if (!soloScadute) {
+            this.aggiornaContatoreScaduti();
+        }
+
+        lista$.pipe(first())
             .subscribe({
                 next: (todoList: ToDo[]) => {
                     this.loading = false;
                     this.todoList = todoList;
+                    if (soloScadute) {
+                        this.todoScadutiCount = this.contaScadutiPerAlert(todoList);
+                    }
                     this.cdr.detectChanges();
                 },
                 error: (err: any) => {
                     this.loading = false;
                     if (err.status == 404) {
                         this.todoList = [];
+                        if (soloScadute) {
+                            this.todoScadutiCount = 0;
+                        }
                         this.ms.add({
                             severity: 'info',
                             summary: 'Nessun dato presente',
@@ -225,6 +261,54 @@ export class PlanningComponent implements OnInit {
                     this.cdr.detectChanges();
                 },
             });
+    }
+
+    /**
+     * Conta le attività scadute da segnalare nell'alert.
+     * L'utente base viene avvisato solo delle attività a lui assegnate come assegnatario
+     * primario o secondario, non di quelle che ha semplicemente creato per altri.
+     */
+    private contaScadutiPerAlert(scaduti: ToDo[]): number {
+        if (!this.isUtenteBase) {
+            return scaduti.length;
+        }
+
+        const utenteId = this.utenteLoggato?.id;
+        if (!utenteId) {
+            return 0;
+        }
+
+        return scaduti.filter(t =>
+            t.assegnatarioPrimarioId === utenteId || t.assegnatarioSecondarioId === utenteId
+        ).length;
+    }
+
+    /** Aggiorna il contatore delle attività scadute mostrato nell'alert */
+    private aggiornaContatoreScaduti() {
+        this.todoService.getScadute(this.commessaSelezionata, TipoPlanning.Edile).pipe(first())
+            .subscribe({
+                next: (scaduti: ToDo[]) => {
+                    this.todoScadutiCount = this.contaScadutiPerAlert(scaduti);
+                    this.cdr.detectChanges();
+                },
+                error: () => {
+                    this.todoScadutiCount = 0;
+                    this.cdr.detectChanges();
+                },
+            });
+    }
+
+    /** Testo dell'alert delle attività scadute */
+    get messaggioScaduti(): string {
+        return this.todoScadutiCount === 1
+            ? 'Attenzione: è presente 1 attività scaduta e non ancora completata.'
+            : `Attenzione: sono presenti ${this.todoScadutiCount} attività scadute e non ancora completate.`;
+    }
+
+    /** Passa alla vista dedicata alle attività scadute */
+    mostraVistaScaduti() {
+        this.vistaSelezionata = 'scadute';
+        this.loadData();
     }
 
     /** Mostra il dialog per la creazione di un nuovo ToDo */
@@ -518,5 +602,54 @@ export class PlanningComponent implements OnInit {
     /** Gestisce il cambio della commessa selezionata */
     onCommessaChange() {
         setTimeout(() => this.loadData(), 0);
+    }
+
+    /** Apre il dialog di caricamento ore e spese precompilato sulla commessa del ToDo */
+    caricaOreDaTodo(todo: ToDo) {
+        this.editDataOreSpese = { commessaId: todo.commessaId };
+        this.showDialogOreSpese = true;
+    }
+
+    /** Esporta in Excel i ToDo attualmente visualizzati */
+    exportExcel() {
+        import('xlsx').then((xlsx) => {
+            const todoForExcel = this.todoList.map(todo => ({
+                'Codice interno': this.getCodiceInternoCommessa(todo.commessaId),
+                'Commessa': this.getDescrizioneCommessa(todo.commessaId),
+                'Data creazione': todo.dataCreazione ? todo.dataCreazione.format('DD/MM/YYYY') : '',
+                'Data consegna': todo.dataConsegna ? todo.dataConsegna.format('DD/MM/YYYY') : '',
+                'Descrizione ToDo': todo.descrizioneTodo ?? '',
+                'Stato': this.getTestoCompletato(todo.completato),
+                'Data completamento': todo.dataCompletamento ? todo.dataCompletamento.format('DD/MM/YYYY') : '',
+                'Priorità': todo.priorita ?? '',
+                'Assegnatario primario': this.getNominativoUtente(todo.assegnatarioPrimarioId),
+                'Assegnatario secondario': this.getNominativoUtente(todo.assegnatarioSecondarioId),
+                'Descrizione attività svolta': todo.descrizioneAttivitaSvolta ?? '',
+            }));
+
+            const worksheet = xlsx.utils.json_to_sheet(todoForExcel);
+            const workbook = {
+                Sheets: { data: worksheet },
+                SheetNames: ['data'],
+            };
+            const excelBuffer: any = xlsx.write(workbook, {
+                bookType: 'xlsx',
+                type: 'array',
+            });
+            this.saveAsExcelFile(excelBuffer, 'planning_edile');
+        });
+    }
+
+    saveAsExcelFile(buffer: any, fileName: string): void {
+        let EXCEL_TYPE =
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        let EXCEL_EXTENSION = '.xlsx';
+        const data: Blob = new Blob([buffer], {
+            type: EXCEL_TYPE,
+        });
+        FileSaver.saveAs(
+            data,
+            fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION
+        );
     }
 }

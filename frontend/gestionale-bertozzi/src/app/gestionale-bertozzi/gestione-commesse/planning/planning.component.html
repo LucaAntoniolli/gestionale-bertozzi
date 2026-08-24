@@ -31,17 +31,33 @@
             </div>
         </div>
 
+        <!-- ALERT ATTIVITÀ SCADUTE -->
+        @if(todoScadutiCount > 0) {
+        <div class="mb-3 flex align-items-center flex-wrap gap-2">
+            <p-message severity="error" icon="pi pi-exclamation-triangle" [text]="messaggioScaduti" />
+            @if(vistaSelezionata !== 'scadute') {
+            <p-button label="Vedi attività scadute" icon="pi pi-arrow-right" severity="danger" size="small"
+                [outlined]="true" (click)="mostraVistaScaduti()" />
+            }
+        </div>
+        }
+
         <!-- TABELLA TODO -->
         @if(todoList && todoList.length > 0) {
+        <div class="flex justify-content-end mb-2">
+            <p-selectbutton [options]="vistaOptions" [(ngModel)]="vistaSelezionata" optionLabel="label"
+                optionValue="value" (onChange)="loadData()" />
+        </div>
         <p-table #dt1 [size]="'small'" [value]="todoList" dataKey="id" [loading]="loading" [rowHover]="true"
             styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="flex"
             [globalFilterFields]="['assegnatarioPrimario.nominativo', 'assegnatarioSecondario.nominativo']"
             responsiveLayout="scroll" sortMode="multiple">
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between flex-column sm:flex-row">
-                    <div class="flex">
-                        <p-selectbutton [options]="vistaOptions" [(ngModel)]="vistaSelezionata" optionLabel="label"
-                            optionValue="value" (onChange)="loadData()" />
+                    <div class="flex align-items-center gap-2">
+                        <button type="button" pButton icon="pi pi-file-excel" (click)="exportExcel()"
+                            class="p-button-success" pTooltip="XLS" tooltipPosition="bottom"></button>
+
                     </div>
                     <div class="flex">
                         <p-iconfield iconPosition="left" class="ml-auto">
@@ -56,7 +72,7 @@
             </ng-template>
             <ng-template pTemplate="header">
                 <tr>
-                    <th style="width: 3rem">
+                    <th style="min-width: 10rem">
                         <div class="flex justify-content-between align-items-center">
                             Azioni
                         </div>
@@ -97,6 +113,12 @@
                             <p-sortIcon field="completato" />
                         </div>
                     </th>
+                    <th style="min-width: 7rem" pSortableColumn="dataCompletamento">
+                        <div class="flex justify-content-between align-items-center">
+                            Data Completamento
+                            <p-sortIcon field="dataCompletamento" />
+                        </div>
+                    </th>
                     <th style="min-width: 5rem" pSortableColumn="priorita">
                         <div class="flex justify-content-between align-items-center">
                             Priorità
@@ -134,6 +156,9 @@
                             <button pButton icon="pi pi-replay" class="p-button-warning p-button-sm" pTooltip="Riapri"
                                 tooltipPosition="top" (click)="riapriTodo(todo)" *ngIf="canEditTodo"></button>
                             }
+                            <button pButton icon="pi pi-clock" class="p-button-help p-button-sm"
+                                pTooltip="Carica ore su questa commessa" tooltipPosition="top"
+                                (click)="caricaOreDaTodo(todo)" *ngIf="canCreateOreSpese"></button>
                             <button pButton icon="pi pi-pencil" class="p-button-primary p-button-sm" pTooltip="Modifica"
                                 tooltipPosition="top" (click)="modificaTodo(todo)" *ngIf="canEditTodo"></button>
                             <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" pTooltip="Elimina"
@@ -163,6 +188,10 @@
                             [severity]="getSeverityCompletato(todo.completato)" />
                     </td>
                     <td>
+                        <span class="image-text">{{ todo.dataCompletamento ?
+                            (todo.dataCompletamento.format('DD/MM/YYYY')) : '-' }}</span>
+                    </td>
+                    <td>
                         <span class="image-text">{{ todo.priorita }}</span>
                     </td>
                     <td>
@@ -179,13 +208,17 @@
 
             <ng-template pTemplate="loadingbody">
                 <tr>
-                    <td colspan="7">ToDo in caricamento...</td>
+                    <td colspan="12">ToDo in caricamento...</td>
                 </tr>
             </ng-template>
         </p-table>
         } @else if(!loading) {
+        @if(vistaSelezionata === 'scadute') {
+        <p-message severity="success" text="Nessuna attività scaduta: tutte le consegne sono in linea." />
+        } @else {
         <p-message severity="info"
             text="Nessun ToDo presente. Seleziona una commessa e clicca su 'Crea nuovo ToDo' per iniziare." />
+        }
         }
     </div>
 </div>
@@ -298,3 +331,7 @@
         </div>
     </form>
 </p-dialog>
+<!-- DIALOG CARICAMENTO ORE E SPESE DA ATTIVITÀ DEL PLANNING -->
+<app-ore-spese-dialog [(visible)]="showDialogOreSpese" [isModifying]="false" [commesseList]="commesseList"
+    [utentiList]="utentiList" [isUtenteBase]="isUtenteBase" [utenteLoggatoId]="utenteLoggato?.id"
+    [editData]="editDataOreSpese" [showSalvaEContinua]="false" />

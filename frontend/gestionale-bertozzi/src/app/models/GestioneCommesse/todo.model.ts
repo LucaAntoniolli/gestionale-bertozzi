@@ -17,6 +17,7 @@ export class ToDo {
     priorita?: number;
     descrizioneAttivitaSvolta?: string;
     completato: boolean = false;
+    dataCompletamento?: moment.Moment;
     tipoPlanning?: TipoPlanning;
     dataCreazione?: moment.Moment;
     dataModifica?: moment.Moment;
@@ -34,6 +35,9 @@ export class ToDo {
         // Converti le stringhe di data in oggetti moment
         if (todo.dataConsegna) {
             t.dataConsegna = moment(todo.dataConsegna);
+        }
+        if (todo.dataCompletamento) {
+            t.dataCompletamento = moment(todo.dataCompletamento);
         }
         if (todo.dataCreazione) {
             t.dataCreazione = moment(todo.dataCreazione);

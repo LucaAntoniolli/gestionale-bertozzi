@@ -20,6 +20,8 @@ export class TodoService {
    * @param assegnatarioPrimarioId - ID dell'assegnatario primario (opzionale)
    * @param assegnatarioSecondarioId - ID dell'assegnatario secondario (opzionale)
    * @param completato - Filtra per stato completato (opzionale)
+   * @param tipoPlanning - Tipo di planning (edile o amministrativo)
+   * @param soloCompletati - Se true restituisce esclusivamente i ToDo completati
    * @returns Observable array di ToDo
    */
   getAll(
@@ -27,7 +29,8 @@ export class TodoService {
     assegnatarioPrimarioId?: string,
     assegnatarioSecondarioId?: string,
     completato?: boolean,
-    tipoPlanning: TipoPlanning = TipoPlanning.Edile
+    tipoPlanning: TipoPlanning = TipoPlanning.Edile,
+    soloCompletati: boolean = false
   ): Observable<ToDo[]> {
     let params = new HttpParams();
     if (commessaId) {
@@ -42,7 +45,30 @@ export class TodoService {
     if (completato !== undefined) {
       params = params.set('completato', completato.toString());
     }
+    if (soloCompletati) {
+      params = params.set('soloCompletati', 'true');
+    }
     params = params.set('tipoPlanning', tipoPlanning.toString());
+    return this.httpClient.get<any[]>(this.baseUrl, { params })
+      .pipe(map(data => ToDo.mapArray(data)));
+  }
+
+  /**
+   * Recupera le attività scadute: non completate e con data di consegna già passata
+   * @param commessaId - ID della commessa per filtrare le attività (opzionale)
+   * @param tipoPlanning - Tipo di planning (edile o amministrativo)
+   * @returns Observable array di ToDo scaduti, ordinati dal più in ritardo
+   */
+  getScadute(
+    commessaId?: number,
+    tipoPlanning: TipoPlanning = TipoPlanning.Edile
+  ): Observable<ToDo[]> {
+    let params = new HttpParams()
+      .set('soloScadute', 'true')
+      .set('tipoPlanning', tipoPlanning.toString());
+    if (commessaId) {
+      params = params.set('commessaId', commessaId.toString());
+    }
     return this.httpClient.get<any[]>(this.baseUrl, { params })
       .pipe(map(data => ToDo.mapArray(data)));
   }
@@ -119,6 +145,9 @@ export class TodoService {
       payload.dataConsegna = todo.dataConsegna.format('YYYY-MM-DD');
     }
     
+    // La data di completamento è valorizzata dal backend
+    delete payload.dataCompletamento;
+
     // Rimuovi le proprietà di navigazione prima dell'invio
     delete payload.assegnatarioPrimario;
     delete payload.assegnatarioSecondario;

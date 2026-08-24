@@ -22,6 +22,7 @@ namespace NemesiLIB.Model.GestioneCommesse
         public short? Priorita { get; set; } = 0;
         public string? DescrizioneAttivitaSvolta { get; set; }
         public bool Completato { get; set; } = false;
+        public DateTime? DataCompletamento { get; set; }
         public TipoPlanning TipoPlanning { get; set; } = TipoPlanning.Edile;
         public DateTime DataCreazione { get; set; }
         public DateTime? DataModifica { get; set; }

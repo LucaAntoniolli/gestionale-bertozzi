@@ -28,7 +28,10 @@ import { CommessaService } from '../../../services/GestioneCommesse/commessa.ser
 import { TodoService } from '../../../services/GestioneCommesse/todo.service';
 import { UtenteService } from '../../../services/utente.service';
 import { AuthService } from '../../../auth/auth.service';
+import { PermissionsService } from '../../../auth/permissions.service';
 import { TitoloPaginaComponent } from '../../shared/components/titolo-pagina/titolo-pagina.component';
+import { OreSpeseDialogComponent, OreSpeseDialogEditData } from '../../shared/components/ore-spese-dialog/ore-spese-dialog.component';
+import * as FileSaver from 'file-saver';
 
 @Component({
     selector: 'app-planning-amministrativo',
@@ -47,6 +50,7 @@ import { TitoloPaginaComponent } from '../../shared/components/titolo-pagina/tit
         InputIconModule,
         InputText,
         MessageModule,
+        OreSpeseDialogComponent,
         ReactiveFormsModule,
         SelectModule,
         SelectButtonModule,
@@ -73,18 +77,31 @@ export class PlanningAmministrativoComponent implements OnInit {
     readonly prioritaOptions = [1, 2, 3, 4, 5];
     readonly vistaOptions = [
         { label: 'Non completati e recenti', value: 'nonCompletati' },
+        { label: 'Scadute', value: 'scadute' },
+        { label: 'Completate', value: 'completate' },
         { label: 'Tutti', value: 'tutti' },
     ];
     vistaSelezionata = 'nonCompletati';
 
+    // Numero di attività scadute e non completate, usato per l'alert sopra la tabella
+    todoScadutiCount = 0;
+
+    // Dialog caricamento ore e spese da un'attività del planning
+    showDialogOreSpese = false;
+    editDataOreSpese?: OreSpeseDialogEditData;
+
     @ViewChild('todoTable') table!: Table;
     @ViewChild('descrizioneTodoInput') descrizioneTodoInput?: ElementRef;
+
+    get canCreateOreSpese(): boolean { return this.permissionsService.createEntityHelper('orespesecommessa').canCreate(); }
+    get isUtenteBase(): boolean { return this.authService.isUserUtenteBase(); }
 
     constructor(
         private todoService: TodoService,
         private commessaService: CommessaService,
         private utenteService: UtenteService,
         private authService: AuthService,
+        private permissionsService: PermissionsService,
         private fb: FormBuilder,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
@@ -103,19 +120,85 @@ export class PlanningAmministrativoComponent implements OnInit {
     loadData(): void {
         this.loading = true;
         const completato = this.vistaSelezionata === 'nonCompletati' ? false : true;
-        this.todoService.getAll(this.commessaSelezionata, undefined, undefined, completato, TipoPlanning.Amministrativo).pipe(first()).subscribe({
+        const soloCompletati = this.vistaSelezionata === 'completate';
+        const soloScadute = this.vistaSelezionata === 'scadute';
+
+        const lista$ = soloScadute
+            ? this.todoService.getScadute(this.commessaSelezionata, TipoPlanning.Amministrativo)
+            : this.todoService.getAll(this.commessaSelezionata, undefined, undefined, completato, TipoPlanning.Amministrativo, soloCompletati);
+
+        // Nella vista "Scadute" la lista coincide con le attività scadute:
+        // il contatore si ricava dal risultato senza una seconda chiamata
+        if (!soloScadute) {
+            this.aggiornaContatoreScaduti();
+        }
+
+        lista$.pipe(first()).subscribe({
             next: todoList => {
                 this.todoList = todoList;
+                if (soloScadute) {
+                    this.todoScadutiCount = this.contaScadutiPerAlert(todoList);
+                }
                 this.loading = false;
                 this.cdr.markForCheck();
             },
             error: () => {
                 this.todoList = [];
+                if (soloScadute) {
+                    this.todoScadutiCount = 0;
+                }
                 this.loading = false;
                 this.showError('Errore nel caricamento delle attività amministrative');
                 this.cdr.markForCheck();
             },
         });
+    }
+
+    /**
+     * Conta le attività scadute da segnalare nell'alert.
+     * L'utente base viene avvisato solo delle attività a lui assegnate come assegnatario
+     * primario o secondario, non di quelle che ha semplicemente creato per altri.
+     */
+    private contaScadutiPerAlert(scaduti: ToDo[]): number {
+        if (!this.isUtenteBase) {
+            return scaduti.length;
+        }
+
+        const utenteId = this.utenteLoggato?.id;
+        if (!utenteId) {
+            return 0;
+        }
+
+        return scaduti.filter(t =>
+            t.assegnatarioPrimarioId === utenteId || t.assegnatarioSecondarioId === utenteId
+        ).length;
+    }
+
+    /** Aggiorna il contatore delle attività scadute mostrato nell'alert */
+    private aggiornaContatoreScaduti(): void {
+        this.todoService.getScadute(this.commessaSelezionata, TipoPlanning.Amministrativo).pipe(first()).subscribe({
+            next: scaduti => {
+                this.todoScadutiCount = this.contaScadutiPerAlert(scaduti);
+                this.cdr.markForCheck();
+            },
+            error: () => {
+                this.todoScadutiCount = 0;
+                this.cdr.markForCheck();
+            },
+        });
+    }
+
+    /** Testo dell'alert delle attività scadute */
+    get messaggioScaduti(): string {
+        return this.todoScadutiCount === 1
+            ? 'Attenzione: è presente 1 attività scaduta e non ancora completata.'
+            : `Attenzione: sono presenti ${this.todoScadutiCount} attività scadute e non ancora completate.`;
+    }
+
+    /** Passa alla vista dedicata alle attività scadute */
+    mostraVistaScaduti(): void {
+        this.vistaSelezionata = 'scadute';
+        this.loadData();
     }
 
     mostraFormCreazione(): void {
@@ -277,6 +360,52 @@ export class PlanningAmministrativoComponent implements OnInit {
 
     getTestoCompletato(completato: boolean): string {
         return completato ? 'Completato' : 'Da completare';
+    }
+
+    /** Apre il dialog di caricamento ore e spese precompilato sulla commessa dell'attività */
+    caricaOreDaTodo(todo: ToDo): void {
+        this.editDataOreSpese = { commessaId: todo.commessaId };
+        this.showDialogOreSpese = true;
+    }
+
+    /** Esporta in Excel le attività amministrative attualmente visualizzate */
+    exportExcel(): void {
+        import('xlsx').then(xlsx => {
+            const todoForExcel = this.todoList.map(todo => ({
+                'Codice interno': this.getCodiceInternoCommessa(todo.commessaId),
+                'Commessa': this.getDescrizioneCommessa(todo.commessaId),
+                'Data creazione': todo.dataCreazione ? todo.dataCreazione.format('DD/MM/YYYY') : '',
+                'Data consegna': todo.dataConsegna ? todo.dataConsegna.format('DD/MM/YYYY') : '',
+                'Descrizione': todo.descrizioneTodo ?? '',
+                'Stato': this.getTestoCompletato(todo.completato),
+                'Data completamento': todo.dataCompletamento ? todo.dataCompletamento.format('DD/MM/YYYY') : '',
+                'Priorità': todo.priorita ?? '',
+                'Assegnatario': this.getNominativoUtente(todo.assegnatarioPrimarioId),
+                'Descrizione attività svolta': todo.descrizioneAttivitaSvolta ?? '',
+            }));
+
+            const worksheet = xlsx.utils.json_to_sheet(todoForExcel);
+            const workbook = {
+                Sheets: { data: worksheet },
+                SheetNames: ['data'],
+            };
+            const excelBuffer: any = xlsx.write(workbook, {
+                bookType: 'xlsx',
+                type: 'array',
+            });
+            this.saveAsExcelFile(excelBuffer, 'planning_amministrativo');
+        });
+    }
+
+    saveAsExcelFile(buffer: any, fileName: string): void {
+        const EXCEL_TYPE =
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const EXCEL_EXTENSION = '.xlsx';
+        const data: Blob = new Blob([buffer], { type: EXCEL_TYPE });
+        FileSaver.saveAs(
+            data,
+            fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION
+        );
     }
 
     private loadReferenceData(): void {
