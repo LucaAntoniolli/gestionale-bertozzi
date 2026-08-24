@@ -30,7 +30,7 @@
 
         <!-- ALERT ATTIVITÀ SCADUTE -->
         @if (todoScadutiCount > 0) {
-        <div class="mb-3 flex align-items-center flex-wrap gap-2">
+        <div class="mb-3 flex align-items-center justify-content-center flex-wrap gap-2">
             <p-message severity="error" icon="pi pi-exclamation-triangle" [text]="messaggioScaduti" />
             @if (vistaSelezionata !== 'scadute') {
             <p-button label="Vedi attività scadute" icon="pi pi-arrow-right" severity="danger" size="small"
