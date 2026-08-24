@@ -33,6 +33,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { NavigatorService } from '../../../services/navigator.service';
 import { PermissionsService } from '../../../auth/permissions.service';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { TooltipModule } from 'primeng/tooltip';
+import * as FileSaver from 'file-saver';
 
 @Component({
     selector: 'app-elenco-commesse',
@@ -57,6 +59,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
         TableModule,
         TitoloPaginaComponent,
         ToolbarModule,
+        TooltipModule,
     ]
 })
 export class ElencoCommesseComponent implements OnInit {
@@ -376,6 +379,52 @@ export class ElencoCommesseComponent implements OnInit {
         if (!utenteId) return '';
         const utente = this.utentiList.find(u => u.id === utenteId);
         return utente?.nominativo || '';
+    }
+
+    /** Esporta in Excel l'elenco delle commesse attualmente caricate */
+    exportExcel() {
+        import('xlsx').then((xlsx) => {
+            const commesseForExcel = this.commesseList.map(commessa => ({
+                'Cliente': commessa.cliente?.ragioneSociale ?? this.getNomeCliente(commessa.clienteId),
+                'Protocollo': commessa.protocollo ?? '',
+                'Codice interno': commessa.commessaCodiceInterno ?? '',
+                'Descrizione': commessa.descrizione ?? '',
+                'Luogo commessa': commessa.luogoCommessa ?? '',
+                'Tipologia': commessa.tipologiaCommessa?.descrizione ?? this.getDescrizioneTipologia(commessa.tipologiaCommessaId),
+                'Stato': commessa.statusCommessa?.descrizione ?? this.getDescrizioneStatus(commessa.statusCommessaId),
+                'PM Edile': this.getNomeUtente(commessa.pmEdileId),
+                'PM Amministrativo': this.getNomeUtente(commessa.pmAmministrativoId),
+                'Referenti Cliente': commessa.referentiCliente ?? '',
+                'Costo atteso (€)': commessa.costoAtteso ?? 0,
+                'Ore previste': commessa.orePreviste ?? 0,
+                'Data inizio prevista': commessa.dataInizioPrevista ? commessa.dataInizioPrevista.format('DD/MM/YYYY') : '',
+                'Data conclusione prevista': commessa.dataConclusionePrevista ? commessa.dataConclusionePrevista.format('DD/MM/YYYY') : '',
+            }));
+
+            const worksheet = xlsx.utils.json_to_sheet(commesseForExcel);
+            const workbook = {
+                Sheets: { data: worksheet },
+                SheetNames: ['data'],
+            };
+            const excelBuffer: any = xlsx.write(workbook, {
+                bookType: 'xlsx',
+                type: 'array',
+            });
+            this.saveAsExcelFile(excelBuffer, this.soloChiuse ? 'commesse_chiuse' : 'commesse_aperte');
+        });
+    }
+
+    saveAsExcelFile(buffer: any, fileName: string): void {
+        let EXCEL_TYPE =
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        let EXCEL_EXTENSION = '.xlsx';
+        const data: Blob = new Blob([buffer], {
+            type: EXCEL_TYPE,
+        });
+        FileSaver.saveAs(
+            data,
+            fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION
+        );
     }
 
 }
