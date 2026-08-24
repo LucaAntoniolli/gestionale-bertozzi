@@ -1,3 +1,4 @@
+using log4net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -7,8 +8,12 @@ using NemesiAPI.Authorization;
 using NemesiLIB.Context;
 using NemesiLIB.Model;
 using NemesiLIB.Model.GestioneCommesse;
+using NemesiLIB.Model.Notifiche;
+using NemesiLIB.Services.Notifiche;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace NemesiAPI.Controllers.GestioneCommesse
@@ -18,13 +23,17 @@ namespace NemesiAPI.Controllers.GestioneCommesse
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ToDoController : ControllerBase
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod()?.DeclaringType);
+
         private readonly GestionaleBertozziContext dbContext;
         private readonly UserManager<Utente> userManager;
+        private readonly INotificaService notificaService;
 
-        public ToDoController(GestionaleBertozziContext db, UserManager<Utente> userManager)
+        public ToDoController(GestionaleBertozziContext db, UserManager<Utente> userManager, INotificaService notificaService)
         {
             dbContext = db;
             this.userManager = userManager;
+            this.notificaService = notificaService;
         }
 
         [HttpGet]
@@ -123,8 +132,13 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (model == null)
                 return BadRequest();
 
-            // Valida che la commessa esista
-            if (!await dbContext.Commessa.AnyAsync(c => c.Id == model.CommessaId))
+            // Valida che la commessa esista, recuperandone il codice per il testo della notifica
+            var codiceCommessa = await dbContext.Commessa.AsNoTracking()
+                .Where(c => c.Id == model.CommessaId)
+                .Select(c => c.CommessaCodiceInterno)
+                .FirstOrDefaultAsync();
+
+            if (codiceCommessa == null)
                 return BadRequest("Commessa non trovata");
 
             // Valida che l'assegnatario primario esista
@@ -144,6 +158,12 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             dbContext.ToDo.Add(model);
             await dbContext.SaveChangesAsync();
 
+            // Alla creazione entrambi gli assegnatari sono nuovi.
+            await NotificaAssegnazioneAsync(
+                model,
+                new[] { model.AssegnatarioPrimarioId, model.AssegnatarioSecondarioId },
+                codiceCommessa);
+
             return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
         }
 
@@ -158,8 +178,20 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             if (existing == null)
                 return NotFound();
 
-            // Valida che la commessa esista
-            if (!await dbContext.Commessa.AnyAsync(c => c.Id == model.CommessaId))
+            // Va letto prima di sovrascrivere i campi: serve a capire quali assegnatari
+            // sono nuovi e quindi vanno notificati.
+            var assegnatariPrecedenti = new[] { existing.AssegnatarioPrimarioId, existing.AssegnatarioSecondarioId }
+                .Where(x => !string.IsNullOrEmpty(x))
+                .Select(x => x!)
+                .ToHashSet();
+
+            // Valida che la commessa esista, recuperandone il codice per il testo della notifica
+            var codiceCommessa = await dbContext.Commessa.AsNoTracking()
+                .Where(c => c.Id == model.CommessaId)
+                .Select(c => c.CommessaCodiceInterno)
+                .FirstOrDefaultAsync();
+
+            if (codiceCommessa == null)
                 return BadRequest("Commessa non trovata");
 
             // Valida che l'assegnatario primario esista
@@ -201,6 +233,14 @@ namespace NemesiAPI.Controllers.GestioneCommesse
                     return NotFound();
                 throw;
             }
+
+            // Si notifica solo chi non era già assegnato: una modifica alla descrizione o
+            // alla data non deve rinotificare chi il ToDo ce l'aveva già.
+            var nuoviAssegnatari = new[] { existing.AssegnatarioPrimarioId, existing.AssegnatarioSecondarioId }
+                .Where(x => !string.IsNullOrEmpty(x) && !assegnatariPrecedenti.Contains(x!))
+                .ToArray();
+
+            await NotificaAssegnazioneAsync(existing, nuoviAssegnatari, codiceCommessa);
 
             return NoContent();
         }
@@ -255,6 +295,84 @@ namespace NemesiAPI.Controllers.GestioneCommesse
             await dbContext.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Notifica agli assegnatari indicati che il ToDo è stato loro assegnato.
+        /// Chi compie l'azione non riceve notifica, anche quando assegna a se stesso.
+        /// </summary>
+        private async Task NotificaAssegnazioneAsync(ToDo todo, IEnumerable<string?> destinatari, string? codiceCommessa)
+        {
+            var utenteCorrenteId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var idDestinatari = destinatari
+                .Where(x => !string.IsNullOrEmpty(x))
+                .Select(x => x!)
+                .Distinct()
+                .Where(x => x != utenteCorrenteId)
+                .ToList();
+
+            if (idDestinatari.Count == 0)
+                return;
+
+            var nominativoOrigine = await dbContext.Users.AsNoTracking()
+                .Where(u => u.Id == utenteCorrenteId)
+                .Select(u => u.Nominativo)
+                .FirstOrDefaultAsync();
+
+            var link = todo.TipoPlanning == TipoPlanning.Amministrativo
+                ? "/gestione-commesse/planning-amministrativo"
+                : "/gestione-commesse/planning";
+
+            var descrizione = ComponiDescrizione(todo, codiceCommessa);
+
+            var notifiche = idDestinatari.Select(destinatarioId => new NuovaNotifica
+            {
+                UtenteId = destinatarioId,
+                Titolo = "Nuova ToDo assegnata",
+                Descrizione = descrizione,
+                Link = link,
+                Tipo = TipoNotifica.Info,
+                Categoria = CategoriaNotifica.ToDo,
+                UtenteOrigine = nominativoOrigine,
+                // Nessuna ChiaveDeduplica: l'assegnazione è un evento discreto, non una
+                // condizione ricorrente. Con la chiave, un ToDo tolto e poi riassegnato
+                // alla stessa persona non genererebbe la seconda notifica.
+            }).ToList();
+
+            try
+            {
+                await notificaService.CreaMoltepliciAsync(notifiche);
+            }
+            catch (Exception ex)
+            {
+                // Il ToDo è già stato salvato: un problema sulle notifiche non deve
+                // trasformare un'operazione riuscita in un errore per il chiamante.
+                log.Error($"Notifica di assegnazione non inviata per il ToDo {todo.Id}", ex);
+            }
+        }
+
+        private static string ComponiDescrizione(ToDo todo, string? codiceCommessa)
+        {
+            const int LunghezzaMassima = 1000;
+
+            var parti = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(codiceCommessa))
+                parti.Add($"Commessa {codiceCommessa}");
+
+            if (!string.IsNullOrWhiteSpace(todo.DescrizioneTodo))
+                parti.Add(todo.DescrizioneTodo);
+
+            if (todo.DataConsegna.HasValue)
+                parti.Add($"Consegna prevista: {todo.DataConsegna.Value:dd/MM/yyyy}");
+
+            var descrizione = string.Join(" · ", parti);
+
+            // La colonna è nvarchar(1000): una descrizione lunga farebbe fallire il salvataggio.
+            return descrizione.Length > LunghezzaMassima
+                ? descrizione.Substring(0, LunghezzaMassima - 1) + "…"
+                : descrizione;
         }
     }
 }
