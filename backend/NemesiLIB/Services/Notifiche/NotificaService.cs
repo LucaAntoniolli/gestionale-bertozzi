@@ -101,6 +101,32 @@ namespace NemesiLIB.Services.Notifiche
                 .ToList();
         }
 
+        public async Task<int> ChiudiNonPiuValideAsync(string famiglia, IReadOnlyCollection<string> chiaviAncoraValide,
+                                                       CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(famiglia))
+                return 0;
+
+            var adesso = DateTime.UtcNow;
+            var valide = chiaviAncoraValide?.ToList() ?? new List<string>();
+
+            // Va invocato dopo la creazione: le chiavi appena generate devono già esistere
+            // fra quelle valide, altrimenti la notifica di oggi chiuderebbe se stessa.
+            var chiuse = await dbContext.Notifica
+                .Where(n => !n.IsLetta
+                         && n.ChiaveDeduplica != null
+                         && n.ChiaveDeduplica.StartsWith(famiglia)
+                         && !valide.Contains(n.ChiaveDeduplica))
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(n => n.IsLetta, true)
+                    .SetProperty(n => n.DataLettura, adesso), ct);
+
+            if (chiuse > 0)
+                log.Info($"Notifiche chiuse perché non più valide ({famiglia}): {chiuse}");
+
+            return chiuse;
+        }
+
         private async Task<int> SalvaAsync(List<NuovaNotifica> daInserire, CancellationToken ct)
         {
             var adesso = DateTime.UtcNow;

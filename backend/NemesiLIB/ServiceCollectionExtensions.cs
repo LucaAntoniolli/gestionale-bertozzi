@@ -5,6 +5,7 @@ using NemesiLIB.Context;
 using Microsoft.EntityFrameworkCore;
 using NemesiLIB.Services.Notifiche;
 using NemesiLIB.Services.Notifiche.Eventi;
+using NemesiLIB.Services.Notifiche.Job;
 
 namespace NemesiLIB
 {
@@ -31,6 +32,11 @@ namespace NemesiLIB
             // notifiche
             services.AddScoped<INotificaService, NotificaService>();
             services.AddScoped<INotificheToDoService, NotificheToDoService>();
+
+            // job dei controlli ricorrenti (schedulati da Hangfire in NemesiAPI)
+            services.AddScoped<ToDoScaduteJob>();
+            services.AddScoped<OreMancantiJob>();
+            services.AddScoped<PuliziaNotificheJob>();
 
             return services;
         }

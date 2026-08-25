@@ -1,8 +1,8 @@
 # Notifiche in-app
 
-Pannello laterale di notifiche personali, alimentato da eventi applicativi e — in prospettiva — da controlli schedulati notturni.
+Pannello laterale di notifiche personali, alimentato da eventi applicativi e da controlli schedulati.
 
-Backend .NET 10 + EF Core 10, frontend Angular 20 zoneless + PrimeNG, scheduling previsto con Hangfire.
+Backend .NET 10 + EF Core 10, frontend Angular 20 zoneless + PrimeNG, scheduling con Hangfire.
 
 Questo documento raccoglie le **scelte** e il perché. Il come sta nel codice.
 
@@ -13,7 +13,7 @@ Questo documento raccoglie le **scelte** e il perché. Il come sta nel codice.
 | 1 | Backend: entità, service, controller, migration | completata |
 | 2 | Frontend: service, campanella, pannello | completata |
 | 3 | Hangfire: infrastruttura di scheduling | completata |
-| 4 | Job ricorrenti e retention | parziale — fatte le assegnazioni ToDo |
+| 4 | Job ricorrenti, notifiche da evento, retention | completata |
 
 ---
 
@@ -94,6 +94,47 @@ Caso limite noto: promuovere il secondario a primario non notifica, perché era 
 
 ---
 
+## Job ricorrenti
+
+Entrambi girano **ogni giorno alle 6**, cron in `Hangfire:Cron`, e stanno in `NemesiLIB/Services/Notifiche/Job/`. Non hanno dipendenze da Hangfire: sono classi normali, schedulate da `Program.cs`.
+
+**`ToDoScaduteJob`** — conta le ToDo non completate oltre la data di consegna. Una notifica per tipo di planning, perché il link differisce; vale sia per l'assegnatario primario sia per il secondario, quindi un ToDo con due assegnatari conta per entrambi. Una ToDo senza `DataConsegna` non è scaduta.
+
+**`OreMancantiJob`** — giorni lavorativi scoperti nella finestra mobile dei 7 giorni precedenti, che si ferma a ieri perché le ore di oggi non sono ancora attese. Tre scelte:
+
+- **Un giorno è coperto solo se esiste una riga con `Ore > 0`.** `Ore` è nullable: una riga di sole spese o chilometri non basta.
+- **Il perimetro è tutti gli utenti attivi non esterni.** Una prima versione restringeva a chi aveva caricato ore negli ultimi 60 giorni, per non disturbare chi non usa il modulo: si è rivelato controproducente, perché escludeva proprio chi non carica mai le ore, cioè il destinatario che il promemoria deve raggiungere. Sui dati reali passava da 11 destinatari a 1. Nel modello non esiste un'informazione che distingua chi è tenuto a rendicontare (`CostoOrario` è popolato per un solo utente), quindi si sbaglia per eccesso: chi per ruolo non carica ore riceve comunque la segnalazione. Un flag `CaricaOre` su `Utente` sarebbe la soluzione stabile.
+- **Ferie, permessi e malattia non sono noti** — non esistono nel modello. Chi è assente riceve comunque la segnalazione. Limite accettato consapevolmente.
+
+`GiorniLavorativi` esclude sabato, domenica e le festività nazionali italiane, con Pasquetta calcolata. Il patrono è locale e non è incluso.
+
+### Chiusura delle notifiche non più valide
+
+La chiave di deduplica contiene la data, quindi ogni giorno ne nasce una nuova: la segnalazione torna finché la condizione non si risolve, e leggerla non la silenzia. Senza contromisure il pannello accumulerebbe una riga al giorno.
+
+`INotificaService.ChiudiNonPiuValideAsync(famiglia, chiaviAncoraValide)` marca come lette tutte le non lette della famiglia (`todo-scadute:`, `ore-mancanti:`) che non figurano fra le chiavi appena generate. Ogni job la invoca **dopo** aver creato le proprie, passando le chiavi di oggi.
+
+Copre due casi con un'unica operazione:
+
+- la rilevazione di ieri, superata da quella di oggi;
+- quella di un utente per cui **la condizione non sussiste più** — che è il caso insidioso, perché non generando una notifica nuova non ci sarebbe nulla a rimpiazzarla, e resterebbe in pannello a segnalare attività ormai completate.
+
+Per questo la chiamata sta anche nel ramo in cui il job non trova nulla da segnalare, con lista vuota: se nessuno ha più scadenze, vanno chiuse tutte.
+
+Il risultato è che esiste **al più una notifica non letta** per utente e famiglia, e che corrisponde sempre allo stato reale.
+
+La famiglia include i due punti finali (`ore-mancanti:`): il confronto è uno `StartsWith`.
+
+### Retention
+
+**`PuliziaNotificheJob`** gira la domenica alle 3:30 e cancella le notifiche **già lette** più vecchie di `Notifiche:MesiRetention` (default 6).
+
+- **Le non lette non si toccano a nessuna età**: sono la posta dell'utente, e cancellarle significherebbe fargli sparire qualcosa che non ha mai visto. Quelle dei controlli ricorrenti si chiudono comunque da sé per sostituzione.
+- Una riga marcata letta ma **senza `DataLettura`** — per esempio scritta da SQL diretto — verrebbe altrimenti conservata per sempre: in quel caso vale la `DataCreazione`.
+- Il vincolo sulla deduplica è ampiamente rispettato: le chiavi dei job sono giornaliere, la retention è di sei mesi.
+
+---
+
 ## Punti di attenzione
 
 **Filtro per utente sulle scritture.** Ogni query filtra su `n.Id == id && n.UtenteId == UtenteCorrenteId`, mai `FindAsync(id)`. Con il solo id chiunque potrebbe chiudere le notifiche altrui, e nessun test funzionale se ne accorgerebbe.
@@ -114,15 +155,17 @@ Caso limite noto: promuovere il secondario a primario non notifica, perché era 
 
 **Destinatari disattivati.** Il filtro su `IsAttivo` è dentro `NotificaService`, una volta sola: i job che risolvono un intero ruolo non devono ricordarsene.
 
+**`QUOTED_IDENTIFIER ON` per le scritture su `Notifica`.** L'indice univoco filtrato lo esige: qualsiasi INSERT, UPDATE o DELETE da una sessione che lo ha spento fallisce con l'errore 1934. SSMS lo imposta di default, **sqlcmd no**: negli script va messo in testa.
+
 **Audit nei job.** `ApplyAuditInformation()` ricade su `"-"` senza `HttpContext`. Irrilevante per `Notifica`, diventa un problema quando un job scriverà commesse o attività: servirà un utente ambientale "sistema".
 
 ---
 
 ## Aperto
 
-- Quali controlli notturni servono (attività in scadenza, commesse oltre consegna, collaudi, ToDo scadute).
 - Se agganciare l'email per alcune categorie: `IMailService` esiste già, andrebbe dentro `NotificaService` così vale sia per i job sia per gli eventi utente.
-- Retention: cancellare le lette oltre i sei mesi, **purché** la finestra resti più ampia del periodo nelle chiavi di deduplica, altrimenti si fanno risorgere notifiche già chiuse.
+- Un flag `CaricaOre` su `Utente`, per distinguere chi è tenuto a rendicontare: renderebbe preciso il perimetro di `OreMancantiJob`, che oggi comprende tutti gli interni attivi.
+- Se e come gestire le assenze: oggi chi è in ferie riceve comunque la segnalazione dei giorni senza ore.
 
 ---
 

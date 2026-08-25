@@ -3,6 +3,7 @@ using Hangfire.Dashboard;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Identity;
 using NemesiAPI.Auth;
+using NemesiLIB.Services.Notifiche.Job;
 using NemesiCOMMONS;
 using NemesiLIB;
 using NemesiLIB.Context.Seeders;
@@ -137,6 +138,29 @@ namespace NemesiAPI
                     DisplayStorageConnectionString = false,
                 });
             }
+
+            // Job ricorrenti. Il cron sta in configurazione, così l'orario si cambia senza
+            // ricompilare; il fuso è dichiarato esplicitamente perché il default di Hangfire
+            // è UTC e con l'ora legale gli orari slitterebbero di un'ora due volte l'anno.
+            RecurringJob.AddOrUpdate<ToDoScaduteJob>(
+                "notifiche-todo-scadute",
+                job => job.EseguiAsync(CancellationToken.None),
+                configuration["Hangfire:Cron:ToDoScadute"] ?? "0 6 * * *",
+                new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+            RecurringJob.AddOrUpdate<OreMancantiJob>(
+                "notifiche-ore-mancanti",
+                job => job.EseguiAsync(CancellationToken.None),
+                configuration["Hangfire:Cron:OreMancanti"] ?? "0 6 * * *",
+                new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+            // Pulizia settimanale: la crescita è di poche righe al giorno, non serve
+            // eseguirla ogni notte. Di domenica, quando non ci sono altri job in corso.
+            RecurringJob.AddOrUpdate<PuliziaNotificheJob>(
+                "notifiche-pulizia",
+                job => job.EseguiAsync(CancellationToken.None),
+                configuration["Hangfire:Cron:PuliziaNotifiche"] ?? "30 3 * * 0",
+                new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
 
             app.UseAuthentication();
             app.UseAuthorization();
