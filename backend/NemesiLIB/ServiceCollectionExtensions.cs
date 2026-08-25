@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using NemesiLIB.Context;
 using Microsoft.EntityFrameworkCore;
 using NemesiLIB.Services.Notifiche;
+using NemesiLIB.Services.Notifiche.Eventi;
 
 namespace NemesiLIB
 {
@@ -29,6 +30,7 @@ namespace NemesiLIB
 
             // notifiche
             services.AddScoped<INotificaService, NotificaService>();
+            services.AddScoped<INotificheToDoService, NotificheToDoService>();
 
             return services;
         }
