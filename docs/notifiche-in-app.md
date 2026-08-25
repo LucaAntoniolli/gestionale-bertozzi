@@ -12,8 +12,8 @@ Questo documento raccoglie le **scelte** e il perché. Il come sta nel codice.
 |---|---|---|
 | 1 | Backend: entità, service, controller, migration | completata |
 | 2 | Frontend: service, campanella, pannello | completata |
-| 3 | Hangfire e job ricorrenti | da fare |
-| 4 | Notifiche da evento e retention | parziale — fatte le assegnazioni ToDo |
+| 3 | Hangfire: infrastruttura di scheduling | completata |
+| 4 | Job ricorrenti e retention | parziale — fatte le assegnazioni ToDo |
 
 ---
 
@@ -25,7 +25,9 @@ Questo documento raccoglie le **scelte** e il perché. Il come sta nel codice.
 
 **Polling, non SignalR.** Il contatore si aggiorna ogni 60 secondi su un endpoint che restituisce solo un numero. SignalR avrebbe richiesto hub, riconnessioni e gestione del token: sproporzionato per un gestionale interno. Lo stato lato Angular è in signal, quindi sostituire il polling con un hub non toccherebbe i componenti.
 
-**Hangfire in-process, quando si farà.** Il deploy è Kestrel dietro YARP, non IIS: il processo è a vita lunga, quindi non serve un'applicazione separata schedulata da Task Scheduler.
+**Hangfire in-process.** Il deploy è Kestrel dietro YARP, non IIS: il processo è a vita lunga, quindi non serve un'applicazione separata schedulata da Task Scheduler. Lo storage sta nello schema `HangFire` del database applicativo; l'utente è `db_owner`, quindi `PrepareSchemaIfNecessary` è lasciato attivo e le tabelle si creano da sole al primo avvio.
+
+**Dashboard raggiungibile solo dal server.** Viene instradata solo se `Hangfire:Dashboard:Abilitata` è `true`, e comunque ristretta agli IP di `IpConsentiti`. Attiva in sviluppo e in produzione, in entrambi i casi con allowlist di solo loopback: **non va aggiunta una rotta `/hangfire` su YARP**. Ci si arriva collegandosi al server (RDP) o via tunnel SSH, navigando su `localhost`. `appsettings.json` la lascia spenta come default per ogni altro ambiente.
 
 ---
 
@@ -96,7 +98,11 @@ Caso limite noto: promuovere il secondario a primario non notifica, perché era 
 
 **Filtro per utente sulle scritture.** Ogni query filtra su `n.Id == id && n.UtenteId == UtenteCorrenteId`, mai `FindAsync(id)`. Con il solo id chiunque potrebbe chiudere le notifiche altrui, e nessun test funzionale se ne accorgerebbe.
 
-**Dashboard Hangfire dietro YARP.** Il filtro di default confronta l'IP del chiamante con quello locale, ma dietro proxy vede sempre l'IP del proxy: considererebbe locale ogni richiesta, lasciando aperta una UI da cui si lanciano job. La scelta consigliata è non instradarla affatto dal proxy.
+**Dashboard Hangfire dietro YARP.** Non si usa `LocalRequestsOnlyAuthorizationFilter`: confronta l'IP del chiamante con quello locale, ma dietro proxy vede sempre l'IP del proxy e considererebbe locale ogni richiesta, lasciando aperta una UI da cui si lanciano job. Al suo posto c'è `HangfireDashboardAuthorizationFilter`, con allowlist esplicita e deny per default. Per lo stesso motivo, se un domani la dashboard fosse resa raggiungibile via proxy **non basta aggiungere l'IP del proxy** — equivarrebbe a consentire tutti: servirebbe prima `UseForwardedHeaders` configurato con i proxy attendibili.
+
+**La dashboard va registrata prima di `UseAuthorization`.** È middleware, non un endpoint, e il `FallbackPolicy` globale (`RequireAuthenticatedUser`) respinge con 401 anche le richieste che non corrispondono ad alcun endpoint. Messa dopo, restituisce 401 senza che Hangfire venga mai interpellato — sintomo indistinguibile da un filtro che nega.
+
+**`DisplayStorageConnectionString = false`.** Il default di Hangfire è `true` e mostrerebbe la connection string nella dashboard, password inclusa.
 
 **Fuso orario dei job.** Il default di Hangfire è UTC: senza `TimeZone = TimeZoneInfo.Local` gli orari slittano al cambio di ora legale.
 

@@ -9,6 +9,7 @@ using NemesiAPI.Controllers.GestioneCommesse;
 using NemesiLIB.Context;
 using NemesiLIB.Model;
 using NemesiLIB.Model.GestioneCommesse;
+using NemesiLIB.Services.Notifiche.Eventi;
 
 namespace NemesiAPI.Tests;
 
@@ -302,7 +303,7 @@ public class ToDoControllerTests
             var db = new GestionaleBertozziContext(options, accessor);
             var userManager = new FakeUserManager();
 
-            var controller = new ToDoController(db, userManager)
+            var controller = new ToDoController(db, userManager, new FakeNotificheToDoService())
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };
@@ -391,6 +392,30 @@ public class ToDoControllerTests
     // ═════════════════════════════════════════════════════════════════════════
     // FakeUserManager: implementazione minimale senza librerie di mocking
     // ═════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Questi test verificano il comportamento del controller sui ToDo, non le notifiche:
+    /// il servizio viene sostituito con un'implementazione inerte che registra le chiamate,
+    /// così l'invio non interferisce con le asserzioni.
+    /// </summary>
+    internal sealed class FakeNotificheToDoService : INotificheToDoService
+    {
+        public List<ToDo> Creazioni { get; } = [];
+        public List<ToDo> Aggiornamenti { get; } = [];
+
+        public Task NotificaCreazioneAsync(ToDo todo, string? utenteOrigineId, CancellationToken ct = default)
+        {
+            Creazioni.Add(todo);
+            return Task.CompletedTask;
+        }
+
+        public Task NotificaAggiornamentoAsync(ToDo todo, IReadOnlyCollection<string> assegnatariPrecedenti,
+                                               string? utenteOrigineId, CancellationToken ct = default)
+        {
+            Aggiornamenti.Add(todo);
+            return Task.CompletedTask;
+        }
+    }
 
     internal sealed class FakeUserManager : UserManager<Utente>
     {

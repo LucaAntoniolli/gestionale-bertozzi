@@ -1,4 +1,8 @@
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Identity;
+using NemesiAPI.Auth;
 using NemesiCOMMONS;
 using NemesiLIB;
 using NemesiLIB.Context.Seeders;
@@ -62,6 +66,27 @@ namespace NemesiAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Hangfire: schedulazione dei job che generano notifiche.
+            // Lo storage vive nello schema "HangFire" del database applicativo, separato
+            // dalle tabelle di dominio; l'utente è db_owner, quindi può crearlo da sé.
+            builder.Services.AddHangfire(configurazione => configurazione
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(configuration.GetConnectionString("GestionaleBertozzi"), new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    QueuePollInterval = TimeSpan.Zero,
+                    UseRecommendedIsolationLevel = true,
+                    DisableGlobalLocks = true,
+                    PrepareSchemaIfNecessary = true,
+                }));
+
+            // Avvia il server che esegue i job all'interno del processo API: il deploy è
+            // Kestrel dietro YARP, quindi il processo è a vita lunga e non viene riciclato.
+            builder.Services.AddHangfireServer();
+
             // Register the seeder
             builder.Services.AddScoped<GestionaleBertozziContextSeeder>();
 
@@ -89,6 +114,29 @@ namespace NemesiAPI
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            // La dashboard è instradata solo se esplicitamente abilitata in configurazione,
+            // e comunque ristretta agli IP elencati. Va raggiunta da localhost sul server
+            // (o via tunnel): non va esposta attraverso YARP - vedi
+            // HangfireDashboardAuthorizationFilter per il motivo.
+            //
+            // Va registrata PRIMA di UseAuthorization: è middleware e non un endpoint, e il
+            // FallbackPolicy globale (RequireAuthenticatedUser) respinge con 401 anche le
+            // richieste che non corrispondono ad alcun endpoint. Si protegge da sé tramite
+            // il proprio filtro di autorizzazione.
+            if (configuration.GetValue<bool>("Hangfire:Dashboard:Abilitata"))
+            {
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
+                    Authorization = new[]
+                    {
+                        new HangfireDashboardAuthorizationFilter(
+                            configuration.GetSection("Hangfire:Dashboard:IpConsentiti").Get<string[]>())
+                    },
+                    // Il default è true e mostrerebbe la connection string, password inclusa.
+                    DisplayStorageConnectionString = false,
+                });
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();
