@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
@@ -68,6 +68,8 @@ export class OreSpeseDialogComponent implements OnChanges {
 
     form?: FormGroup;
     isMobile$?: Observable<boolean>;
+    /** Limite massimo selezionabile nel datepicker: non si possono caricare ore per date future. */
+    maxData: Date = new Date();
 
     get showCommessaSelector(): boolean {
         return !this.fixedCommessaId;
@@ -92,6 +94,8 @@ export class OreSpeseDialogComponent implements OnChanges {
     }
 
     private initForm(): void {
+        this.maxData = moment().endOf('day').toDate();
+
         const commessaId = this.fixedCommessaId ?? this.editData?.commessaId ?? null;
         const utenteId = (this.isUtenteBase && !this.isModifying)
             ? (this.utenteLoggatoId ?? null)
@@ -100,12 +104,22 @@ export class OreSpeseDialogComponent implements OnChanges {
         this.form = this.fb.group({
             commessaId: [commessaId, this.fixedCommessaId ? [] : [Validators.required]],
             utenteId: [utenteId, [Validators.required]],
-            data: [this.editData?.data ?? null, [Validators.required]],
+            data: [this.editData?.data ?? null, [Validators.required, OreSpeseDialogComponent.dataNonFuturaValidator]],
             ore: [this.editData?.ore ?? null, [Validators.required, Validators.min(0), Validators.max(12)]],
             spese: [this.editData?.spese ?? null, [Validators.min(0)]],
             chilometri: [this.editData?.chilometri ?? null, [Validators.min(0)]],
             note: [this.editData?.note ?? ''],
         });
+    }
+
+    /** Blocca le date successive a oggi: il datepicker limita la selezione, questo copre anche l'input manuale. */
+    private static dataNonFuturaValidator(control: AbstractControl): ValidationErrors | null {
+        if (!control.value) {
+            return null;
+        }
+        return moment(control.value).startOf('day').isAfter(moment().startOf('day'))
+            ? { dataFutura: true }
+            : null;
     }
 
     chiudi(): void {

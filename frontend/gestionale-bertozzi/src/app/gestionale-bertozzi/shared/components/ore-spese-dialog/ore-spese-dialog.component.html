@@ -43,9 +43,12 @@
                     <div class="field">
                         <label class="mb-2 font-semibold">Data *</label>
                         <p-datepicker formControlName="data" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"
-                            appendTo="body" />
-                        <small class="p-error" *ngIf="form.get('data')?.invalid">
+                            appendTo="body" [maxDate]="maxData" />
+                        <small class="p-error" *ngIf="form.get('data')?.hasError('required')">
                             Campo obbligatorio
+                        </small>
+                        <small class="p-error" *ngIf="form.get('data')?.hasError('dataFutura')">
+                            Non è possibile caricare ore per date future
                         </small>
                     </div>
                 </div>

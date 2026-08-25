@@ -17,6 +17,7 @@ import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
+import * as FileSaver from 'file-saver';
 
 import { TitoloPaginaComponent } from '../../shared/components/titolo-pagina/titolo-pagina.component';
 import { OreSpeseDialogComponent, OreSpeseDialogEditData } from '../../shared/components/ore-spese-dialog/ore-spese-dialog.component';
@@ -67,6 +68,7 @@ export class OreESpeseComponent implements OnInit {
     totaleOre: number = 0;
     totaleSpese: number = 0;
     totaleChilometri: number = 0;
+    exportingExcel: boolean = false;
 
     // Dati di riferimento
     commesseList: CommessaLight[] = [];
@@ -258,6 +260,84 @@ export class OreESpeseComponent implements OnInit {
                 });
             }
         });
+    }
+
+    // ─── Export Excel ──────────────────────────────────────────────────────────
+
+    /**
+     * Esporta in Excel tutte le righe che rispettano i filtri correnti.
+     * L'endpoint è paginato, quindi la tabella in pagina contiene solo la pagina
+     * visualizzata: qui si rifà la query chiedendo l'intero set di risultati.
+     */
+    exportExcel() {
+        if (this.totalRecords === 0 || this.exportingExcel) {
+            return;
+        }
+
+        this.exportingExcel = true;
+        this.oreSpeseService.getPaged(
+            1,
+            this.totalRecords,
+            this.filtroCommessaId,
+            this.filtroUtenteId,
+            this.filtroDataFrom,
+            this.filtroDataTo,
+        ).pipe(first()).subscribe({
+            next: (response) => {
+                this.buildExcel(response.items);
+                this.exportingExcel = false;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.exportingExcel = false;
+                this.ms.add({
+                    severity: 'error',
+                    summary: 'Errore',
+                    detail: "Errore durante l'esportazione dei dati",
+                    life: 3000,
+                });
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    private buildExcel(items: OreSpesePagedItemDto[]) {
+        import('xlsx').then((xlsx) => {
+            const oreSpeseForExcel = items.map(item => ({
+                'Data': item.data ? item.data.format('DD/MM/YYYY') : '',
+                'Codice commessa': item.commessaCodiceInterno ?? '',
+                'Commessa': item.commessaDescrizione ?? '',
+                'Utente': item.utenteNominativo ?? '',
+                'Ore': item.ore ?? 0,
+                'Spese (€)': item.spese ?? 0,
+                'Km': item.chilometri ?? 0,
+                'Note': item.note ?? '',
+            }));
+
+            const worksheet = xlsx.utils.json_to_sheet(oreSpeseForExcel);
+            const workbook = {
+                Sheets: { data: worksheet },
+                SheetNames: ['data'],
+            };
+            const excelBuffer: any = xlsx.write(workbook, {
+                bookType: 'xlsx',
+                type: 'array',
+            });
+            this.saveAsExcelFile(excelBuffer, 'ore_spese');
+        });
+    }
+
+    private saveAsExcelFile(buffer: any, fileName: string): void {
+        let EXCEL_TYPE =
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        let EXCEL_EXTENSION = '.xlsx';
+        const data: Blob = new Blob([buffer], {
+            type: EXCEL_TYPE,
+        });
+        FileSaver.saveAs(
+            data,
+            fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION
+        );
     }
 
     // ─── Grafico ore per giorno ────────────────────────────────────────────────

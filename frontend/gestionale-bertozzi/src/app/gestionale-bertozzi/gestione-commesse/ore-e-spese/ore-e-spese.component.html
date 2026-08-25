@@ -59,6 +59,9 @@
                 <div class="p-toolbar-group-start">
                     <p-button label="Carica ore e spese" icon="pi pi-plus" (click)="apriDialogCrea()"
                         [disabled]="referenceDataLoading" *ngIf="canCreate" />
+                    <p-button label="Esporta Excel" icon="pi pi-file-excel" severity="success" styleClass="ml-2"
+                        (click)="exportExcel()" [loading]="exportingExcel"
+                        [disabled]="loading || totalRecords === 0" />
                 </div>
                 <div class="p-toolbar-group-end">
                     @if(totalRecords > 0) {
