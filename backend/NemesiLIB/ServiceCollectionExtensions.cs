@@ -34,8 +34,10 @@ namespace NemesiLIB
             services.AddScoped<INotificheToDoService, NotificheToDoService>();
 
             // job dei controlli ricorrenti (schedulati da Hangfire in NemesiAPI)
+            services.AddScoped<RilevatoreOreMancanti>();
             services.AddScoped<ToDoScaduteJob>();
             services.AddScoped<OreMancantiJob>();
+            services.AddScoped<RiepilogoOreMancantiJob>();
             services.AddScoped<PuliziaNotificheJob>();
 
             return services;

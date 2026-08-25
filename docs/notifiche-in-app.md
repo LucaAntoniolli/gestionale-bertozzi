@@ -1,6 +1,6 @@
 # Notifiche in-app
 
-Pannello laterale di notifiche personali, alimentato da eventi applicativi e da controlli schedulati.
+Pannello laterale di notifiche personali, alimentato da eventi applicativi e da controlli schedulati, più un riepilogo settimanale via mail al Backoffice.
 
 Backend .NET 10 + EF Core 10, frontend Angular 20 zoneless + PrimeNG, scheduling con Hangfire.
 
@@ -14,6 +14,7 @@ Questo documento raccoglie le **scelte** e il perché. Il come sta nel codice.
 | 2 | Frontend: service, campanella, pannello | completata |
 | 3 | Hangfire: infrastruttura di scheduling | completata |
 | 4 | Job ricorrenti, notifiche da evento, retention | completata |
+| 5 | Riepilogo via mail al Backoffice | completata |
 
 ---
 
@@ -96,17 +97,43 @@ Caso limite noto: promuovere il secondario a primario non notifica, perché era 
 
 ## Job ricorrenti
 
-Entrambi girano **ogni giorno alle 6**, cron in `Hangfire:Cron`, e stanno in `NemesiLIB/Services/Notifiche/Job/`. Non hanno dipendenze da Hangfire: sono classi normali, schedulate da `Program.cs`.
+Stanno in `NemesiLIB/Services/Notifiche/Job/`, cron in `Hangfire:Cron`. Non hanno dipendenze da Hangfire: sono classi normali, schedulate da `Program.cs`.
+
+| Job | Cadenza | Destinatario |
+|---|---|---|
+| `ToDoScaduteJob` | ogni giorno, 6:00 | notifica in-app all'assegnatario |
+| `OreMancantiJob` | ogni giorno, 6:00 | notifica in-app al singolo |
+| `RiepilogoOreMancantiJob` | lunedì, 7:00 | mail al ruolo Backoffice |
+| `PuliziaNotificheJob` | domenica, 3:30 | — |
 
 **`ToDoScaduteJob`** — conta le ToDo non completate oltre la data di consegna. Una notifica per tipo di planning, perché il link differisce; vale sia per l'assegnatario primario sia per il secondario, quindi un ToDo con due assegnatari conta per entrambi. Una ToDo senza `DataConsegna` non è scaduta.
 
-**`OreMancantiJob`** — giorni lavorativi scoperti nella finestra mobile dei 7 giorni precedenti, che si ferma a ieri perché le ore di oggi non sono ancora attese. Tre scelte:
+**`RilevatoreOreMancanti`** — individua chi non ha caricato ore nei giorni lavorativi della finestra, che è mobile sui 7 giorni precedenti e si ferma a ieri perché le ore di oggi non sono ancora attese.
+
+È **condiviso** fra il promemoria in-app e il riepilogo via mail: due destinatari e due cadenze, ma un solo criterio, così le due comunicazioni non possono raccontare cose diverse. Tre scelte:
 
 - **Un giorno è coperto solo se esiste una riga con `Ore > 0`.** `Ore` è nullable: una riga di sole spese o chilometri non basta.
 - **Il perimetro è tutti gli utenti attivi non esterni.** Una prima versione restringeva a chi aveva caricato ore negli ultimi 60 giorni, per non disturbare chi non usa il modulo: si è rivelato controproducente, perché escludeva proprio chi non carica mai le ore, cioè il destinatario che il promemoria deve raggiungere. Sui dati reali passava da 11 destinatari a 1. Nel modello non esiste un'informazione che distingua chi è tenuto a rendicontare (`CostoOrario` è popolato per un solo utente), quindi si sbaglia per eccesso: chi per ruolo non carica ore riceve comunque la segnalazione. Un flag `CaricaOre` su `Utente` sarebbe la soluzione stabile.
 - **Ferie, permessi e malattia non sono noti** — non esistono nel modello. Chi è assente riceve comunque la segnalazione. Limite accettato consapevolmente.
 
 `GiorniLavorativi` esclude sabato, domenica e le festività nazionali italiane, con Pasquetta calcolata. Il patrono è locale e non è incluso.
+
+### Riepilogo via mail al Backoffice
+
+**`RiepilogoOreMancantiJob`** invia a chi ha il ruolo `Backoffice` la tabella di chi non ha caricato le ore, con nome, numero di giorni e date scoperte. Template `Templates/Emails/riepilogo-ore-mancanti.html`, un invio per destinatario perché `MailData.EmailToId` accetta un solo indirizzo.
+
+**Settimanale, non giornaliero**, a differenza del promemoria al singolo: è un controllo di gestione, non un sollecito, e la stessa tabella ogni mattina verrebbe archiviata senza leggerla dopo tre giorni. Il cron resta configurabile.
+
+**Nessun invio quando non c'è nulla da segnalare.** Un riepilogo vuoto ogni settimana insegna solo a ignorare il mittente.
+
+#### Vincoli imposti dal sanitizer
+
+`MailService` passa i `TemplateHtmlValues` attraverso `HtmlSanitizer`, che **sanifica ma non codifica** — con `TemplateValues` la tabella arriverebbe come testo coi tag in vista, quindi i nominativi vanno codificati esplicitamente nel job. Ma il sanitizer impone anche due vincoli meno ovvi, entrambi verificati dai test in `SanitizerTabellaTests`:
+
+- **Va iniettata la tabella intera, non le sole righe.** Il sanitizer analizza il frammento con un parser HTML, e `tr` o `td` fuori da una `table` sono invalidi: vengono scartati lasciando solo il testo, che finisce concatenato sopra una tabella vuota. Una prima versione iniettava le righe in un `tbody` del template e la mail arrivava così.
+- **Gli stili sono inline, non classi.** L'attributo `class` non è fra quelli consentiti e viene rimosso; `style` invece sopravvive. Un blocco `<style>` nel template non basterebbe a formattare il markup iniettato — e molti client di posta lo ignorano comunque.
+
+Un terzo punto riguarda il deploy: il template ha bisogno della sua voce `<None Update>` in `NemesiAPI.csproj`, altrimenti non viene copiato in output e in produzione l'invio fallisce con file-not-found. `MailService` lo cerca sotto `Directory.GetCurrentDirectory()`, quindi conta anche la working directory del processo.
 
 ### Chiusura delle notifiche non più valide
 
@@ -163,7 +190,8 @@ La famiglia include i due punti finali (`ore-mancanti:`): il confronto è uno `S
 
 ## Aperto
 
-- Se agganciare l'email per alcune categorie: `IMailService` esiste già, andrebbe dentro `NotificaService` così vale sia per i job sia per gli eventi utente.
+- Nel database di sviluppo il ruolo `Backoffice` non ha utenti assegnati: finché resta così il riepilogo settimanale non parte, e lo si vede solo dal warning nei log.
+- Se agganciare l'email anche alle notifiche in-app di alcune categorie: andrebbe dentro `NotificaService`, così varrebbe sia per i job sia per gli eventi utente.
 - Un flag `CaricaOre` su `Utente`, per distinguere chi è tenuto a rendicontare: renderebbe preciso il perimetro di `OreMancantiJob`, che oggi comprende tutti gli interni attivi.
 - Se e come gestire le assenze: oggi chi è in ferie riceve comunque la segnalazione dei giorni senza ore.
 

@@ -154,6 +154,14 @@ namespace NemesiAPI
                 configuration["Hangfire:Cron:OreMancanti"] ?? "0 6 * * *",
                 new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
 
+            // Riepilogo al Backoffice: settimanale il lunedì, perché è un controllo di
+            // gestione e non un sollecito. Il promemoria al singolo utente resta giornaliero.
+            RecurringJob.AddOrUpdate<RiepilogoOreMancantiJob>(
+                "notifiche-mail-ore-mancanti",
+                job => job.EseguiAsync(CancellationToken.None),
+                configuration["Hangfire:Cron:RiepilogoOreMancanti"] ?? "0 7 * * 1",
+                new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
             // Pulizia settimanale: la crescita è di poche righe al giorno, non serve
             // eseguirla ogni notte. Di domenica, quando non ci sono altri job in corso.
             RecurringJob.AddOrUpdate<PuliziaNotificheJob>(
