@@ -142,33 +142,43 @@ namespace NemesiAPI
             // Job ricorrenti. Il cron sta in configurazione, così l'orario si cambia senza
             // ricompilare; il fuso è dichiarato esplicitamente perché il default di Hangfire
             // è UTC e con l'ora legale gli orari slitterebbero di un'ora due volte l'anno.
-            RecurringJob.AddOrUpdate<ToDoScaduteJob>(
-                "notifiche-todo-scadute",
-                job => job.EseguiAsync(CancellationToken.None),
-                configuration["Hangfire:Cron:ToDoScadute"] ?? "0 6 * * *",
-                new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+            //
+            // Si usa IRecurringJobManager risolto dal container e non l'API statica
+            // RecurringJob: quest'ultima dipende da JobStorage.Current, che viene valorizzato
+            // solo quando qualcuno risolve JobStorage dal DI. Con la dashboard disabilitata
+            // quel passaggio non avviene e l'applicazione non parte.
+            using (var scopeJob = app.Services.CreateScope())
+            {
+                var jobRicorrenti = scopeJob.ServiceProvider.GetRequiredService<IRecurringJobManager>();
 
-            RecurringJob.AddOrUpdate<OreMancantiJob>(
-                "notifiche-ore-mancanti",
-                job => job.EseguiAsync(CancellationToken.None),
-                configuration["Hangfire:Cron:OreMancanti"] ?? "0 6 * * *",
-                new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+                jobRicorrenti.AddOrUpdate<ToDoScaduteJob>(
+                    "notifiche-todo-scadute",
+                    job => job.EseguiAsync(CancellationToken.None),
+                    configuration["Hangfire:Cron:ToDoScadute"] ?? "0 6 * * *",
+                    new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
 
-            // Riepilogo al Backoffice: settimanale il lunedì, perché è un controllo di
-            // gestione e non un sollecito. Il promemoria al singolo utente resta giornaliero.
-            RecurringJob.AddOrUpdate<RiepilogoOreMancantiJob>(
-                "notifiche-mail-ore-mancanti",
-                job => job.EseguiAsync(CancellationToken.None),
-                configuration["Hangfire:Cron:RiepilogoOreMancanti"] ?? "0 7 * * 1",
-                new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+                jobRicorrenti.AddOrUpdate<OreMancantiJob>(
+                    "notifiche-ore-mancanti",
+                    job => job.EseguiAsync(CancellationToken.None),
+                    configuration["Hangfire:Cron:OreMancanti"] ?? "0 6 * * *",
+                    new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
 
-            // Pulizia settimanale: la crescita è di poche righe al giorno, non serve
-            // eseguirla ogni notte. Di domenica, quando non ci sono altri job in corso.
-            RecurringJob.AddOrUpdate<PuliziaNotificheJob>(
-                "notifiche-pulizia",
-                job => job.EseguiAsync(CancellationToken.None),
-                configuration["Hangfire:Cron:PuliziaNotifiche"] ?? "30 3 * * 0",
-                new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+                // Riepilogo al Backoffice: settimanale il lunedì, perché è un controllo di
+                // gestione e non un sollecito. Il promemoria al singolo resta giornaliero.
+                jobRicorrenti.AddOrUpdate<RiepilogoOreMancantiJob>(
+                    "notifiche-mail-ore-mancanti",
+                    job => job.EseguiAsync(CancellationToken.None),
+                    configuration["Hangfire:Cron:RiepilogoOreMancanti"] ?? "0 7 * * 1",
+                    new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+
+                // Pulizia settimanale: la crescita è di poche righe al giorno, non serve
+                // eseguirla ogni notte. Di domenica, quando non ci sono altri job in corso.
+                jobRicorrenti.AddOrUpdate<PuliziaNotificheJob>(
+                    "notifiche-pulizia",
+                    job => job.EseguiAsync(CancellationToken.None),
+                    configuration["Hangfire:Cron:PuliziaNotifiche"] ?? "30 3 * * 0",
+                    new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();

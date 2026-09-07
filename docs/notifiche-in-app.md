@@ -168,6 +168,8 @@ La famiglia include i due punti finali (`ore-mancanti:`): il confronto è uno `S
 
 **Dashboard Hangfire dietro YARP.** Non si usa `LocalRequestsOnlyAuthorizationFilter`: confronta l'IP del chiamante con quello locale, ma dietro proxy vede sempre l'IP del proxy e considererebbe locale ogni richiesta, lasciando aperta una UI da cui si lanciano job. Al suo posto c'è `HangfireDashboardAuthorizationFilter`, con allowlist esplicita e deny per default. Per lo stesso motivo, se un domani la dashboard fosse resa raggiungibile via proxy **non basta aggiungere l'IP del proxy** — equivarrebbe a consentire tutti: servirebbe prima `UseForwardedHeaders` configurato con i proxy attendibili.
 
+**I job ricorrenti si registrano con `IRecurringJobManager`, non con l'API statica `RecurringJob`.** Quest'ultima dipende da `JobStorage.Current`, che viene valorizzato solo quando qualcuno risolve `JobStorage` dal container — cosa che fa `UseHangfireDashboard`. Con la dashboard disabilitata quel passaggio non avviene e l'applicazione **non parte**, con `InvalidOperationException` in crash loop. È successo al primo rilascio in produzione: in sviluppo il codice funzionava per una dipendenza accidentale dall'ordine, perché lì la dashboard è attiva.
+
 **La dashboard va registrata prima di `UseAuthorization`.** È middleware, non un endpoint, e il `FallbackPolicy` globale (`RequireAuthenticatedUser`) respinge con 401 anche le richieste che non corrispondono ad alcun endpoint. Messa dopo, restituisce 401 senza che Hangfire venga mai interpellato — sintomo indistinguibile da un filtro che nega.
 
 **`DisplayStorageConnectionString = false`.** Il default di Hangfire è `true` e mostrerebbe la connection string nella dashboard, password inclusa.
